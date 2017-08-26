@@ -3,7 +3,7 @@ module GameLogic where
 import Prelude
 import Data.Maybe (Maybe (Nothing, Just), fromJust)
 import Data.Tuple (Tuple (Tuple), fst, snd)
-import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub)
+import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub, any)
 import Data.String (fromCharArray)
 import Partial.Unsafe (unsafePartial)
 import Data.Set as Set
@@ -17,7 +17,7 @@ type Board = Array Field
 
 data Move = Pass | Play Position Field
 
-newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color }
+newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position }
 
 derive instance eqColor :: Eq Color
 
@@ -28,7 +28,8 @@ init (Tuple w h) =
         board: newBoard,
         size: Tuple w h, 
         moveNum: 0,
-        curCol: Black
+        curCol: Black,
+        koPos: Nothing
     }
 
 fromInts :: Size -> Array Int -> State
@@ -38,7 +39,8 @@ fromInts size as =
         board: board,
         size: size,
         moveNum: 0,
-        curCol: Black
+        curCol: Black,
+        koPos: Nothing
     }
     where field i = case i of
             1 -> Just Black
@@ -74,11 +76,20 @@ neighPos (Tuple x y) =
 neighFields :: State -> Position -> Array Field
 neighFields state p = map (getField state) (neighPos p)
 
+neighWithField :: State -> Field -> Position -> Array Position
+neighWithField s field p  = filter (\n -> getField s n == field) (neighPos p)
+
 neighFriends :: State -> Position -> Array Position
 neighFriends s p = 
     case getField s p of
         Nothing -> []
-        Just color -> filter (\n -> getField s n == Just color) (neighPos p)
+        Just color -> neighWithField s (Just color) p
+
+neighEnemies :: State -> Position -> Array Position
+neighEnemies s p = 
+    case getField s p of
+        Nothing -> []
+        Just color -> neighWithField s (Just (flipColor color)) p
 
 group :: State -> Position -> Array Position
 group s p =
@@ -109,7 +120,7 @@ flipColor Black = White
 flipColor White = Black
 
 freeNeighPos :: State -> Position -> Array Position
-freeNeighPos s p = filter (\p' -> getField s p' == Nothing) (neighPos p)
+freeNeighPos s p = neighWithField s Nothing p
 
 directLiberties :: State -> Position -> Int
 directLiberties s p = length ((filter ((==) Nothing)) (neighFields s p))
@@ -120,6 +131,18 @@ liberties s p =
         Nothing -> Nothing
         Just color -> (Just <<< length <<< nub <<< concatMap (freeNeighPos s)) (group s p)
 
+testLegal :: State -> Position -> Boolean
+testLegal state@(State s) p =
+    getField state p == Nothing && s.koPos /= Just p &&
+        (
+            directLiberties state p > 0 ||
+            any ((==) (Just 1)) (map (liberties state) (neighWithField state (Just (flipColor (s.curCol))) p)) ||
+            any ((/=) (Just 1)) (map (liberties state) (neighWithField state (Just s.curCol) p))
+        )
+
+
+-- TODO: safe koPos
 makeMove :: State -> Move -> Maybe State
 makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol })
 makeMove state (Play p f) = makeMove (setField state f p) Pass
+
