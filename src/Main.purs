@@ -4,7 +4,7 @@ import Prelude (Unit, discard, show)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 
-import GameLogic (State (State), init, toString, fromInts, group, canonPos)
+import GameLogic (State (State), init, toString, fromInts, group, canonPos, liberties)
 import Data.Tuple (Tuple (Tuple))
 
 main :: forall e. Eff (console :: CONSOLE | e) Unit
@@ -20,5 +20,4 @@ main = do
                                                   0,0,0,0,0,0,0,0,0,
                                                   0,0,0,0,0,0,0,0,0 ] 
     log (toString state')
-    log (show (group state' (Tuple 0 5)))
-    log (show (canonPos s.size (Tuple 0 5)))
+    log (show (liberties state' (Tuple 3 2)))

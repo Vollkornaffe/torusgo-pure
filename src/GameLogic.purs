@@ -3,7 +3,7 @@ module GameLogic where
 import Prelude
 import Data.Maybe (Maybe (Nothing, Just), fromJust)
 import Data.Tuple (Tuple (Tuple), fst, snd)
-import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable)
+import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub)
 import Data.String (fromCharArray)
 import Partial.Unsafe (unsafePartial)
 import Data.Set as Set
@@ -108,14 +108,17 @@ flipColor :: Color -> Color
 flipColor Black = White
 flipColor White = Black
 
+freeNeighPos :: State -> Position -> Array Position
+freeNeighPos s p = filter (\p' -> getField s p' == Nothing) (neighPos p)
+
 directLiberties :: State -> Position -> Int
 directLiberties s p = length ((filter ((==) Nothing)) (neighFields s p))
 
---liberties :: State -> Position -> Maybe Int
---liberties s p =
-    --case getField s p of 
-        --Nothing -> Nothing
-        --Just color -> 
+liberties :: State -> Position -> Maybe Int
+liberties s p =
+    case getField s p of 
+        Nothing -> Nothing
+        Just color -> (Just <<< length <<< nub <<< concatMap (freeNeighPos s)) (group s p)
 
 makeMove :: State -> Move -> Maybe State
 makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol })
