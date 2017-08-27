@@ -3,7 +3,7 @@ module GameLogic where
 import Prelude
 import Data.Maybe (Maybe (Nothing, Just), fromJust)
 import Data.Tuple (Tuple (Tuple), fst, snd)
-import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub, any)
+import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub, any, foldl, all)
 import Data.String (fromCharArray)
 import Partial.Unsafe (unsafePartial)
 import Data.Set as Set
@@ -17,7 +17,8 @@ type Board = Array Field
 
 data Move = Pass | Play Position Field
 
-newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position }
+newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position, 
+                        bPrison :: Int, wPrison :: Int }
 
 derive instance eqColor :: Eq Color
 
@@ -29,7 +30,9 @@ init (Tuple w h) =
         size: Tuple w h, 
         moveNum: 0,
         curCol: Black,
-        koPos: Nothing
+        koPos: Nothing,
+        bPrison: 0,
+        wPrison: 0
     }
 
 fromInts :: Size -> Array Int -> State
@@ -40,7 +43,9 @@ fromInts size as =
         size: size,
         moveNum: 0,
         curCol: Black,
-        koPos: Nothing
+        koPos: Nothing,
+        bPrison: 0,
+        wPrison: 0
     }
     where field i = case i of
             1 -> Just Black
@@ -140,9 +145,44 @@ testLegal state@(State s) p =
             any ((/=) (Just 1)) (map (liberties state) (neighWithField state (Just s.curCol) p))
         )
 
+capture :: State -> Array Position -> State
+capture state caps = 
+    let foldFun state'@(State s) pos = case getField state' pos of
+            Just Black -> setField (State (s { wPrison = s.wPrison + 1 })) Nothing pos
+            Just White -> setField (State (s { bPrison = s.bPrison + 1 })) Nothing pos
+            _ -> State s -- this should never happen
+    in foldl foldFun state caps
+
+-- executed before making the move, p to be played
+captures :: State -> Position -> Field -> Array Position
+captures s p (Just c) = 
+    let filterFun neighPos = ((==) (Just 1)) (liberties s neighPos)
+    in filter filterFun (neighWithField s (Just (flipColor c)) p)
+captures _ _ _ = []
+
+-- executed before making the move, p1 to be captured, p2 to be played
+testKoPos :: State -> Position -> Position -> Maybe Position
+testKoPos state@(State s) p1 p2 =
+    let f1 = Just (flipColor s.curCol)
+        f2 = Just s.curCol
+        p1_neigh = filter (\p -> canonPos s.size p /= canonPos s.size p2) (neighPos p1)
+        p2_neigh = filter (\p -> canonPos s.size p /= canonPos s.size p1) (neighPos p2)
+        p1_cols = map (getField state) p1_neigh
+        p2_cols = map (getField state) p2_neigh
+    in if all ((==) f2) p1_cols && all ((==) f1) p2_cols
+        then Just p1
+        else Nothing
 
 -- TODO: safe koPos
 makeMove :: State -> Move -> Maybe State
-makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol })
-makeMove state (Play p f) = makeMove (setField state f p) Pass
-
+makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol, koPos = Nothing })
+makeMove state (Play p f) = 
+    let toBeCap = captures state p f 
+        newKoPos = if length toBeCap /= 1 
+            then Nothing 
+            else case toBeCap !! 0 of
+                Nothing -> Nothing
+                Just capPos -> testKoPos state capPos p
+    in  case testLegal state p of
+            true  -> Nothing
+            false -> Nothing
