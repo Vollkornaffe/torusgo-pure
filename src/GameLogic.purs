@@ -176,13 +176,14 @@ testKoPos state@(State s) p1 p2 =
 -- TODO: safe koPos
 makeMove :: State -> Move -> Maybe State
 makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol, koPos = Nothing })
-makeMove state (Play p f) = 
-    let toBeCap = captures state p f 
-        newKoPos = if length toBeCap /= 1 
+makeMove state@(State s) (Play p f) = 
+    case f == Just s.curCol && testLegal state p of
+        true  -> Just (setField (capture newState toBeCap) f p)
+        false -> Nothing
+    where toBeCap = captures state p f 
+          newKoPos = if length toBeCap /= 1 
             then Nothing 
             else case toBeCap !! 0 of
                 Nothing -> Nothing
-                Just capPos -> testKoPos state capPos p
-    in  case testLegal state p of
-            true  -> Nothing
-            false -> Nothing
+                Just capPos -> testKoPos state capPos p 
+          newState = State s {moveNum = s.moveNum +1, curCol = flipColor s.curCol, koPos = newKoPos}
