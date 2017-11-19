@@ -15,7 +15,7 @@ type Field = Maybe Color
 
 type Board = Array Field
 
-data Move = Pass | Play Position Field
+data Move = Pass | Play Position
 
 newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position, 
                         bPrison :: Int, wPrison :: Int }
@@ -174,13 +174,13 @@ testKoPos state@(State s) p1 p2 =
         else Nothing
 
 -- TODO: safe koPos
-makeMove :: State -> Move -> Maybe State
-makeMove (State s) Pass = Just (State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol, koPos = Nothing })
-makeMove state@(State s) (Play p f) = 
-    case f == Just s.curCol && testLegal state p of
-        true  -> Just (setField (capture newState toBeCap) f p)
-        false -> Nothing
-    where toBeCap = captures state p f 
+makeMove :: State -> Move -> State
+makeMove (State s) Pass = State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol, koPos = Nothing }
+makeMove state@(State s) (Play p) = 
+    case testLegal state p of
+        true  -> setField (capture newState toBeCap) (Just s.curCol) p
+        false -> state
+    where toBeCap = captures state p (Just s.curCol)
           newKoPos = if length toBeCap /= 1 
             then Nothing 
             else case toBeCap !! 0 of
