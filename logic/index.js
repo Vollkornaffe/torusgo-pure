@@ -1,6 +1,6 @@
-import GameLogic from './lib/GameLogic';
-import {Tuple} from './lib/Data.Tuple';
-import Maybe from './lib/Data.Maybe';
+import GameLogic from './output/GameLogic';
+import {Tuple} from './output/Data.Tuple';
+import Maybe from './output/Data.Maybe';
 
 function Black () {
   return new GameLogic.Black
