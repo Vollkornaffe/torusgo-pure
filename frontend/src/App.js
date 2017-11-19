@@ -1,5 +1,5 @@
 import React from 'react';
-import GameLogic from './output';
+import GameLogic from 'torusgo-logic';
 
 import TextField from 'material-ui/TextField';
 import Grid from 'material-ui/Grid';

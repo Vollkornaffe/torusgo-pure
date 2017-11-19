@@ -1,6 +1,7 @@
-import GameLogic from './output/GameLogic';
-import {Tuple} from './output/Data.Tuple';
-import Maybe from './output/Data.Maybe';
+'use-strict';
+let GameLogic =  require('./output/GameLogic');
+let {Tuple} = require('./output/Data.Tuple');
+let Maybe = require('./output/Data.Maybe');
 
 function Black () {
   return new GameLogic.Black
@@ -29,7 +30,7 @@ function makeMove(state, x,y,color) {
   }
 }
 
-export default {
+module.exports = {
   init,
   makeMove,
   Black,
