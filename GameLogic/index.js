@@ -10,14 +10,14 @@ const {Nothing, Just} = DataMaybe;
 
 class State {
 
-  _state = {
-    size: null,
-    moveNum: 0,
-    koPos: null,
-    bPrison: 0,
-    wPrison: 0,
-    board: []
-  };
+  // _state =  {
+  //   size: null,
+  //   moveNum: 0,
+  //   koPos: null,
+  //   bPrison: 0,
+  //   wPrison: 0,
+  //   board: []
+  // };
 
   constructor(x, y) {
     let size = new Tuple(x, y);
@@ -183,3 +183,5 @@ function imbuePosition(p) {
 module.exports = {
   State, White, Black, Nothing
 };
+
+debugger;
