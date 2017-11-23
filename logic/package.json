@@ -1,6 +1,6 @@
 {
   "name": "torusgo-logic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TorusGO Game Logic module based on purescript",
   "main": "index.js",
   "scripts": {
@@ -16,5 +16,8 @@
       "email": "lars.helge.scheel@rwth-aachen.de"
     }
   ],
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "auto-bind": "^1.1.0"
+  }
 }

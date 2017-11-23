@@ -9,7 +9,7 @@
     "react-scripts": "1.0.17",
     "react-three-renderer": "^3.2.3",
     "three": "^0.88.0",
-    "torusgo-logic": "^1.0.0"
+    "torusgo-logic": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
