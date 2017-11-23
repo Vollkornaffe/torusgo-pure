@@ -1,6 +1,6 @@
 {
   "name": "torusgo-logic",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "TorusGO Game Logic module based on purescript",
   "main": "index.js",
   "scripts": {

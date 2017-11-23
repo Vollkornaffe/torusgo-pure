@@ -20,6 +20,10 @@ class State {
   // };
 
   constructor(x, y) {
+    if(!(typeof x === 'number' && typeof y === 'number')) {
+      throw new Error('State\'s constructor requires two numbers as arguments');
+    }
+
     let size = new Tuple(x, y);
     this._setState(GameLogic.init(size));
 
@@ -104,15 +108,7 @@ class State {
     let bPrison = this.getWhitePrisoners();
     let wPrison = this.getBlackPrisoners();
     let board = this.getFieldArray();
-    return `State: { 
-  size: ${size}, 
-  moves: ${move}, 
-  to move: ${moving}, 
-  ko position: ${ko} 
-  b prisoners: ${bPrison}, 
-  w prisoners: ${wPrison},
-  board: ${board}
-}`;
+    return `{ size: ${size}, moves: ${move}, moving: ${moving}, ko-position: ${ko}, b-prisoners: ${bPrison}, w-prisoners: ${wPrison}, board: ${board} }`;
   }
 }
 
@@ -183,5 +179,3 @@ function imbuePosition(p) {
 module.exports = {
   State, White, Black, Nothing
 };
-
-debugger;
