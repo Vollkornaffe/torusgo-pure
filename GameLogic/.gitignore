@@ -1,4 +1,6 @@
 bower_components
-output
-*.js
+node_modules
+.idea
 .pulp-cache
+
+index.test.js
