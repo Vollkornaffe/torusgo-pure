@@ -1,140 +1,50 @@
 import React from 'react';
-import GameLogic from 'torusgo-logic';
+import autoBind from 'react-autobind';
+import {Route, NavLink, HashRouter, BrowserRouter} from "react-router-dom";
 
-import TextField from 'material-ui/TextField';
-import Grid from 'material-ui/Grid';
+import {AppBar, Button, Toolbar} from "material-ui";
 
-function env () {
-  const {State, White, Black, Nothing} = GameLogic;
-
-  let state0, state1, state2, state3, state = null;
-
-  function myEval(expr) {
-    try{
-      eval(expr);
-      return myPrint();
-    } catch (err) {
-      return '';
-    }
-  }
-
-  function myPrint() {
-    let ret = '';
-    [state0, state1, state2, state3, state].forEach((s, index) => {
-      if(s instanceof State) {
-        let name = 'state' + index;
-        if(index === 4) {
-          name = 'state';
-        }
-        ret += name + ': ' + s.toString();
-      }
-    });
-    return ret;
-  }
-
-  return myEval;
-}
-
-function stringify (object) {
-  if(typeof object === 'string') {
-    return object;
-  } else {
-    try{
-      return JSON.stringify(object);
-    } catch (err) {
-      return 'Invalid: ' + err.message;
-    }
-  }
-}
-
-
+import Home from './views/home';
+import LogicTest from './views/logic-test';
+import Torus from './views/torus';
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
       height: 0,
-      width: 0,
-      value: 'state = new State(',
-      gameStates: []
+      width: 0
     };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-
-    this.eval = env();
+    autoBind(this);
   }
 
-
-
   componentWillMount() {
+    this.resize();
+    window.addEventListener('resize', this.resize);
+  }
+
+  resize() {
     this.setState({ width: window.innerWidth, height: window.innerHeight });
   }
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-    let output = this.eval(this.state.value);
-    if(output !== '' && output !== this.state.gameStates[this.state.gameStates.length-1]) {
-      this.setState({
-        gameStates: [...this.state.gameStates, output],
-        value: ''
-      });
-    } else {
-      this.setState({
-        value: ''
-      });
-    }
-
-  }
-
   render() {
-    const { classes } = this.props;
     return (
-      <div>
-        <Grid item xs={12}>
-          Available vars: <code>state, state0, state1, state2, state3</code>.
-          Available Classes: <code>State, Black, White, Nothing</code>.
-        </Grid>
-        <Grid container direction="column">
-          <Grid item xs={12}>
-            <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-              <Grid container>
-                <Grid item xs={11}>
-                  <TextField
-                    id="eval"
-                    fullWidth
-                    onChange={this.handleChange}
-                    value={this.state.value}
-                    inputProps={
-                      {
-                        style: {
-                          fontFamily: 'DejaVu Sans Mono',
-                          backgroundColor: '#EEEEEE'
-                        }
-                      }
-                    }
-                  />
-                </Grid>
-                <Grid item xs={1}>
-                  <input type={'submit'} value={'Evaluate'}/>
-                </Grid>
-              </Grid>
-            </form>
-          </Grid>
-
-          {this.state.gameStates.map((gameState, index) => {
-            return (
-              <Grid item key={index.toString()}>
-                <code>{gameState}</code>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </div>
+      <BrowserRouter>
+        <div>
+          <AppBar position={'static'}>
+            <Toolbar>
+              <NavLink to={'/home'}><Button color={'contrast'}>Home</Button></NavLink>
+              <NavLink to={'/torus'}><Button color={'contrast'}>Torus</Button></NavLink>
+              <NavLink to={'/logic_test'}><Button color={'contrast'}>Logic Test</Button></NavLink>
+            </Toolbar>
+          </AppBar>
+          <div>
+            <Route path="/home" component={Home}/>
+            <Route path="/torus" component={Torus}/>
+            <Route path="/logic_test" component={LogicTest}/>
+          </div>
+        </div>
+      </BrowserRouter>
     );
   }
 }

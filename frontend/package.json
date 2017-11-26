@@ -5,7 +5,9 @@
   "dependencies": {
     "material-ui": "^1.0.0-beta.21",
     "react": "^15.5.0",
+    "react-autobind": "^1.0.6",
     "react-dom": "^15.5.0",
+    "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.17",
     "react-three-renderer": "^3.2.3",
     "three": "^0.88.0",
