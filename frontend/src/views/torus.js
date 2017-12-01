@@ -1,5 +1,7 @@
 import React from 'react';
 
+import ogs from '../index.svg';
+
 class Torus extends React.Component {
 
   componentDidMount() {
@@ -8,10 +10,8 @@ class Torus extends React.Component {
 
   render() {
     return (
-      <div>
-        <p>
-          Torus
-        </p>
+      <div style={{backgroundColor: '#ffb98e'}}>
+          <img src={ogs} alt={'logo'} width={this.props.width} height={this.props.height}/>
       </div>
     );
   }
