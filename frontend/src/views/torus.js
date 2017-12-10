@@ -1,8 +1,16 @@
 import React from 'react';
 
 import ogs from '../index.svg';
+import TorusContainer from '../containers/TorusContainer';
 
 class Torus extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+  }
 
   componentDidMount() {
     document.title = 'TorusGO | Torus'
@@ -10,9 +18,7 @@ class Torus extends React.Component {
 
   render() {
     return (
-      <div style={{backgroundColor: '#ffb98e'}}>
-          <img src={ogs} alt={'logo'} width={this.props.width} height={this.props.height}/>
-      </div>
+      <TorusContainer />
     );
   }
 }
