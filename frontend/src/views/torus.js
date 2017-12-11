@@ -1,7 +1,7 @@
 import React from 'react';
 
 import ogs from '../index.svg';
-import TorusContainer from '../containers/TorusContainer';
+import AnimationContainer from '../containers/AnimationContainer';
 
 class Torus extends React.Component {
 
@@ -13,12 +13,12 @@ class Torus extends React.Component {
   }
 
   componentDidMount() {
-    document.title = 'TorusGO | Torus'
+    document.title = 'TorusGO | Animation'
   }
 
   render() {
     return (
-      <TorusContainer />
+      <AnimationContainer />
     );
   }
 }

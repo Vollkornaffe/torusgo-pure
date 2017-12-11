@@ -5,7 +5,7 @@ import { Vector3, Euler, Geometry, DoubleSide, } from 'three';
 /**
  * Our main class to display the torus. This only contains view code!
  */
-export default class Torus extends React.Component {
+export default class Animation extends React.Component {
 
 	static proptypes = {
 		width: PropTypes.number.isRequired,
@@ -58,7 +58,7 @@ export default class Torus extends React.Component {
 				/>
 				<group
 					position={ new Vector3( 0, 0, 0 )}
-					rotation={ new Euler( 0, 0, 0 )}
+					rotation={ new Euler( 0, 0, 2 )}
 				>
 					<mesh>
 						<geometryResource

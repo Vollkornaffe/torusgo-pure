@@ -2,13 +2,15 @@ import React from 'react';
 import * as THREE from 'three';
 import autoBind from 'react-autobind';
 
-import Torus from '../components/Torus';
+import { CustomTorusGeometry } from '../geometry/CustomTorusGeometry';
+
+import Animation from '../components/Animation';
 
 /**
  * "container" component, does not hold view code,
  * but functionality to alter the mesh, add stones etc
  */
-export default class TorusContainer extends React.Component {
+export default class AnimationContainer extends React.Component {
 
 	constructor() {
 
@@ -32,8 +34,9 @@ export default class TorusContainer extends React.Component {
 		// Expose the global THREE object for use in debugging console
 		window.THREE = THREE;
 
-		// TODO: create the initial geometry of the Torus
-		this.setState({ ...this.state, geometry: new THREE.BoxGeometry( 1, 1, 1) });
+		// TODO: create the initial geometry of the Animation
+		//this.setState({ ...this.state, geometry: new THREE.BoxGeometry( 1, 1, 1 ) });
+		this.setState({...this.state, geometry: new CustomTorusGeometry( 2, 0.5, 100, 100 ) });
 
 		// Start the game loop when this component loads
 		this.requestAnimationLoop();
@@ -74,6 +77,7 @@ export default class TorusContainer extends React.Component {
 		const oldState = this.state;
 
 		// TODO: update the state, e.g. new rotation, torus twist
+		oldState.geometry.vertices[0].add(new THREE.Vector3(0.01,0,0));
 		const newState = oldState;
 
 		this.setState( newState );
@@ -92,7 +96,7 @@ export default class TorusContainer extends React.Component {
 		// Pass the data <Game /> needs to render. Note we don't show the game
 		// until the geometry is generated
 		return <div>
-			{ geometry ? <Torus
+			{ geometry ? <Animation
 				width={ width }
 				height={ height }
 				cameraPosition={ cameraPosition }
