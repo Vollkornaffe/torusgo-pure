@@ -19,7 +19,8 @@ class App extends React.Component {
       height: 0,
       width: 0,
       contentWidth: 0,
-      contentHeight: 0
+      contentHeight: 0,
+      ready: true
     };
     autoBind(this);
   }
@@ -29,6 +30,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    this.setState({ready: true});
     this.resize();
   }
 
@@ -56,24 +58,30 @@ class App extends React.Component {
               </Toolbar>
             </AppBar>
           </div>
-
-          <div>
-            <Route path="/home"
-                   render={(props) => (
-                     <Home {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                   )}
-            />
-            <Route path="/torus"
-                   render={(props) => (
-                     <Torus {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                   )}
-            />
-            <Route path="/logic_test"
-                   render={(props) => (
-                     <LogicTest {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                   )}
-            />
-          </div>
+          {
+            this.state.ready ? (
+              <div>
+                <Route path="/home"
+                       render={(props) => (
+                         <Home {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
+                       )}
+                />
+                <Route path="/torus"
+                       render={(props) => (
+                         <Torus {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
+                       )}
+                />
+                <Route path="/logic_test"
+                       render={(props) => (
+                         <LogicTest {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
+                       )}
+                />
+              </div>
+            ) : (
+              <div>Loading...</div>
+            )
+          }
+          
         </div>
       </BrowserRouter>
     );
