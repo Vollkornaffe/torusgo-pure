@@ -15,14 +15,23 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+  
+    autoBind(this);
+    
     this.state = {
       height: 0,
       width: 0,
       contentWidth: 0,
-      contentHeight: 0,
-      ready: true
+      contentHeight: 0
     };
-    autoBind(this);
+    
+    
+    this.views = [
+      Home,
+      Torus,
+      LogicTest
+    ];
+    
   }
 
   componentWillMount() {
@@ -52,36 +61,30 @@ class App extends React.Component {
           <div ref={(appBar) => this.appBar = appBar}>
             <AppBar position={'static'} >
               <Toolbar>
-                <NavLink to={'/home'}><Button color={'contrast'}>Home</Button></NavLink>
-                <NavLink to={'/torus'}><Button color={'contrast'}>Torus</Button></NavLink>
-                <NavLink to={'/logic_test'}><Button color={'contrast'}>Logic Test</Button></NavLink>
+                {
+                  this.views.map((View) => (
+                    <NavLink to={View.navPath}>
+                      <Button color={'contrast'}>
+                        {View.navLink}
+                      </Button>
+                    </NavLink>
+                  ))
+                }
               </Toolbar>
             </AppBar>
           </div>
-          {
-            this.state.ready ? (
-              <div>
-                <Route path="/home"
-                       render={(props) => (
-                         <Home {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                       )}
+          <div>
+            {
+              this.views.map((View) => (
+                <Route
+                  path={View.navPath}
+                  render={(props) => (
+                    <View {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
+                  )}
                 />
-                <Route path="/torus"
-                       render={(props) => (
-                         <Torus {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                       )}
-                />
-                <Route path="/logic_test"
-                       render={(props) => (
-                         <LogicTest {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
-                       )}
-                />
-              </div>
-            ) : (
-              <div>Loading...</div>
-            )
-          }
-          
+              ))
+            }
+          </div>
         </div>
       </BrowserRouter>
     );

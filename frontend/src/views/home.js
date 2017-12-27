@@ -1,6 +1,8 @@
 import React from 'react';
 
 class Home extends React.Component {
+  static navPath = '/home';
+  static navLink = 'Home';
   componentDidMount() {
     document.title = 'TorusGO | Home'
   }

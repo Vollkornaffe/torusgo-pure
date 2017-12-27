@@ -62,7 +62,8 @@ class Animation {
       x: 0,
       y: 0,
       z: 0,
-      twist: 0
+      twist: 0,
+      zoom: 0
     }
   }
   
@@ -80,6 +81,10 @@ class Animation {
   
   reset() {
     this.torusGroup.rotation.set(0,0,0);
+  }
+  
+  setDelta(delta) {
+    this.delta = delta;
   }
   
   setSize(width, height) {

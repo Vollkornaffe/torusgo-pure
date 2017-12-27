@@ -2,3 +2,17 @@ body {
     margin: 0;
     overflow: hidden;
 }
+
+.torus-button {
+    font-family: monospace;
+    font-size: 12px;
+    margin: 2px;
+    width: 80px;
+    background-color: #aaaaff;
+    opacity: 0.7;
+    border-radius: 4px;
+    cursor:pointer;
+}
+.torus-button:hover {
+    opacity: 1;
+}

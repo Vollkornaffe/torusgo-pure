@@ -1,68 +1,62 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 
-import Animation from '../components/Animation';
+import Torus from '../components/torus';
+import TorusControls from '../components/torus-controls';
 
-class Torus extends React.Component {
-
+class TorusView extends React.Component {
+  static navPath = '/torus';
+  static navLink = 'Torus';
+  
   constructor(props) {
     super(props);
-    
     autoBind(this);
-  }
-
-  componentDidMount() {
-    document.title = 'TorusGO | Animation';
     
-    this.canvas = this.refs.canvas; //reference to DOM node
-    let {width, height} = this.props;
-    
-    this.animation = new Animation({
-      width: width,
-      height: height,
-      canvas: this.canvas
-    });
-    this.animation.start();
+    this.state = {
+      delta: {
+        x:0,
+        y:0,
+        z:0,
+        twist:0,
+        zoom:0
+      }
+    }
   }
   
-  componentDidUpdate(prevProps, prevState) {
-    //TODO check if w/h actually changed
-    this.animation.setSize(this.props.width, this.props.height);
+  componentDidMount() {
+    document.title = 'TorusGO | Animation';
   }
-
+  
+  
+  setDelta(object) {
+    let newDelta = {...this.state.delta};
+    for(let key in object) {
+      if(object.hasOwnProperty(key)) {
+        if(newDelta.hasOwnProperty(key)) {
+          newDelta[key] = object[key];
+        }
+      }
+    }
+    this.setState({delta: newDelta});
+  }
+  
   render() {
-    const DEFAULT_DELTA = 0.05; //rotation delta per frame
-    
     return (
       <div>
-        <div style={{position: 'fixed', height: 30}}>
-          {
-            ['x', 'y', 'z', 'twist'].map((axis) => (
-              <span key={axis}>
-                <button onMouseDown={()=>{
-                  this.animation.delta[axis] = DEFAULT_DELTA;
-                }} onMouseUp={()=>{
-                  this.animation.delta[axis] = 0;
-                }}>
-                  +{axis}
-                </button>
-                <button onMouseDown={()=>{
-                  this.animation.delta[axis] = -DEFAULT_DELTA;
-                }} onMouseUp={()=>{
-                  this.animation.delta[axis] = 0;
-                }}>
-                  -{axis}
-                </button>
-                &ensp;
-              </span>
-            ))
-          }
-          <button onClick={() => {this.animation.reset()}}>Reset</button>
-        </div>
-        <canvas ref={'canvas'} width={this.props.width} height={this.props.height}/>
+        <TorusControls
+          ref={(elem) => {this.torusControls = elem}}
+          setDelta={this.setDelta}
+          keyTarget={document}
+        />
+        <Torus
+          ref={(elem) => {this.torus = elem}}
+          width={this.props.width}
+          height={this.props.height}
+          delta={this.state.delta}
+        />
       </div>
     );
   }
 }
 
-export default Torus;
+export default TorusView;
