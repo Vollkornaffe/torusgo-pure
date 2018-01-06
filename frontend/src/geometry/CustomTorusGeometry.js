@@ -18,15 +18,32 @@ class CustomTorusGeometry extends Geometry {
     };
   
     // Indices for convenience
-    this.quadFaces = [];
+    this.adjecentFaces = []; // Vertex -> faces
+    this.quadFaces = [];     // Quads  -> Vertices
     
-    // Normals since we can compute them efficiently on the way
-    this.quadNormals = [];
+    // Local coordinate system, for rendering stones
+    this.quadCoords = [];
     
     this.initGeometry();
     this.updateGeometry();
   }
-  
+
+  /**
+   * takes Vertex indices and
+   * establishes the correct connectivity
+   * so that the triangle faces are added to geometry
+   * and also fills "adjecentFaces" & "quadFaces"
+   */
+  addFaces(a,b,c,d,idx) {
+    this.faces.push(new Face3(a,b,c));
+    let triIdA = this.faces.length-1;
+    this.faces.push(new Face3(a,c,d));
+    let triIdB = this.faces.length-1;
+    this.quadFaces[idx] = [a,b,c,d];
+
+    this.adjecentFaces[idx] = [triIdA, triIdB];
+  }
+
   /**
    * creates connectivity (faces and quadFaces)
    */
@@ -44,48 +61,16 @@ class CustomTorusGeometry extends Geometry {
 
         // generate faces and quadFaces
         if (i !== 0 && j !== 0) {
-          this.faces.push(new Face3(
-            vId - 1, vId, vId - y_seg
-          ));
-          this.faces.push(new Face3(
-            vId - 1, vId - y_seg, vId - 1 - y_seg
-          ));
-          this.quadFaces[vId] = [
-            vId, vId - y_seg, vId - 1 - y_seg, vId - 1
-          ];
+          this.addFaces(vId - y_seg, vId - 1 - y_seg, vId - 1, vId,  vId);
 
           if (j === y_seg - 1) {
-            this.faces.push(new Face3(
-              vId, vId - y_seg + 1, vId - y_seg - y_seg + 1
-            ));
-            this.faces.push(new Face3(
-              vId, vId - y_seg - y_seg + 1, vId - y_seg
-            ));
-            this.quadFaces[vId - y_seg + 1] = [
-              vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg
-            ];
+            this.addFaces(vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg, vId);
           }
           if (i === x_seg - 1) {
-            this.faces.push(new Face3(
-              j - 1, j, vId
-            ));
-            this.faces.push(new Face3(
-              j - 1, vId, vId - 1
-            ));
-            this.quadFaces[j] = [
-              j, j - 1, vId, vId - 1
-            ];
+            this.addFaces(vId, vId - 1,j - 1, j,  vId);
           }
           if (i === x_seg - 1 && j === y_seg - 1) {
-            this.faces.push(new Face3(
-              j, 0, vId - y_seg + 1
-            ));
-            this.faces.push(new Face3(
-              j, vId - y_seg + 1, vId
-            ));
-            this.quadFaces[0] = [
-              0, j, vId - y_seg + 1, vId
-            ];
+            this.addFaces(vId - y_seg + 1,vId,j, 0, vId );
           }
         }
 

@@ -2,6 +2,7 @@ import React from 'react'; //TODO stop using react-three-renderer
 import autoBind from 'react-autobind';
 
 import {
+  FaceNormalsHelper,
   Vector3, WebGLRenderer, PerspectiveCamera, MeshPhongMaterial, MeshLambertMaterial, MeshStandardMaterial, Mesh,
   AmbientLight, PointLight, PointLightHelper, DirectionalLight, Group, Scene,
 } from 'three';
@@ -38,11 +39,12 @@ class Animation {
     this.geometry = new CustomTorusGeometry(
       2,   // radius
       0.5, // thickness
-      9,   // XSegments
-      9    // YSegments
+      19,   // XSegments
+      19    // YSegments
     );
 
     this.material = new MeshPhongMaterial();
+    //this.material.wireframe = true;
 
     this.mesh = new Mesh(this.geometry, this.material);
 
