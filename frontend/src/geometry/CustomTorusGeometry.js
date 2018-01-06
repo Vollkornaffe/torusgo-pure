@@ -34,14 +34,32 @@ class CustomTorusGeometry extends Geometry {
    * so that the triangle faces are added to geometry
    * and also fills "adjecentFaces" & "quadFaces"
    */
-  addFaces(a,b,c,d,idx) {
-    this.faces.push(new Face3(a,b,c));
-    let triIdA = this.faces.length-1;
-    this.faces.push(new Face3(a,c,d));
-    let triIdB = this.faces.length-1;
-    this.quadFaces[idx] = [a,b,c,d];
+  addFaces(vertices, idx) {
+    vertices.forEach((entry)=> {
+      if (this.adjecentFaces[entry] == undefined) {
+        this.adjecentFaces[entry] = [];
+      }
+    });
 
-    this.adjecentFaces[idx] = [triIdA, triIdB];
+    let [a,b,c,d] = vertices;
+
+    let tmp;
+
+    this.faces.push(new Face3(a,b,c));
+    tmp = 0;
+    vertices.forEach((entry)=> {
+      this.adjecentFaces[entry].push([tmp, this.faces.length-1]);
+      tmp++;
+    });
+
+    this.faces.push(new Face3(a,c,d));
+    tmp = 0;
+    vertices.forEach((entry)=> {
+      this.adjecentFaces[entry].push([tmp, this.faces.length-1]);
+      tmp++;
+    });
+
+    this.quadFaces[idx] = [a,b,c,d];
   }
 
   /**
@@ -61,16 +79,16 @@ class CustomTorusGeometry extends Geometry {
 
         // generate faces and quadFaces
         if (i !== 0 && j !== 0) {
-          this.addFaces(vId - y_seg, vId - 1 - y_seg, vId - 1, vId,  vId);
+          this.addFaces([vId - y_seg, vId - 1 - y_seg, vId - 1, vId], vId);
 
           if (j === y_seg - 1) {
-            this.addFaces(vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg, vId);
+            this.addFaces([vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg], vId);
           }
           if (i === x_seg - 1) {
-            this.addFaces(vId, vId - 1,j - 1, j,  vId);
+            this.addFaces([vId, vId - 1,j - 1, j], vId);
           }
           if (i === x_seg - 1 && j === y_seg - 1) {
-            this.addFaces(vId - y_seg + 1,vId,j, 0, vId );
+            this.addFaces([vId - y_seg + 1,vId,j, 0], vId);
           }
         }
 
@@ -87,6 +105,8 @@ class CustomTorusGeometry extends Geometry {
    * should be called whenever the twist parameter is changed
    */
   updateGeometry = function () {
+    // vertex id
+    let vId = 0;
 
     // for conviniece
     let x_seg = this.parameters.XSegments;
@@ -114,22 +134,39 @@ class CustomTorusGeometry extends Geometry {
 
         // individual vertex positions
         let newPos = new Vector3();
+        // individual vertex normals
+        let newNor = new Vector3();
 
         // first copy the ring position
         newPos.copy(offset);
+        newNor.copy(offset);
 
         // then put it at the disired radius, in y-direction
         newPos.addScaledVector(y_ax, this.parameters.radius);
 
         // and rotate it around the x-axis to get to the final position
         newPos.applyAxisAngle(x_ax, j_rad);
+        newNor.applyAxisAngle(x_ax, j_rad);
 
+        // Position: DONE
         this.vertices.push(newPos);
+
+        newNor.normalize();
+        this.adjecentFaces[vId].forEach(([localIdx, faceIdx])=> {
+          this.faces[faceIdx].vertexNormals[localIdx] = newNor;
+          this.faces[faceIdx].normal.add(newNor);
+        });
+
+        vId++;
       }
     }
 
+    this.faces.forEach((face)=> {
+      face.normal.normalize();
+    });
+
     this.verticesNeedUpdate = true;
-    this.computeVertexNormals();
+    //this.computeVertexNormals();
   }
 }
 
