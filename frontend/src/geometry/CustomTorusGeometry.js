@@ -168,6 +168,7 @@ class CustomTorusGeometry extends Geometry {
     });
 
     this.verticesNeedUpdate = true;
+    this.normalsNeedUpdate = true;
     //this.computeVertexNormals();
   }
 }
