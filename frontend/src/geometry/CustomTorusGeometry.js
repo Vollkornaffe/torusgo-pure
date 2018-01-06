@@ -44,24 +44,48 @@ class CustomTorusGeometry extends Geometry {
 
 				// generate faces and quadFaces
 				if (i !== 0 && j !== 0) {
-					this.faces.push(new Face3(vId, vId - 1, vId - y_seg));
-					this.faces.push(new Face3(vId - 1, vId - y_seg, vId - 1 - y_seg));
-					this.quadFaces[vId] = [vId, vId - 1, vId - y_seg, vId - 1 - y_seg];
+					this.faces.push(new Face3(
+						vId - 1, vId, vId - y_seg
+					));
+					this.faces.push(new Face3(
+						vId - 1, vId - y_seg, vId - 1 - y_seg
+					));
+					this.quadFaces[vId] = [
+						vId, vId - y_seg, vId - 1 - y_seg, vId - 1
+					];
 
 					if (j === y_seg - 1) {
-						this.faces.push(new Face3(vId - y_seg + 1, vId, vId - y_seg - y_seg + 1));
-						this.faces.push(new Face3(vId, vId - y_seg - y_seg + 1, vId - y_seg));
-						this.quadFaces[vId - y_seg + 1] = [vId - y_seg + 1, vId, vId - y_seg - y_seg + 1, vId - y_seg];
+						this.faces.push(new Face3(
+							vId, vId - y_seg + 1, vId - y_seg - y_seg + 1
+						));
+						this.faces.push(new Face3(
+							vId, vId - y_seg - y_seg + 1, vId - y_seg
+						));
+						this.quadFaces[vId - y_seg + 1] = [
+							vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg
+						];
 					}
 					if (i === x_seg - 1) {
-						this.faces.push(new Face3(j, j - 1, vId));
-						this.faces.push(new Face3(j - 1, vId, vId - 1));
-						this.quadFaces[j] = [j, j - 1, vId, vId - 1];
+						this.faces.push(new Face3(
+							j - 1, j, vId
+						));
+						this.faces.push(new Face3(
+							j - 1, vId, vId - 1
+						));
+						this.quadFaces[j] = [
+							j, j - 1, vId, vId - 1
+						];
 					}
 					if (i === x_seg - 1 && j === y_seg - 1) {
-						this.faces.push(new Face3(0, j, vId - y_seg + 1));
-						this.faces.push(new Face3(j, vId - y_seg + 1, vId));
-						this.quadFaces[0] = [0, j, vId - y_seg + 1, vId];
+						this.faces.push(new Face3(
+							j, 0, vId - y_seg + 1
+						));
+						this.faces.push(new Face3(
+							j, vId - y_seg + 1, vId
+						));
+						this.quadFaces[0] = [
+							0, j, vId - y_seg + 1, vId
+						];
 					}
 				}
 
@@ -120,6 +144,7 @@ class CustomTorusGeometry extends Geometry {
 		}
 
 		this.verticesNeedUpdate = true;
+		this.computeVertexNormals();
 	}
 }
 
