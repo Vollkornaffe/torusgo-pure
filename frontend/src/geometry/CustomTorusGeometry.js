@@ -63,7 +63,7 @@ class CustomTorusGeometry extends Geometry {
   }
 
   /**
-   * creates connectivity (faces and quadFaces)
+   * creates connectivity (vertices, faces and quadFaces)
    */
   initGeometry() {
 
@@ -76,6 +76,8 @@ class CustomTorusGeometry extends Geometry {
 
     for (let i = 0; i < x_seg; i++) {
       for (let j = 0; j < y_seg; j++) {
+
+        this.vertices.push(new Vector3());
 
         // generate faces and quadFaces
         if (i !== 0 && j !== 0) {
@@ -149,7 +151,7 @@ class CustomTorusGeometry extends Geometry {
         newNor.applyAxisAngle(x_ax, j_rad);
 
         // Position: DONE
-        this.vertices.push(newPos);
+        this.vertices[vId].copy(newPos);
 
         newNor.normalize();
         this.adjecentFaces[vId].forEach(([localIdx, faceIdx])=> {

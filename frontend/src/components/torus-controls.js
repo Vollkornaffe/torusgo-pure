@@ -53,6 +53,21 @@ class TorusControlPanel extends React.Component {
         >
           y+ <b>(d)</b>
         </TorusAction>
+        <br />
+        <TorusAction
+          start={()=> setDelta({twist: DELTA}) }
+          stop={()=> setDelta({twist: 0}) }
+          keyContext={new KeyContext('z', keyTarget)}
+        >
+          twist+ <b>(z)</b>
+        </TorusAction>
+        <TorusAction
+          start={()=> setDelta({twist: -DELTA}) }
+          stop={()=> setDelta({twist: 0}) }
+          keyContext={new KeyContext('x', keyTarget)}
+        >
+          twist- <b>(x)</b>
+        </TorusAction>
       </div>
     );
   }
