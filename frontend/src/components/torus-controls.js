@@ -1,10 +1,11 @@
+'use strict';
 import React from 'react';
 import KeyContext from './key';
 
 const DELTA = 0.05;
 
 class TorusControlPanel extends React.Component {
-  
+
   render() {
     const {keyTarget, setDelta} = this.props;
     
@@ -55,14 +56,14 @@ class TorusControlPanel extends React.Component {
         </TorusAction>
         <br />
         <TorusAction
-          start={()=> setDelta({twist: DELTA}) }
+          start={()=> setDelta({twist: DELTA*0.1}) }
           stop={()=> setDelta({twist: 0}) }
           keyContext={new KeyContext('z', keyTarget)}
         >
           twist+ <b>(z)</b>
         </TorusAction>
         <TorusAction
-          start={()=> setDelta({twist: -DELTA}) }
+          start={()=> setDelta({twist: -DELTA*0.1}) }
           stop={()=> setDelta({twist: 0}) }
           keyContext={new KeyContext('x', keyTarget)}
         >

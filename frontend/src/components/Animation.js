@@ -1,14 +1,68 @@
+'use strict';
 import React from 'react'; //TODO stop using react-three-renderer
 import autoBind from 'react-autobind';
 
 import {
-  FaceNormalsHelper,
-  Vector3, WebGLRenderer, PerspectiveCamera, MeshPhongMaterial, MeshLambertMaterial, MeshStandardMaterial, Mesh,
+  FaceNormalsHelper, Raycaster, Vector2, Vector3,
+  WebGLRenderer, PerspectiveCamera,
+  MeshFaceMaterial, MeshPhongMaterial, MeshLambertMaterial, MeshStandardMaterial, Mesh,
   AmbientLight, PointLight, PointLightHelper, DirectionalLight, Group, Scene,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
 
+/**
+ * maybe solution to the memory leaks
+ */
+function disposeNode (node)
+{
+  if (node instanceof Mesh)
+  {
+    if (node.geometry)
+    {
+      node.geometry.dispose ();
+    }
+
+    if (node.material)
+    {
+      if (node.material instanceof MeshFaceMaterial)
+      {
+        node.material.materials.forEach((mtrl)=>
+        {
+          if (mtrl.map)           mtrl.map.dispose ();
+          if (mtrl.lightMap)      mtrl.lightMap.dispose ();
+          if (mtrl.bumpMap)       mtrl.bumpMap.dispose ();
+          if (mtrl.normalMap)     mtrl.normalMap.dispose ();
+          if (mtrl.specularMap)   mtrl.specularMap.dispose ();
+          if (mtrl.envMap)        mtrl.envMap.dispose ();
+
+          mtrl.dispose ();    // disposes any programs associated with the material
+        });
+      }
+      else
+      {
+        if (node.material.map)          node.material.map.dispose ();
+        if (node.material.lightMap)     node.material.lightMap.dispose ();
+        if (node.material.bumpMap)      node.material.bumpMap.dispose ();
+        if (node.material.normalMap)    node.material.normalMap.dispose ();
+        if (node.material.specularMap)  node.material.specularMap.dispose ();
+        if (node.material.envMap)       node.material.envMap.dispose ();
+
+        node.material.dispose ();   // disposes any programs associated with the material
+      }
+    }
+  }
+}   // disposeNode
+
+function disposeHierarchy (node, callback)
+{
+  for (var i = node.children.length - 1; i >= 0; i--)
+  {
+    var child = node.children[i];
+    disposeHierarchy (child, callback);
+    callback (child);
+  }
+}
 
 /**
  * Our main class to display the torus. This only contains view code!
@@ -38,9 +92,9 @@ class Animation {
 
     this.geometry = new CustomTorusGeometry(
       2,   // radius
-      0.5, // thickness
-      19,   // XSegments
-      19    // YSegments
+      1.5, // thickness
+      100,   // XSegments
+      100    // YSegments
     );
 
     this.material = new MeshPhongMaterial();
@@ -60,6 +114,15 @@ class Animation {
 
     this.torusGroup = new Group();
     this.torusGroup.add(this.mesh);
+
+    this.raycaster = new Raycaster();
+    this.mouse = new Vector2();
+
+    this.onMouseMove = (event)=> {
+      this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    };
+    window.addEventListener('mousemove', this.onMouseMove, false);
 
     this.scene = new Scene();
     this.scene.add(this.torusGroup);
@@ -87,12 +150,19 @@ class Animation {
   }
 
   stop() {
+    window.removeEventListener('mousemove', this.onMouseMove);
     cancelAnimationFrame(this.animationHandler);
     this.playing = false;
+    this.renderer.dispose();
+    while(this.scene.children.length > 0){
+      disposeHierarchy(this.scene.children[0], disposeNode);
+      this.scene.remove(this.scene.children[0]);
+    }
   }
 
   reset() {
     this.torusGroup.rotation.set(0,0,0);
+    this.geometry.parameters.twist = 0.0;
   }
 
   setDelta(delta) {
@@ -110,13 +180,14 @@ class Animation {
 
     //Start of animation code
 
-    // fun lights
-    this.color_timer += 0.1;
-    let red = Math.sin(0.3 * Math.floor(this.color_timer) + 0) ;
-    let grn = Math.sin(0.3 * Math.floor(this.color_timer) + 2) ;
-    let blu = Math.sin(0.3 * Math.floor(this.color_timer) + 4) ;
+    // raycasting (maybe better somewhere else!
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    let intersects = this.raycaster.intersectObject( this.mesh);
 
-    this.light.point.color.setRGB(red,grn,blu);
+    this.mesh.material.color.set( 0x00ff00 );
+    intersects.forEach((intersection)=> {
+      intersection.object.material.color.set( 0xff0000 );
+    });
 
     this.torusGroup.rotation.x += this.delta.x;
     this.torusGroup.rotation.y += this.delta.y;

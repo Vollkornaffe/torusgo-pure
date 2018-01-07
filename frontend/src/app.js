@@ -1,3 +1,4 @@
+'use strict';
 import React from 'react';
 import autoBind from 'react-autobind';
 import {Route, NavLink, HashRouter, BrowserRouter} from "react-router-dom";
@@ -62,8 +63,8 @@ class App extends React.Component {
             <AppBar position={'static'} >
               <Toolbar>
                 {
-                  this.views.map((View) => (
-                    <NavLink to={View.navPath}>
+                  this.views.map((View, i) => (
+                    <NavLink key={i} to={View.navPath}>
                       <Button color={'contrast'}>
                         {View.navLink}
                       </Button>
@@ -75,8 +76,9 @@ class App extends React.Component {
           </div>
           <div>
             {
-              this.views.map((View) => (
+              this.views.map((View, i) => (
                 <Route
+                  key={i}
                   path={View.navPath}
                   render={(props) => (
                     <View {...props} width={this.state.contentWidth} height={this.state.contentHeight} />

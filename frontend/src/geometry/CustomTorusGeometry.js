@@ -36,7 +36,7 @@ class CustomTorusGeometry extends Geometry {
    */
   addFaces(vertices, idx) {
     vertices.forEach((entry)=> {
-      if (this.adjecentFaces[entry] == undefined) {
+      if (this.adjecentFaces[entry] === undefined) {
         this.adjecentFaces[entry] = [];
       }
     });
@@ -132,7 +132,7 @@ class CustomTorusGeometry extends Geometry {
 
       // now we can spin the ring to form a complete torus!
       for (let j = 0; j < y_seg; j++) {
-        let j_rad = j / x_seg * 2 * Math.PI;
+        let j_rad = j / y_seg * 2 * Math.PI;
 
         // individual vertex positions
         let newPos = new Vector3();

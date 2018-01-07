@@ -1,3 +1,5 @@
+'use strict';
+
 import React from 'react';
 import autoBind from 'react-autobind';
 
@@ -11,7 +13,7 @@ class TorusView extends React.Component {
   constructor(props) {
     super(props);
     autoBind(this);
-    
+   alert();
     this.state = {
       delta: {
         x:0,

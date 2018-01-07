@@ -1,3 +1,4 @@
+'use strict';
 import React from 'react';
 
 import autoBind from 'react-autobind';
@@ -7,18 +8,20 @@ import Animation from '../components/Animation';
 class Torus extends React.Component {
   componentDidMount() {
     let {width, height} = this.props;
-  
+
     this.animation = new Animation({
       width: width,
       height: height,
       canvas: this.canvas
     });
-    
+
     this.animation.start();
   }
   
   componentWillUnmount() {
     this.animation.stop();
+    this.canvas = null;
+    this.animation = null;
   }
   
   componentDidUpdate(prevProps, prevState) {
