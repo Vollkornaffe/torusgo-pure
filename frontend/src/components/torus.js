@@ -32,6 +32,10 @@ class Torus extends React.Component {
     if(prevProps.delta !== this.props.delta) {
       this.animation.setDelta(this.props.delta);
     }
+
+    if(prevProps.cursor !== this.props.cursor) {
+      this.animation.setCursor(this.props.cursor);
+    }
   }
   
   render() {

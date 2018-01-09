@@ -23,7 +23,9 @@ class App extends React.Component {
       height: 0,
       width: 0,
       contentWidth: 0,
-      contentHeight: 0
+      contentHeight: 0,
+      contentX: 0,
+      contentY: 0
     };
     
     
@@ -51,7 +53,9 @@ class App extends React.Component {
       width: w,
       height: h,
       contentWidth: w,
-      contentHeight: h - this.appBar.clientHeight
+      contentHeight: h - this.appBar.clientHeight,
+      contentX: 0,
+      contentY: this.appBar.clientHeight
     });
   }
 
@@ -81,7 +85,13 @@ class App extends React.Component {
                   key={i}
                   path={View.navPath}
                   render={(props) => (
-                    <View {...props} width={this.state.contentWidth} height={this.state.contentHeight} />
+                    <View
+                      {...props}
+                      width={this.state.contentWidth}
+                      height={this.state.contentHeight}
+                      x={this.state.contentX}
+                      y={this.state.contentY}
+                    />
                   )}
                 />
               ))

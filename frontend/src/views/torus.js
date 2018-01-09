@@ -13,7 +13,6 @@ class TorusView extends React.Component {
   constructor(props) {
     super(props);
     autoBind(this);
-   alert();
     this.state = {
       delta: {
         x:0,
@@ -21,14 +20,30 @@ class TorusView extends React.Component {
         z:0,
         twist:0,
         zoom:0
+      },
+      mouse:{
+        x: 0,
+        y: 0
       }
-    }
+    };
+
   }
-  
+
   componentDidMount() {
     document.title = 'TorusGO | Animation';
+
+    //seems wrong to do this here, maybe on a different level...
+    this.torus.canvas.addEventListener('mousemove', this.onMouseMove)
   }
-  
+
+  onMouseMove(event) {
+    this.setState({
+      cursor: {
+        x: event.clientX - this.props.x,
+        y: event.clientY - this.props.y
+      }
+    });
+  }
   
   setDelta(object) {
     let newDelta = {...this.state.delta};
@@ -55,6 +70,7 @@ class TorusView extends React.Component {
           width={this.props.width}
           height={this.props.height}
           delta={this.state.delta}
+          cursor={this.state.cursor}
         />
       </div>
     );

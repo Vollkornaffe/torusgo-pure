@@ -56,9 +56,9 @@ function disposeNode (node)
 
 function disposeHierarchy (node, callback)
 {
-  for (var i = node.children.length - 1; i >= 0; i--)
+  for (let i = node.children.length - 1; i >= 0; i--)
   {
-    var child = node.children[i];
+    let child = node.children[i];
     disposeHierarchy (child, callback);
     callback (child);
   }
@@ -116,13 +116,7 @@ class Animation {
     this.torusGroup.add(this.mesh);
 
     this.raycaster = new Raycaster();
-    this.mouse = new Vector2();
-
-    this.onMouseMove = (event)=> {
-      this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-      this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    };
-    window.addEventListener('mousemove', this.onMouseMove, false);
+    this.cursor = new Vector2();
 
     this.scene = new Scene();
     this.scene.add(this.torusGroup);
@@ -169,6 +163,15 @@ class Animation {
     this.delta = delta;
   }
 
+  setCursor(cursor) {
+    this.cursor.set(
+      cursor.x * 2 / this.renderer.getSize().width - 1,
+      cursor.y * 2 / this.renderer.getSize().height - 1
+    );
+    console.log(cursor);
+    this.raycaster.setFromCamera(this.cursor, this.camera);
+  }
+
   setSize(width, height) {
     this.renderer.setSize(width, height);
     this.camera.aspect = width/height;
@@ -180,8 +183,6 @@ class Animation {
 
     //Start of animation code
 
-    // raycasting (maybe better somewhere else!
-    this.raycaster.setFromCamera(this.mouse, this.camera);
     let intersects = this.raycaster.intersectObject( this.mesh);
 
     this.mesh.material.color.set( 0x00ff00 );
