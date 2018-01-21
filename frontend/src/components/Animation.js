@@ -6,7 +6,7 @@ import {
   Raycaster, Vector2, Vector3,
   WebGLRenderer, PerspectiveCamera,
   MeshFaceMaterial, MeshPhongMaterial, Mesh,
-  AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors,
+  AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors, FaceNormalsHelper,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
@@ -93,8 +93,8 @@ class Animation {
     this.geometry = new CustomTorusGeometry(
       2,   // radius
       1.5, // thickness
-      100,   // XSegments
-      100    // YSegments
+      19,   // XSegments
+      19    // YSegments
     );
 
     this.material = new MeshPhongMaterial({ color: 0xffffff, vertexColors: FaceColors });
@@ -133,7 +133,11 @@ class Animation {
       z: 0,
       twist: 0,
       zoom: 0
-    }
+    };
+
+    this.helper = new FaceNormalsHelper( this.mesh, 2, 0x00ff00, 1 );
+
+    this.scene.add( this.helper );
   }
 
   start() {
@@ -144,7 +148,6 @@ class Animation {
   }
 
   stop() {
-    window.removeEventListener('mousemove', this.onMouseMove);
     cancelAnimationFrame(this.animationHandler);
     this.playing = false;
     this.renderer.dispose();
@@ -209,10 +212,12 @@ class Animation {
   }
 
   updateTwist() {
+    const DELTA_TWIST = 0.1;
     if(this.delta.twist) {
-      this.geometry.parameters.twist += this.delta.twist;
+      this.geometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.geometry.updateGeometry();
     }
+    this.helper.update();
   }
 
   updateRaycast() {

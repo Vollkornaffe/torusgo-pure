@@ -6,6 +6,8 @@ import autoBind from 'react-autobind';
 import Torus from '../components/torus';
 import TorusControls from '../components/torus-controls';
 
+import {State} from 'torusgo-logic';
+
 class TorusView extends React.Component {
   static navPath = '/torus';
   static navLink = 'Torus';
@@ -13,6 +15,8 @@ class TorusView extends React.Component {
   constructor(props) {
     super(props);
     autoBind(this);
+
+
     this.state = {
       delta: {
         x:0,
@@ -24,16 +28,21 @@ class TorusView extends React.Component {
       mouse:{
         x: 0,
         y: 0
-      }
-    };
+      },
+      gameState: new State(19,19),
 
+    };
   }
 
   componentDidMount() {
     document.title = 'TorusGO | Animation';
 
     //seems wrong to do this here, maybe on a different level...
-    this.torus.canvas.addEventListener('mousemove', this.onMouseMove)
+    this.torus.canvas.addEventListener('mousemove', this.onMouseMove);
+  }
+
+  componentWillUnmount() {
+    this.torus.canvas.removeEventListener('mousemove', this.onMouseMove);
   }
 
   onMouseMove(event) {
@@ -71,6 +80,9 @@ class TorusView extends React.Component {
           height={this.props.height}
           delta={this.state.delta}
           cursor={this.state.cursor}
+          setField={this.setField}
+          boardState={this.state.gameState.getFieldArray()}
+
         />
       </div>
     );
