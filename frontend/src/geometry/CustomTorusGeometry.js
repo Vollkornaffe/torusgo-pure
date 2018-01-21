@@ -2,6 +2,21 @@ import autoBind from 'react-autobind';
 
 import { Vector3, Face3, Geometry } from 'three';
 
+class Quad {
+  constructor(faces) {
+    this.faces = faces || [];
+    this.faces.forEach((face) => {
+      face.quad = this;
+    })
+  }
+
+  setColor(...args) {
+    this.faces.forEach((face) => {
+      face.color.setRGB(...args);
+    })
+  }
+}
+
 class CustomTorusGeometry extends Geometry {
 
   constructor(radius, thickness, XSegments, YSegments) {
@@ -20,7 +35,9 @@ class CustomTorusGeometry extends Geometry {
     // Indices for convenience
     this.adjecentFaces = []; // Vertex -> faces
     this.quadFaces = [];     // Quads  -> Vertices
-    
+
+    this.quads = [];
+
     // Local coordinate system, for rendering stones
     this.quadCoords = [];
     
@@ -45,25 +62,27 @@ class CustomTorusGeometry extends Geometry {
 
     let tmp;
 
-    this.faces.push(new Face3(a,b,c));
+    let face1 = new Face3(a,b,c);
+    this.faces.push(face1);
     tmp = 0;
     vertices.forEach((entry)=> {
       this.adjecentFaces[entry].push([tmp, this.faces.length-1]);
       tmp++;
     });
 
-    this.faces.push(new Face3(a,c,d));
+    let face2 = new Face3(a,c,d);
+    this.faces.push(face2);
     tmp = 0;
     vertices.forEach((entry)=> {
       this.adjecentFaces[entry].push([tmp, this.faces.length-1]);
       tmp++;
     });
 
-    this.quadFaces[idx] = [a,b,c,d];
+    this.quads[idx] = new Quad([face1, face2]);
   }
 
   /**
-   * creates connectivity (vertices, faces and quadFaces)
+   * creates connectivity (vertices, faces and quads)
    */
   initGeometry() {
 
@@ -79,7 +98,7 @@ class CustomTorusGeometry extends Geometry {
 
         this.vertices.push(new Vector3());
 
-        // generate faces and quadFaces
+        // generate faces and quads
         if (i !== 0 && j !== 0) {
           this.addFaces([vId - y_seg, vId - 1 - y_seg, vId - 1, vId], vId);
 

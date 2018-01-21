@@ -2,7 +2,7 @@
 import React from 'react';
 import KeyContext from './key';
 
-const DELTA = 0.05;
+const DELTA = 1;
 
 class TorusControlPanel extends React.Component {
 

@@ -3,10 +3,10 @@ import React from 'react'; //TODO stop using react-three-renderer
 import autoBind from 'react-autobind';
 
 import {
-  FaceNormalsHelper, Raycaster, Vector2, Vector3,
+  Raycaster, Vector2, Vector3,
   WebGLRenderer, PerspectiveCamera,
-  MeshFaceMaterial, MeshPhongMaterial, MeshLambertMaterial, MeshStandardMaterial, Mesh,
-  AmbientLight, PointLight, PointLightHelper, DirectionalLight, Group, Scene,
+  MeshFaceMaterial, MeshPhongMaterial, Mesh,
+  AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
@@ -97,7 +97,7 @@ class Animation {
       100    // YSegments
     );
 
-    this.material = new MeshPhongMaterial();
+    this.material = new MeshPhongMaterial({ color: 0xffffff, vertexColors: FaceColors });
     //this.material.wireframe = true;
 
     this.mesh = new Mesh(this.geometry, this.material);
@@ -177,14 +177,18 @@ class Animation {
   }
 
   updateRotation() {
+    const DELTA_X = 0.1;
+    const DELTA_Y = 0.1;
+    const DELTA_Z = 0.05;
+
     let pos = this.camera.position;
     let up = this.camera.up;
 
     let x = (new Vector3()).crossVectors(up, pos).normalize();
     let y = up;
 
-    pos.addScaledVector(x, this.delta.x);
-    pos.addScaledVector(y, this.delta.y);
+    pos.addScaledVector(x, this.delta.x * DELTA_X);
+    pos.addScaledVector(y, this.delta.y * DELTA_Y);
 
 
     pos.normalize();
@@ -201,7 +205,7 @@ class Animation {
 
     this.camera.lookAt(new Vector3(0, 0, 0));
 
-    up.applyAxisAngle(pos.clone().normalize(), this.delta.z);
+    up.applyAxisAngle(pos.clone().normalize(), this.delta.z * DELTA_Z);
   }
 
   updateTwist() {
@@ -213,13 +217,13 @@ class Animation {
 
   updateRaycast() {
     this.raycaster.setFromCamera(this.cursor, this.camera);
+
     let intersects = this.raycaster.intersectObject( this.mesh);
 
-    this.mesh.material.color.set( 0x00ff00 );
-    intersects.forEach((intersection)=> {
-      intersection.object.material.color.set( 0xff0000 );
-    });
-
+    if(intersects.length > 0) {
+      intersects[0].face.quad.setColor( Math.random(), Math.random(), Math.random() );
+      this.geometry.colorsNeedUpdate = true;
+    }
   }
 
   animate() {
