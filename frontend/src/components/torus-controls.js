@@ -21,7 +21,7 @@ class TorusControlPanel extends React.Component {
         <TorusAction
           start={()=> setDelta({x: DELTA}) }
           stop={()=> setDelta({x: 0}) }
-          keyContext={new KeyContext('w', keyTarget)}
+          keyContext={new KeyContext('d', keyTarget)}
         >
           x+ <b>(w)</b>
         </TorusAction>
@@ -36,21 +36,21 @@ class TorusControlPanel extends React.Component {
         <TorusAction
           start={()=> setDelta({y: -DELTA}) }
           stop={()=> setDelta({y: 0}) }
-          keyContext={new KeyContext('a', keyTarget)}
+          keyContext={new KeyContext('s', keyTarget)}
         >
           y- <b>(a)</b>
         </TorusAction>
         <TorusAction
           start={()=> setDelta({x: -DELTA}) }
           stop={()=> setDelta({x: 0}) }
-          keyContext={new KeyContext('s', keyTarget)}
+          keyContext={new KeyContext('a', keyTarget)}
         >
           x- <b>(s)</b>
         </TorusAction>
         <TorusAction
           start={()=> setDelta({y: DELTA}) }
           stop={()=> setDelta({y: 0}) }
-          keyContext={new KeyContext('d', keyTarget)}
+          keyContext={new KeyContext('w', keyTarget)}
         >
           y+ <b>(d)</b>
         </TorusAction>

@@ -87,7 +87,7 @@ class Animation {
       0.1,            // near
       1000            // far
     );
-    this.camera.position.set(0, 5, 0);
+    this.camera.position.set(5, 0, 0);
     this.camera.lookAt(new Vector3(0, 0, 0));
 
     this.geometry = new CustomTorusGeometry(
@@ -166,10 +166,8 @@ class Animation {
   setCursor(cursor) {
     this.cursor.set(
       cursor.x * 2 / this.renderer.getSize().width - 1,
-      cursor.y * 2 / this.renderer.getSize().height - 1
+      -cursor.y * 2 / this.renderer.getSize().height + 1
     );
-    console.log(cursor);
-    this.raycaster.setFromCamera(this.cursor, this.camera);
   }
 
   setSize(width, height) {
@@ -178,11 +176,43 @@ class Animation {
     this.camera.updateProjectionMatrix();
   }
 
-  animate() {
-    this.animationHandler = requestAnimationFrame(this.animate);
+  updateRotation() {
+    let pos = this.camera.position;
+    let up = this.camera.up;
 
-    //Start of animation code
+    let x = (new Vector3()).crossVectors(up, pos).normalize();
+    let y = up;
 
+    pos.addScaledVector(x, this.delta.x);
+    pos.addScaledVector(y, this.delta.y);
+
+
+    pos.normalize();
+
+    let newNormal = pos.clone();
+
+    pos.multiplyScalar(5);
+
+    let diff = newNormal.multiplyScalar(up.dot(newNormal));
+
+    up.sub(diff).normalize();
+
+    this.light.directional.position.copy(pos);
+
+    this.camera.lookAt(new Vector3(0, 0, 0));
+
+    up.applyAxisAngle(pos.clone().normalize(), this.delta.z);
+  }
+
+  updateTwist() {
+    if(this.delta.twist) {
+      this.geometry.parameters.twist += this.delta.twist;
+      this.geometry.updateGeometry();
+    }
+  }
+
+  updateRaycast() {
+    this.raycaster.setFromCamera(this.cursor, this.camera);
     let intersects = this.raycaster.intersectObject( this.mesh);
 
     this.mesh.material.color.set( 0x00ff00 );
@@ -190,14 +220,16 @@ class Animation {
       intersection.object.material.color.set( 0xff0000 );
     });
 
-    this.torusGroup.rotation.x += this.delta.x;
-    this.torusGroup.rotation.y += this.delta.y;
-    this.torusGroup.rotation.z += this.delta.z;
+  }
 
-    if(this.delta.twist) {
-      this.geometry.parameters.twist += this.delta.twist;
-      this.geometry.updateGeometry();
-    }
+  animate() {
+    this.animationHandler = requestAnimationFrame(this.animate);
+
+    //Start of animation code
+
+    this.updateRotation();
+    this.updateTwist();
+    this.updateRaycast();
 
     //End of animation code
 
