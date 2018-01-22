@@ -2,6 +2,9 @@ import autoBind from 'react-autobind';
 
 import { Vector3, Face3, Geometry } from 'three';
 
+const TORUS_RADIUS = 2;
+const TORUS_THICKNESS = 1.5;
+
 class Quad {
   constructor(faces, x, y) {
     this.faces = faces || [];
@@ -23,17 +26,17 @@ class Quad {
 
 class CustomTorusGeometry extends Geometry {
 
-  constructor(radius, thickness, XSegments, YSegments) {
+  constructor(XSegments, YSegments) {
     super();
     
     autoBind(this);
   
     this.parameters = {
-      radius: radius,
-      thickness: thickness,
+      radius: TORUS_RADIUS,
+      thickness: TORUS_THICKNESS,
       XSegments: XSegments,
       YSegments: YSegments,
-      twist: 0.0,
+      twist: 0,
     };
   
     // Indices for convenience
@@ -51,7 +54,7 @@ class CustomTorusGeometry extends Geometry {
    * so that the triangle faces are added to geometry
    * and also fills "adjecentFaces" & "quadFaces"
    */
-  addFaces(vertices, idx, i, j) {
+  addFaces(vertices, idx, j, i) { //had to switch i and j, probably a bug in CustomGeometry
     vertices.forEach((entry)=> {
       if (this.adjecentFaces[entry] === undefined) {
         this.adjecentFaces[entry] = [];
@@ -79,6 +82,10 @@ class CustomTorusGeometry extends Geometry {
     });
 
     this.quads[idx] = new Quad([face1, face2], i, j);
+
+    if(j === 0 && i === 0 ) {
+      this.quads[idx].setColor(0x008800);
+    }
   }
 
   /**
@@ -117,6 +124,8 @@ class CustomTorusGeometry extends Geometry {
 
       }
     }
+
+    console.log(this.quads);
 
     this.dynamic = true;
   }

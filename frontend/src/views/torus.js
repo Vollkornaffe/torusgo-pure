@@ -6,7 +6,9 @@ import autoBind from 'react-autobind';
 import Torus from '../components/torus';
 import TorusControls from '../components/torus-controls';
 
-import {State, makeMove} from 'torusgo-logic';
+import GameController from '../logic/game-controller';
+
+import {State} from 'torusgo-logic';
 
 class TorusView extends React.Component {
   static navPath = '/torus';
@@ -15,6 +17,13 @@ class TorusView extends React.Component {
   constructor(props) {
     super(props);
     autoBind(this);
+
+    this.game = new GameController({
+      size: {
+        x: 19,
+        y: 19
+      }
+    });
 
     this.state = {
       delta: {
@@ -28,14 +37,8 @@ class TorusView extends React.Component {
         x: 0,
         y: 0
       },
-      gameState: new State(19,19),
+      gameState: this.game.getState(),
     };
-    this.state.gameState.makeMove(0,0);
-    this.state.gameState.makeMove(1,0);
-    this.state.gameState.makeMove(1,1);
-    this.state.gameState.makeMove(0,1);
-    this.state.gameState.makeMove(1,2);
-    console.log(JSON.stringify(this.state.gameState.toString()));
   }
 
   componentDidMount() {
@@ -43,6 +46,7 @@ class TorusView extends React.Component {
 
     //seems wrong to do this here, maybe on a different level...
     this.torus.canvas.addEventListener('mousemove', this.onMouseMove);
+    this.torus.canvas.addEventListener('click', this.onMouseClick);
   }
 
   componentWillUnmount() {
@@ -57,6 +61,20 @@ class TorusView extends React.Component {
       }
     });
   }
+
+  onMouseClick(event) {
+    let field = this.torus.animation.getSelectedField();
+    if(field) {
+      if(this.game.suggestMove(field.x, field.y)) {
+        this.game.makeMove(field.x,field.y);
+        this.setState({gameState: this.game.getState()});
+      } else {
+        console.log('illegal move');
+        console.log(field);
+      }
+    }
+  }
+
   
   setDelta(object) {
     let newDelta = {...this.state.delta};
@@ -84,6 +102,7 @@ class TorusView extends React.Component {
           height={this.props.height}
           delta={this.state.delta}
           cursor={this.state.cursor}
+          boardSize={this.state.gameState.getSize()}
           boardState={this.state.gameState.getFieldArray()}
         />
       </div>

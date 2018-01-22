@@ -12,6 +12,10 @@ import {
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
 
+
+
+
+
 /**
  * maybe solution to the memory leaks
  */
@@ -65,6 +69,31 @@ function disposeHierarchy (node, callback)
   }
 }
 
+
+
+const DELTA_X = 0.1;
+const DELTA_Y = 0.1;
+const DELTA_Z = 0.05;
+
+const DELTA_TWIST = 0.1;
+
+const CAMERA_RADIUS = 5;
+const CAMERA_FOV = 75;
+const CAMERA_NEAR = 0.1;
+const CAMERA_FAR = 1000;
+
+const LIGHT_COLOR_AMBIENT = 0x333333;
+const LIGHT_COLOR_POINT = 0x000000;
+const LIGHT_COLOR_DIRECTIONAL = 0x555555;
+
+const STONE_COLOR_BLACK = 0x333333;
+const STONE_COLOR_WIHTE = 0xcccccc;
+
+const TORUS_COLOR = 0xffffff;
+
+
+const ORIGIN = new Vector3(0,0,0);
+
 /**
  * Our main class to display the torus. This only contains view code!
  */
@@ -73,64 +102,29 @@ class Animation {
   constructor(options) {
     autoBind(this);
 
+    this.boardSize = options.boardSize;
+    this.boardState = options.boardState;
+
     this.canvas = options.canvas;
 
-    const width = options.width || 100;
-    const height = options.height || 100;
+    this.width = options.width || 100;
+    this.height = options.height || 100;
 
     this.renderer = new WebGLRenderer({
       canvas: this.canvas
     });
 
-    this.camera = new PerspectiveCamera(
-      75,             // fov
-      width / height, // aspect
-      0.1,            // near
-      1000            // far
-    );
-    this.camera.position.set(5, 0, 0);
-    this.camera.lookAt(new Vector3(0, 0, 0));
+    this.scene = new Scene();
 
-    this.stoneGeometry = new BoxGeometry(0.1,0.1,0.1);
-    this.customTorusGeometry = new CustomTorusGeometry(
-      2,   // radius
-      1.5, // thickness
-      19,   // XSegments
-      19    // YSegments
-    );
+    this.initCamera();
+    this.initLights();
 
-    this.blackStoneMaterial = new MeshPhongMaterial({color: 0x333333});
-    this.whiteStoneMaterial = new MeshPhongMaterial({color: 0xcccccc});
-    this.torusMaterial = new MeshPhongMaterial({ color: 0xffffff, vertexColors: FaceColors });
-    //this.torusMaterial.wireframe = true;
-
-    this.stoneMeshes = [];
-    this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
-
-    this.light = {
-      ambient: new AmbientLight(0x333333),
-      point: new PointLight(0x000000),
-      directional: new DirectionalLight(0x555555)
-    };
-
-    this.color_timer = 0;
-    this.light.point.position.set(0, 0, 0);
-    this.light.directional.position.set(1,0,0).normalize();
-
-    this.torusGroup = new Group();
-    this.torusGroup.add(this.torusMesh);
+    this.initTorus();
+    this.initStones();
 
     this.raycaster = new Raycaster();
+
     this.cursor = new Vector2();
-
-    this.scene = new Scene();
-    this.scene.add(this.torusGroup);
-    this.scene.add(this.light.ambient);
-    this.scene.add(this.light.point);
-    this.scene.add(this.light.directional);
-    this.scene.add(this.camera);
-
-    this.playing = false;
 
     this.delta = {
       x: 0,
@@ -140,9 +134,96 @@ class Animation {
       zoom: 0
     };
 
-    //this.helper = new FaceNormalsHelper( this.torusMesh, 0.5, 0x00ff00, 1 );
+    this.selectedField = null;
 
+    this.playing = false;
+
+    this.stonesNeedUpdate = false;
+
+    //this.helper = new FaceNormalsHelper( this.torusMesh, 0.5, 0x00ff00, 1 );
     //this.scene.add( this.helper );
+  }
+
+  initCamera() {
+    this.camera = new PerspectiveCamera(CAMERA_FOV, this.width / this.height, CAMERA_NEAR, CAMERA_FAR
+    );
+    this.scene.add(this.camera);
+
+    this.camera.position.set(5, 0, 0);
+    this.camera.lookAt(ORIGIN.clone());
+  }
+
+  initLights() {
+    this.light = {
+      ambient: new AmbientLight(LIGHT_COLOR_AMBIENT),
+      directional: new DirectionalLight(LIGHT_COLOR_DIRECTIONAL)
+      //point: new PointLight(LIGHT_COLOR_POINT),
+    };
+    this.scene.add(this.light.ambient, this.light.directional /*, this.light.point */);
+
+    //this.light.point.position.set(0, 0, 0);
+    this.light.directional.position.set(1,0,0).normalize();
+
+  }
+
+  initTorus() {
+    this.torusGroup = new Group();
+    this.scene.add(this.torusGroup);
+
+    this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
+    //this.torusMaterial.wireframe = true;
+
+    this.customTorusGeometry = new CustomTorusGeometry(
+      this.boardSize.x,   // XSegments
+      this.boardSize.y    // YSegments
+    );
+
+    this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
+
+    this.torusGroup.add(this.torusMesh);
+  }
+
+  initStones() {
+    this.stoneGroup = new Group();
+    this.scene.add(this.stoneGroup);
+
+    this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
+    this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WIHTE});
+
+    this.stoneGeometry = new BoxGeometry(0.1,0.1,0.1);
+
+    this.addStones();
+  }
+
+  removeStones() {
+    let children = this.stoneGroup.children;
+    while(children.length) {
+      this.stoneGroup.remove(children[0]);
+    }
+  }
+
+  addStones() {
+    let vId = 0;
+    for (let i = 0; i < this.boardSize.x; i++) {
+      for (let j = 0; j < this.boardSize.y; j++) {
+
+        let field = this.boardState[vId];
+
+        if (!field.isEmpty()) {
+
+          let newStone = new Mesh(
+            this.stoneGeometry,
+            field.isBlack() ? this.blackStoneMaterial : this.whiteStoneMaterial
+          );
+
+          newStone.position.copy(this.customTorusGeometry.quads[vId].position);
+
+          this.stoneGroup.add(newStone);
+        }
+
+        vId++;
+      }
+    }
   }
 
   start() {
@@ -186,12 +267,14 @@ class Animation {
 
   setBoardState(boardState) {
     this.boardState = boardState;
+    this.stonesNeedUpdate = true;
+  }
+
+  getSelectedField() {
+    return this.selectedField;
   }
 
   updateRotation() {
-    const DELTA_X = 0.1;
-    const DELTA_Y = 0.1;
-    const DELTA_Z = 0.05;
 
     let pos = this.camera.position;
     let up = this.camera.up;
@@ -206,7 +289,7 @@ class Animation {
 
     let newNormal = pos.clone();
 
-    pos.multiplyScalar(5);
+    pos.multiplyScalar(CAMERA_RADIUS);
 
     let diff = newNormal.multiplyScalar(up.dot(newNormal));
 
@@ -220,45 +303,20 @@ class Animation {
   }
 
   updateTwist() {
-    const DELTA_TWIST = 0.1;
     if(this.delta.twist) {
       this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.customTorusGeometry.updateGeometry();
       //this.helper.update();
+      this.stonesNeedUpdate = true;
     }
   }
 
   updateStones() {
-    if (typeof this.boardState === 'undefined') return;
+    if(this.stonesNeedUpdate) {
+      this.stonesNeedUpdate = false;
 
-    // clean up old stones
-    this.stoneMeshes.forEach((stoneMesh) => {
-      this.scene.remove(stoneMesh);
-    });
-    this.stoneMeshes = [];
-
-    let nonempty = 0;
-    let vId = 0;
-    for (let i = 0; i < this.customTorusGeometry.parameters.XSegments; i++) {
-      for (let j = 0; j < this.customTorusGeometry.parameters.YSegments; j++) {
-        let field = this.boardState[vId];
-
-        if (field.isEmpty()) {
-        } else if (field.isBlack()) {
-          nonempty++;
-          let newStone = new Mesh(this.stoneGeometry, this.blackStoneMaterial);
-          this.stoneMeshes.push(newStone);
-          newStone.position.copy(this.customTorusGeometry.quads[vId].position);
-          this.scene.add(newStone)
-        } else {
-          nonempty++;
-          let newStone = new Mesh(this.stoneGeometry, this.whiteStoneMaterial);
-          this.stoneMeshes.push(newStone);
-          newStone.position.copy(this.customTorusGeometry.quads[vId].position);
-          this.scene.add(newStone)
-        }
-        vId++;
-      }
+      this.removeStones();
+      this.addStones();
     }
   }
 
@@ -268,8 +326,17 @@ class Animation {
     let intersects = this.raycaster.intersectObject( this.torusMesh);
 
     if(intersects.length > 0) {
-      intersects[0].face.quad.setColor( Math.random(), Math.random(), Math.random() );
-      this.customTorusGeometry.colorsNeedUpdate = true;
+      let quad = intersects[0].face.quad;
+      //quad.setColor( Math.random(), Math.random(), Math.random() );
+      //this.customTorusGeometry.colorsNeedUpdate = true;
+
+      this.selectedField = {
+        x: quad.x,
+        y: quad.y
+      };
+    } else {
+
+      this.selectedField = null;
     }
   }
 

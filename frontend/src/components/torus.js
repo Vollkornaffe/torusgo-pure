@@ -12,11 +12,14 @@ class Torus extends React.Component {
     this.animation = new Animation({
       width: width,
       height: height,
-      canvas: this.canvas
+      canvas: this.canvas,
+
+      //board properties
+      boardSize: this.props.boardSize,
+      boardState: this.props.boardState
     });
 
     this.animation.start();
-    this.animation.setBoardState(this.props.boardState);
   }
   
   componentWillUnmount() {
