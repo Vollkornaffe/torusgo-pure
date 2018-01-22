@@ -6,7 +6,7 @@ import autoBind from 'react-autobind';
 import Torus from '../components/torus';
 import TorusControls from '../components/torus-controls';
 
-import {State} from 'torusgo-logic';
+import {State, makeMove} from 'torusgo-logic';
 
 class TorusView extends React.Component {
   static navPath = '/torus';
@@ -15,7 +15,6 @@ class TorusView extends React.Component {
   constructor(props) {
     super(props);
     autoBind(this);
-
 
     this.state = {
       delta: {
@@ -30,8 +29,13 @@ class TorusView extends React.Component {
         y: 0
       },
       gameState: new State(19,19),
-
     };
+    this.state.gameState.makeMove(0,0);
+    this.state.gameState.makeMove(1,0);
+    this.state.gameState.makeMove(1,1);
+    this.state.gameState.makeMove(0,1);
+    this.state.gameState.makeMove(1,2);
+    console.log(JSON.stringify(this.state.gameState.toString()));
   }
 
   componentDidMount() {
@@ -80,9 +84,7 @@ class TorusView extends React.Component {
           height={this.props.height}
           delta={this.state.delta}
           cursor={this.state.cursor}
-          setField={this.setField}
           boardState={this.state.gameState.getFieldArray()}
-
         />
       </div>
     );

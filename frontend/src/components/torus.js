@@ -16,6 +16,7 @@ class Torus extends React.Component {
     });
 
     this.animation.start();
+    this.animation.setBoardState(this.props.boardState);
   }
   
   componentWillUnmount() {
@@ -35,6 +36,10 @@ class Torus extends React.Component {
 
     if(prevProps.cursor !== this.props.cursor) {
       this.animation.setCursor(this.props.cursor);
+    }
+
+    if (prevProps.boardState !== this.props.boardState) {
+      this.animation.setBoardState(this.props.boardState);
     }
   }
   

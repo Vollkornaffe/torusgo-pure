@@ -119,7 +119,6 @@ class CustomTorusGeometry extends Geometry {
     }
 
     this.dynamic = true;
-    console.log(this.quads);
   }
 
   /**
@@ -188,6 +187,7 @@ class CustomTorusGeometry extends Geometry {
         newPosMiddle.addScaledVector(y_ax, this.parameters.radius);
         // and rotate it around the x-axis to get to the final position
         newPos.applyAxisAngle(x_ax, j_rad);
+        newPosMiddle.applyAxisAngle(x_ax, j_rad_middle);
         newNor.applyAxisAngle(x_ax, j_rad);
         newNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
         newRotNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
