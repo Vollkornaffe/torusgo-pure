@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd purs
+./build
+cd ../js
+./build

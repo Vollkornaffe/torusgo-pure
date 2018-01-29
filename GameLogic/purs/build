@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir -p output                    # ensure purs/output exists
+mkdir -p ../js/lib                 # ensure js/lib exists
+
+pulp build
+
+cp -rpu output/* ../js/lib        # recursive, preserve, update

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p out                   # ensure purs/output exists
+npm run build               # run babel

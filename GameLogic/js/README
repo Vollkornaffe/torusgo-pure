@@ -1,0 +1,20 @@
+setup:
+    if not installed already:
+    $ npm install -g purescript pulp bower
+
+    directory purs:
+    $ bower install
+
+    directory js:
+    $ npm install
+
+content:
+    build.sh        // builds purescript js, copies output to js/lib, compiles js/src to js/out with babel
+    js
+        src         // source js files
+        out         // compiled js files (es2015)
+        lib         // compiled js files (copied from purs/output)
+        index.js    // points to out/game-logic
+    purs
+        src         // purescript source files
+        output      // compiled js files
