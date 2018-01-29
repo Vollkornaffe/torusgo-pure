@@ -10,7 +10,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "^1.0.17",
     "three": "^0.89.0",
-    "torusgo-logic": "^1.1.2"
+    "torusgo-logic": "file:../GameLogic/js"
   },
   "scripts": {
     "start": "react-scripts start",
