@@ -1,0 +1,31 @@
+{
+  "name": "torusgo-logic",
+  "version": "1.1.2",
+  "description": "TorusGO Game Logic module based on purescript",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d out",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "contributors": [
+    {
+      "name": "Lukas Schneider",
+      "email": "lukas.schneider@rwth-aachen.de"
+    },
+    {
+      "name": "Lars Scheel",
+      "email": "lars.helge.scheel@rwth-aachen.de"
+    }
+  ],
+  "babel": {
+    "presets": ["babel-preset-env"]
+  },
+  "license": "ISC",
+  "dependencies": {
+    "auto-bind": "^1.1.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
+}
