@@ -86,10 +86,10 @@ const LIGHT_COLOR_AMBIENT = 0x333333;
 const LIGHT_COLOR_POINT = 0x000000;
 const LIGHT_COLOR_DIRECTIONAL = 0x555555;
 
-const STONE_COLOR_BLACK = 0x333333;
-const STONE_COLOR_WIHTE = 0xcccccc;
+const STONE_COLOR_BLACK = 0x1a0008;
+const STONE_COLOR_WIHTE = 0xe6ffff;
 
-const TORUS_COLOR = 0xffffff;
+const TORUS_COLOR = 0xffcc66;
 
 
 const ORIGIN = new Vector3(0,0,0);
@@ -190,7 +190,7 @@ class Animation {
     this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
     this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WIHTE});
 
-    this.stoneGeometry = new BoxGeometry(0.1,0.1,0.1);
+    this.stoneGeometry = new BoxGeometry(0.2,0.2,0.2);
 
     this.addStones();
   }
@@ -207,13 +207,11 @@ class Animation {
     for (let i = 0; i < this.boardSize.x; i++) {
       for (let j = 0; j < this.boardSize.y; j++) {
 
-        let field = this.boardState[vId];
-
-        if (!field.isEmpty()) {
-
+        let curField = this.boardState[vId];
+        if (curField !== 0) {
           let newStone = new Mesh(
             this.stoneGeometry,
-            field.isBlack() ? this.blackStoneMaterial : this.whiteStoneMaterial
+            curField === 1 ? this.blackStoneMaterial : this.whiteStoneMaterial
           );
 
           newStone.position.copy(this.customTorusGeometry.quads[vId].position);

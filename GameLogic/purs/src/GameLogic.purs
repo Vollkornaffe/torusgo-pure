@@ -1,7 +1,7 @@
 module GameLogic where
 
 import Prelude
-import Data.Maybe (Maybe (Nothing, Just), fromJust)
+import Data.Maybe (Maybe (Nothing, Just), fromJust, isJust)
 import Data.Tuple (Tuple (Tuple), fst, snd)
 import Data.Array (range, (!!), concatMap, snoc, updateAt, filter, length, fromFoldable, nub, any, foldl, all)
 import Data.String (fromCharArray)
@@ -17,8 +17,18 @@ type Board = Array Field
 
 data Move = Pass | Play Position
 
-newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position, 
+newtype State = State { board :: Board, size :: Size, moveNum :: Int, curCol :: Color, koPos :: Maybe Position,
                         bPrison :: Int, wPrison :: Int }
+newtype Interface_Tuple = Interface_Tuple { x :: Int, y :: Int }
+newtype Interface_State = Interface_State {
+    board :: Array Int,
+    size :: Interface_Tuple,
+    moveNum :: Int,
+    curCol :: Int,
+    ko :: Boolean,
+    koPos :: Interface_Tuple,
+    bPrison :: Int,
+    wPrison :: Int }
 
 derive instance eqColor :: Eq Color
 
@@ -156,8 +166,9 @@ capture state caps =
 -- executed before making the move, p to be played
 captures :: State -> Position -> Field -> Array Position
 captures s p (Just c) = 
-    let filterFun neighPos = ((==) (Just 1)) (liberties s neighPos)
-    in filter filterFun (neighWithField s (Just (flipColor c)) p)
+    let filterFun adjPos = ((==) (Just 1)) (liberties s adjPos)
+        directCaps = filter filterFun (neighWithField s (Just (flipColor c)) p)
+    in nub (concatMap (group s) directCaps)
 captures _ _ _ = []
 
 -- executed before making the move, p1 to be captured, p2 to be played
@@ -173,7 +184,9 @@ testKoPos state@(State s) p1 p2 =
         then Just p1
         else Nothing
 
--- TODO: safe koPos
+-- pretty much the main function of the module
+-- if the move is legal the resulting state is returned
+-- if the move isn't legal, the given state is returned unchanged
 makeMove :: State -> Move -> State
 makeMove (State s) Pass = State s { moveNum = s.moveNum + 1, curCol = flipColor s.curCol, koPos = Nothing }
 makeMove state@(State s) (Play p) = 
@@ -187,3 +200,55 @@ makeMove state@(State s) (Play p) =
                 Nothing -> Nothing
                 Just capPos -> testKoPos state capPos p 
           newState = State s {moveNum = s.moveNum +1, curCol = flipColor s.curCol, koPos = newKoPos}
+
+---------------------------------------------------------------------------------------------------
+-- in this section, all interfacing functions are defined
+-- interfacing, as in interfacing with other "normal" javascript
+---------------------------------------------------------------------------------------------------
+
+-- converting field maybe value to common data type int
+-- just an internal helping function
+convertColor :: Color -> Int
+convertColor Black = 1
+convertColor White = 2
+
+convertField :: Field -> Int
+convertField Nothing = 0
+convertField (Just c) = convertColor c
+
+-- for initializing the state
+interface_init :: Int -> Int -> State
+interface_init x_seg y_seg = init (Tuple x_seg y_seg)
+
+
+-- testing whether a move is legal
+interface_testLegal :: State -> Int -> Int -> Boolean
+interface_testLegal s x y = testLegal s (Tuple x y)
+
+-- passing
+interface_pass :: State -> State
+interface_pass s = makeMove s Pass
+
+-- making a move
+interface_makeMove :: State -> Int -> Int -> State
+interface_makeMove s x y = makeMove s (Play (Tuple x y))
+
+-- converting the state to an ordinary JSON object
+interface_convertState :: State -> Interface_State
+interface_convertState (State s) =
+    let boardInInts = map convertField s.board
+        Tuple size_x size_y = s.size
+        unpackKo Nothing = Interface_Tuple {x: 0, y: 0}
+        unpackKo (Just (Tuple x y)) = Interface_Tuple {x: x, y: y}
+        koPos = unpackKo s.koPos
+        ko = isJust s.koPos
+    in Interface_State {
+        board: boardInInts,
+        size: Interface_Tuple { x: size_x, y: size_y},
+        moveNum: s.moveNum,
+        curCol: convertColor s.curCol,
+        ko: ko,
+        koPos: koPos,
+        bPrison: s.bPrison,
+        wPrison: s.wPrison
+    }

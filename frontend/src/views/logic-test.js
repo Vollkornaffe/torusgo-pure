@@ -1,22 +1,23 @@
 import React from 'react';
 import autoBind from 'react-autobind';
-import GameLogic from 'torusgo-logic';
+import State from '../logic/game-logic';
 
 import TextField from 'material-ui/TextField';
 import Grid from 'material-ui/Grid';
 
 
 function env () {
-  const {State, White, Black, Nothing} = GameLogic;
-
   let state0, state1, state2, state3, state = null;
 
   function myEval(expr) {
     try{
+      function newState(w, h) {
+        return new State(w, h);
+      }
       eval(expr);
       return myPrint();
     } catch (err) {
-      return '';
+      return console.log(err);
     }
   }
 
@@ -44,7 +45,7 @@ class LogicTest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 'state = new State(',
+      value: 'state = newState(9,9)',
       gameStates: []
     };
     this.eval = env();

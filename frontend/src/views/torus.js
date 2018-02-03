@@ -8,7 +8,7 @@ import TorusControls from '../components/torus-controls';
 
 import GameController from '../logic/game-controller';
 
-import {State} from 'torusgo-logic';
+import State from '../logic/game-logic';
 
 class TorusView extends React.Component {
   static navPath = '/torus';
@@ -68,6 +68,7 @@ class TorusView extends React.Component {
       if(this.game.suggestMove(field.x, field.y)) {
         this.game.makeMove(field.x,field.y);
         this.setState({gameState: this.game.getState()});
+        console.log(this.game.getBoard())
       } else {
         console.log('illegal move');
         console.log(field);
