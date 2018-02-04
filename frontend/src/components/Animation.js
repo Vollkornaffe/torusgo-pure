@@ -199,7 +199,7 @@ class Animation {
     this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
     this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WIHTE});
 
-    this.stoneGeometry = new BoxGeometry(0.2,0.2,0.2);
+    this.stoneGeometry = new BoxGeometry(0.05,0.05,0.05);
 
     this.addStones();
   }
