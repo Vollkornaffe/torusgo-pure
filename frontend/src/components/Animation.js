@@ -8,13 +8,11 @@ import {
   BoxGeometry,
   MeshFaceMaterial, MeshPhongMaterial, Mesh,
   AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors, FaceNormalsHelper,
+  LineBasicMaterial, LineSegments,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
-
-
-
-
+import TorusLinesGeometry from "../geometry/TorusLinesGeometry";
 
 /**
  * maybe solution to the memory leaks
@@ -90,6 +88,7 @@ const STONE_COLOR_BLACK = 0x1a0008;
 const STONE_COLOR_WIHTE = 0xe6ffff;
 
 const TORUS_COLOR = 0xffcc66;
+const LINE_COLOR = 0x000000;
 
 
 const ORIGIN = new Vector3(0,0,0);
@@ -172,15 +171,19 @@ class Animation {
 
     this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
     //this.torusMaterial.wireframe = true;
+    this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 });
 
     this.customTorusGeometry = new CustomTorusGeometry(
       this.boardSize.x,   // XSegments
       this.boardSize.y    // YSegments
     );
+    this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
 
     this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
+    this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
 
     this.torusGroup.add(this.torusMesh);
+    this.torusGroup.add(this.lineMesh);
   }
 
   initStones() {
@@ -304,6 +307,7 @@ class Animation {
     if(this.delta.twist) {
       this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.customTorusGeometry.updateGeometry();
+      this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
       // this.helper.update();
       this.stonesNeedUpdate = true;
     }

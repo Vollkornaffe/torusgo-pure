@@ -6,7 +6,8 @@ const TORUS_RADIUS = 2;
 const TORUS_THICKNESS = 1.5;
 
 class Quad {
-  constructor(faces, x, y) {
+  constructor(vertices, faces, x, y) {
+    this.vertices = vertices;
     this.faces = faces || [];
     this.faces.forEach((face) => {
       face.quad = this;
@@ -93,7 +94,7 @@ class CustomTorusGeometry extends Geometry {
       tmp++;
     });
 
-    this.quads[idx] = new Quad([face1, face2], i, j);
+    this.quads[idx] = new Quad(vertices, [face1, face2], i, j);
 
     if(j === 0 && i === 0 ) {
       this.quads[idx].setColor(0x008800);
@@ -104,10 +105,6 @@ class CustomTorusGeometry extends Geometry {
    * creates connectivity (vertices, faces and quads)
    */
   initGeometry() {
-
-    // vertex id
-    let vId = 0;
-
     for (let i = 0; i < this.parameters.XSegments; i++) {
       for (let j = 0; j < this.parameters.YSegments; j++) {
 
@@ -116,9 +113,9 @@ class CustomTorusGeometry extends Geometry {
         // generate faces and quads very easy
         this.addFaces([
           this.calcCanonPos(i,j),
-          this.calcCanonPos(i,j+1),
+          this.calcCanonPos(i+1,j),
           this.calcCanonPos(i+1,j+1),
-          this.calcCanonPos(i+1,j)
+          this.calcCanonPos(i,j+1)
         ], this.calcCanonPos(i,j), i, j);
 
       }
@@ -132,9 +129,6 @@ class CustomTorusGeometry extends Geometry {
    * should be called whenever the twist parameter is changed
    */
   updateGeometry () {
-    // vertex id
-    let vId = 0;
-
     // for conviniece
     let x_seg = this.parameters.XSegments;
     let y_seg = this.parameters.YSegments;
@@ -164,6 +158,8 @@ class CustomTorusGeometry extends Geometry {
 
       // now we can spin the ring to form a complete torus!
       for (let j = 0; j < y_seg; j++) {
+        let vId = this.calcCanonPos(i,j);;
+
         let j_rad = j / y_seg * 2 * Math.PI;
 
         let j_rad_middle = (j + 0.5) / y_seg * 2 * Math.PI;
@@ -208,8 +204,6 @@ class CustomTorusGeometry extends Geometry {
         this.quads[vId].position.copy(newPosMiddle);
         this.quads[vId].faces.forEach((face) => { face.normal.copy(newNorMiddle);
         });
-
-        vId++;
       }
     }
 
