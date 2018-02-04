@@ -1,6 +1,6 @@
 import autoBind from 'react-autobind';
 
-import { Vector3, Face3, Geometry } from 'three';
+import {Vector3, Face3, Geometry, Vector2} from 'three';
 
 const TORUS_RADIUS = 2;
 const TORUS_THICKNESS = 1.5;
@@ -48,7 +48,7 @@ class CustomTorusGeometry extends Geometry {
     this.adjecentFaces = []; // Vertex -> faces
 
     this.quads = [];
-    
+
     this.initGeometry();
     this.updateGeometry();
   }
@@ -121,7 +121,23 @@ class CustomTorusGeometry extends Geometry {
       }
     }
 
+    this.faceUvs = [];
+    this.faceVertexUvs = [];
+    for (let i = 0; i < this.faces.length; i++) {
+      this.faceUvs.push([]);
+      this.faceVertexUvs.push([])
+      let faceuv = [
+        new Vector2(0,1),
+        new Vector2(1,1),
+        new Vector2(1,0),
+      ];
+
+      this.faceUvs[i].push(new Vector2(0,1));
+      this.faceVertexUvs[i].push(faceuv);
+    }
+
     this.dynamic = true;
+    this.uvsNeedUpdate = true;
   }
 
   /**

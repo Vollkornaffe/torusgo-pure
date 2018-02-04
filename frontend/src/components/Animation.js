@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import autoBind from 'react-autobind';
+import textureFile from '../resources/field_with_lines.jpg';
 
 import {
   Raycaster, Vector2, Vector3,
@@ -8,7 +9,7 @@ import {
   BoxGeometry,
   MeshFaceMaterial, MeshPhongMaterial, Mesh,
   AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors, FaceNormalsHelper,
-  LineBasicMaterial, LineSegments,
+  LineBasicMaterial, LineSegments, TextureLoader, MeshBasicMaterial,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
@@ -169,14 +170,17 @@ class Animation {
     this.torusGroup = new Group();
     this.scene.add(this.torusGroup);
 
-    this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
+    this.texture = new TextureLoader().load(textureFile);
+    //this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
+    this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
     //this.torusMaterial.wireframe = true;
     this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 });
 
-    this.customTorusGeometry = new CustomTorusGeometry(
-      this.boardSize.x,   // XSegments
-      this.boardSize.y    // YSegments
-    );
+    //this.customTorusGeometry = new CustomTorusGeometry(
+    //  this.boardSize.x,   // XSegments
+    //  this.boardSize.y    // YSegments
+    //);
+    this.customTorusGeometry = new BoxGeometry(1,1,1);
     this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
 
     this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
@@ -347,9 +351,9 @@ class Animation {
     //Start of animation code
 
     this.updateRotation();
-    this.updateTwist();
-    this.updateStones();
-    this.updateRaycast();
+    //this.updateTwist();
+    //this.updateStones();
+    //this.updateRaycast();
 
     //End of animation code
 
