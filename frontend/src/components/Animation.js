@@ -304,7 +304,7 @@ class Animation {
     if(this.delta.twist) {
       this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.customTorusGeometry.updateGeometry();
-      //this.helper.update();
+      // this.helper.update();
       this.stonesNeedUpdate = true;
     }
   }
@@ -333,7 +333,6 @@ class Animation {
         y: quad.y
       };
     } else {
-
       this.selectedField = null;
     }
   }

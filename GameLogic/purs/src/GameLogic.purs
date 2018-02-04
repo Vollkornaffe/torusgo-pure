@@ -67,7 +67,7 @@ canonPos (Tuple w h) (Tuple x y) =
     let x_mod = mod x w
         y_mod = mod y h
         x_mod_abs = if x_mod >= 0 then x_mod else w + x_mod
-        y_mod_abs = if y_mod >= 0 then y_mod else w + y_mod
+        y_mod_abs = if y_mod >= 0 then y_mod else h + y_mod
     in x_mod_abs + w * y_mod_abs
 
 getField :: State -> Position -> Field

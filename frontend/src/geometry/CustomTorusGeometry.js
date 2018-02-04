@@ -11,8 +11,12 @@ class Quad {
     this.faces.forEach((face) => {
       face.quad = this;
     });
-    this.coordSystem = {};
-    this.position = {};
+    this.coordSystem = {
+      x: new Vector3(),
+      y: new Vector3(),
+      z: new Vector3()
+    };
+    this.position = new Vector3();
     this.x = x;
     this.y = y;
   }
@@ -48,13 +52,21 @@ class CustomTorusGeometry extends Geometry {
     this.updateGeometry();
   }
 
+  calcCanonPos (x,y) {
+    let x_mod = x % this.parameters.XSegments;
+    let y_mod = y % this.parameters.YSegments;
+    let x_mod_abs = x_mod >= 0 ? x_mod : this.parameters.XSegments + x_mod;
+    let y_mod_abs = y_mod >= 0 ? y_mod : this.parameters.YSegments + y_mod;
+    return x_mod_abs + this.parameters.XSegments * y_mod_abs;
+  }
+
   /**
    * takes Vertex indices and
    * establishes the correct connectivity
    * so that the triangle faces are added to geometry
    * and also fills "adjecentFaces" & "quadFaces"
    */
-  addFaces(vertices, idx, j, i) { //had to switch i and j, probably a bug in CustomGeometry
+  addFaces(vertices, idx, i, j) {
     vertices.forEach((entry)=> {
       if (this.adjecentFaces[entry] === undefined) {
         this.adjecentFaces[entry] = [];
@@ -96,36 +108,21 @@ class CustomTorusGeometry extends Geometry {
     // vertex id
     let vId = 0;
 
-    // for conveniece
-    let x_seg = this.parameters.XSegments;
-    let y_seg = this.parameters.YSegments;
-
-    for (let i = 0; i < x_seg; i++) {
-      for (let j = 0; j < y_seg; j++) {
+    for (let i = 0; i < this.parameters.XSegments; i++) {
+      for (let j = 0; j < this.parameters.YSegments; j++) {
 
         this.vertices.push(new Vector3());
 
-        // generate faces and quads
-        if (i !== 0 && j !== 0) {
-          this.addFaces([vId - y_seg, vId - 1 - y_seg, vId - 1, vId], vId - 1 - y_seg, i-1, j-1);
-
-          if (j === y_seg - 1) {
-            this.addFaces([vId, vId - y_seg + 1, vId - y_seg - y_seg + 1, vId - y_seg], vId - y_seg, i-1, j);
-          }
-          if (i === x_seg - 1) {
-            this.addFaces([vId, vId - 1,j - 1, j], vId - 1, i, j-1);
-          }
-          if (i === x_seg - 1 && j === y_seg - 1) {
-            this.addFaces([vId - y_seg + 1,vId,j, 0], vId, i, j);
-          }
-        }
-
-        vId++;
+        // generate faces and quads very easy
+        this.addFaces([
+          this.calcCanonPos(i,j),
+          this.calcCanonPos(i,j+1),
+          this.calcCanonPos(i+1,j+1),
+          this.calcCanonPos(i+1,j)
+        ], this.calcCanonPos(i,j), i, j);
 
       }
     }
-
-    console.log(this.quads);
 
     this.dynamic = true;
   }
@@ -204,14 +201,12 @@ class CustomTorusGeometry extends Geometry {
         // Position: DONE
         this.vertices[vId].copy(newPos);
 
-        this.quads[vId].coordSystem = {
-          x: newRotNorMiddle,
-          y: (new Vector3()).crossVectors(newNorMiddle, newRotNorMiddle),
-          z: newNorMiddle
-        };
-        this.quads[vId].position = newPosMiddle;
-        this.quads[vId].faces.forEach((face) => {
-          face.normal.copy(newNorMiddle);
+        this.quads[vId].coordSystem.x.copy(newRotNorMiddle);
+        this.quads[vId].coordSystem.y.crossVectors(newNorMiddle, newRotNorMiddle);
+        this.quads[vId].coordSystem.z.copy(newNorMiddle);
+
+        this.quads[vId].position.copy(newPosMiddle);
+        this.quads[vId].faces.forEach((face) => { face.normal.copy(newNorMiddle);
         });
 
         vId++;
