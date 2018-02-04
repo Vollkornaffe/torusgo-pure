@@ -48,6 +48,16 @@ class CustomTorusGeometry extends Geometry {
     this.adjecentFaces = []; // Vertex -> faces
 
     this.quads = [];
+    this.face1UV = [
+      new Vector2(0, 0),
+      new Vector2(1, 0),
+      new Vector2(1, 1),
+    ];
+    this.face2UV = [
+      new Vector2(0, 0),
+      new Vector2(1, 1),
+      new Vector2(0, 1),
+    ];
 
     this.initGeometry();
     this.updateGeometry();
@@ -121,19 +131,13 @@ class CustomTorusGeometry extends Geometry {
       }
     }
 
-    this.faceUvs = [];
-    this.faceVertexUvs = [];
+    this.faceVertexUvs = [[]];
     for (let i = 0; i < this.faces.length; i++) {
-      this.faceUvs.push([]);
-      this.faceVertexUvs.push([])
-      let faceuv = [
-        new Vector2(0,1),
-        new Vector2(1,1),
-        new Vector2(1,0),
-      ];
-
-      this.faceUvs[i].push(new Vector2(0,1));
-      this.faceVertexUvs[i].push(faceuv);
+      if (i%2 == 0) {
+        this.faceVertexUvs[0].push(this.face1UV);
+      } else {
+        this.faceVertexUvs[0].push(this.face2UV);
+      }
     }
 
     this.dynamic = true;

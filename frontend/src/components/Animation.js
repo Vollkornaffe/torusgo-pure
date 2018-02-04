@@ -174,20 +174,22 @@ class Animation {
     //this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
     this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
     //this.torusMaterial.wireframe = true;
-    this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 });
+    //this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 });
 
-    //this.customTorusGeometry = new CustomTorusGeometry(
-    //  this.boardSize.x,   // XSegments
-    //  this.boardSize.y    // YSegments
-    //);
-    this.customTorusGeometry = new BoxGeometry(1,1,1);
-    this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
+    this.customTorusGeometry = new CustomTorusGeometry(
+      this.boardSize.x,   // XSegments
+      this.boardSize.y    // YSegments
+    );
+    //this.customTorusGeometry = new BoxGeometry(1,1,1);
+    console.log(this.customTorusGeometry.faceVertexUvs);
+    console.log(this.customTorusGeometry.faceUvs);
+    //this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
 
     this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
-    this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
+    //this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
 
     this.torusGroup.add(this.torusMesh);
-    this.torusGroup.add(this.lineMesh);
+    //this.torusGroup.add(this.lineMesh);
   }
 
   initStones() {
@@ -311,7 +313,7 @@ class Animation {
     if(this.delta.twist) {
       this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.customTorusGeometry.updateGeometry();
-      this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
+      //this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
       // this.helper.update();
       this.stonesNeedUpdate = true;
     }
@@ -351,9 +353,9 @@ class Animation {
     //Start of animation code
 
     this.updateRotation();
-    //this.updateTwist();
-    //this.updateStones();
-    //this.updateRaycast();
+    this.updateTwist();
+    this.updateStones();
+    this.updateRaycast();
 
     //End of animation code
 
