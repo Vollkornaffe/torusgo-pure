@@ -70,6 +70,14 @@ canonPos (Tuple w h) (Tuple x y) =
         y_mod_abs = if y_mod >= 0 then y_mod else h + y_mod
     in x_mod_abs + w * y_mod_abs
 
+canonPos2 :: Size -> Position -> Position
+canonPos2 (Tuple w h) (Tuple x y) =
+    let x_mod = mod x w
+        y_mod = mod y h
+        x_mod_abs = if x_mod >= 0 then x_mod else w + x_mod
+        y_mod_abs = if y_mod >= 0 then y_mod else h + y_mod
+    in Tuple x_mod_abs y_mod_abs
+
 getField :: State -> Position -> Field
 getField (State s) p = 
     let idx = canonPos s.size p
@@ -81,18 +89,23 @@ setField (State s) field p =
         board' = unsafePartial (fromJust (updateAt idx field s.board))
     in State (s { board = board' })
 
+-- carefull, this one doesn't return canonical tuples
+-- consider using canonNeighPos
 neighPos :: Position -> Array Position
-neighPos (Tuple x y) = 
+neighPos (Tuple x y) =
     [ Tuple x (y+1),
       Tuple (x+1) y,
       Tuple x (y-1),
       Tuple (x-1) y ]
 
+canonNeighPos :: Size -> Position -> Array Position
+canonNeighPos s p = map (canonPos2 s) (neighPos p)
+
 neighFields :: State -> Position -> Array Field
-neighFields state p = map (getField state) (neighPos p)
+neighFields state@(State s) p = map (getField state) (canonNeighPos s.size p)
 
 neighWithField :: State -> Field -> Position -> Array Position
-neighWithField s field p  = filter (\n -> getField s n == field) (neighPos p)
+neighWithField state@(State s) field p  = filter (\n -> getField state n == field) (canonNeighPos s.size p)
 
 neighFriends :: State -> Position -> Array Position
 neighFriends s p = 
@@ -107,10 +120,11 @@ neighEnemies s p =
         Just color -> neighWithField s (Just (flipColor color)) p
 
 group :: State -> Position -> Array Position
-group s p =
-    case getField s p of
+group s@(State s') p =
+    let setCanonP = (Set.singleton (canonPos2 s'.size p))
+    in case getField s p of
         Nothing -> []
-        Just color -> fromFoldable (step (Set.singleton p) (Set.singleton p))
+        Just color -> fromFoldable (step setCanonP setCanonP)
     where
         step mem newMem =
             let newMemArray   = fromFoldable newMem
