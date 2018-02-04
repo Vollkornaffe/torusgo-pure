@@ -8,7 +8,7 @@ import TorusControls from '../components/torus-controls';
 
 import GameController from '../logic/game-controller';
 
-import State from '../logic/game-logic';
+import {State} from 'torusgo-logic';
 
 class TorusView extends React.Component {
   static navPath = '/torus';

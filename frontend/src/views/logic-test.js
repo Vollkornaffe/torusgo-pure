@@ -1,6 +1,6 @@
 import React from 'react';
 import autoBind from 'react-autobind';
-import State from '../logic/game-logic';
+import {State} from 'torusgo-logic';
 
 import TextField from 'material-ui/TextField';
 import Grid from 'material-ui/Grid';

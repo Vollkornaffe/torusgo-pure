@@ -1,5 +1,5 @@
 import autoBind from 'react-autobind';
-import State from './game-logic';
+import {State} from 'torusgo-logic';
 
 class GameController {
   constructor(options) {
