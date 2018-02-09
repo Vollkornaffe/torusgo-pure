@@ -20,8 +20,8 @@ class TorusView extends React.Component {
 
     this.game = new GameController({
       size: {
-        x: 9,
-        y: 9
+        x: 19,
+        y: 19
       }
     });
 

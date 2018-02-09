@@ -199,7 +199,7 @@ class Animation {
     this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
     this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WIHTE});
 
-    this.stoneGeometry = new BoxGeometry(0.5,0.5,0.5);
+    this.stoneGeometry = new BoxGeometry(1,1,1);
 
     this.addStones();
   }
@@ -231,6 +231,8 @@ class Animation {
 
           //newStone.position.copy(this.customTorusGeometry.quads[vId].position);
           newStone.position.copy(this.customTorusGeometry.quads[vId].discreteMid);
+          let newScale = this.customTorusGeometry.quads[vId].discreteScale;
+          newStone.scale.set(newScale, newScale, newScale);
 
           this.stoneGroup.add(newStone);
         }

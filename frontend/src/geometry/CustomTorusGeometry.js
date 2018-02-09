@@ -180,6 +180,8 @@ class CustomTorusGeometry extends Geometry {
       quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[1]], 0.25);
       quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[2]], 0.25);
       quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[3]], 0.25);
+
+      quad.discreteScale = quad.discreteMid.distanceTo(quad.discreteEdgeX);
     });
   }
 
