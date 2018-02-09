@@ -18,6 +18,8 @@ class Quad {
       z: new Vector3()
     };
     this.position = new Vector3();
+    this.edgePosX = new Vector3();
+    this.edgePosY = new Vector3();
     this.x = x;
     this.y = y;
   }
@@ -171,8 +173,8 @@ class CustomTorusGeometry extends Geometry {
         0
       );
       let offset_middle = new Vector3(
-        this.parameters.thickness * Math.cos(i_rad_middle) * 1.01,
-        this.parameters.thickness * Math.sin(i_rad_middle) * 1.01,
+        this.parameters.thickness * Math.cos(i_rad_middle),
+        this.parameters.thickness * Math.sin(i_rad_middle),
         0
       );
 
@@ -181,12 +183,13 @@ class CustomTorusGeometry extends Geometry {
         let vId = this.calcCanonPos(i,j);;
 
         let j_rad = j / y_seg * 2 * Math.PI;
-
         let j_rad_middle = (j + 0.5) / y_seg * 2 * Math.PI;
 
         // individual vertex positions
         let newPos = new Vector3();
         let newPosMiddle = new Vector3();
+        let newPosEdgeX = new Vector3();
+        let newPosEdgeY = new Vector3();
         // individual vertex normals
         let newNor = new Vector3();
         let newNorMiddle = new Vector3();
@@ -194,6 +197,8 @@ class CustomTorusGeometry extends Geometry {
         // first copy the ring position
         newPos.copy(offset);
         newPosMiddle.copy(offset_middle);
+        newPosEdgeX.copy(offset_middle);
+        newPosEdgeY.copy(offset);
 
         newNor.copy(offset).normalize();
         newNorMiddle.copy(offset_middle).normalize();
@@ -207,9 +212,14 @@ class CustomTorusGeometry extends Geometry {
         // then put it at the disired radius, in y-direction
         newPos.addScaledVector(y_ax, this.parameters.radius);
         newPosMiddle.addScaledVector(y_ax, this.parameters.radius);
+        newPosEdgeX.addScaledVector(y_ax, this.parameters.radius);
+        newPosEdgeY.addScaledVector(y_ax, this.parameters.radius);
         // and rotate it around the x-axis to get to the final position
         newPos.applyAxisAngle(x_ax, j_rad);
         newPosMiddle.applyAxisAngle(x_ax, j_rad_middle);
+        newPosEdgeX.applyAxisAngle(x_ax, j_rad);
+        newPosEdgeY.applyAxisAngle(x_ax, j_rad_middle);
+
         newNor.applyAxisAngle(x_ax, j_rad);
         newNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
         newRotNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
@@ -220,6 +230,9 @@ class CustomTorusGeometry extends Geometry {
         this.quads[vId].coordSystem.x.copy(newRotNorMiddle);
         this.quads[vId].coordSystem.y.crossVectors(newNorMiddle, newRotNorMiddle);
         this.quads[vId].coordSystem.z.copy(newNorMiddle);
+
+        this.quads[vId].edgePosX = newPosEdgeX;
+        this.quads[vId].edgePosY = newPosEdgeY;
 
         this.quads[vId].position.copy(newPosMiddle);
         this.quads[vId].faces.forEach((face) => { face.normal.copy(newNorMiddle);
