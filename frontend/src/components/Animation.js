@@ -170,11 +170,11 @@ class Animation {
     this.torusGroup = new Group();
     this.scene.add(this.torusGroup);
 
-    this.texture = new TextureLoader().load(textureFile);
-    //this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
-    this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
+    //this.texture = new TextureLoader().load(textureFile);
+    this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
+    //this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
     //this.torusMaterial.wireframe = true;
-    //this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 });
+    this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 , linecap: 'round'});
 
     this.customTorusGeometry = new CustomTorusGeometry(
       this.boardSize.x,   // XSegments
@@ -183,13 +183,13 @@ class Animation {
     //this.customTorusGeometry = new BoxGeometry(1,1,1);
     console.log(this.customTorusGeometry.faceVertexUvs);
     console.log(this.customTorusGeometry.faceUvs);
-    //this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
+    this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
 
     this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
-    //this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
+    this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
 
     this.torusGroup.add(this.torusMesh);
-    //this.torusGroup.add(this.lineMesh);
+    this.torusGroup.add(this.lineMesh);
   }
 
   initStones() {
@@ -199,7 +199,7 @@ class Animation {
     this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
     this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WIHTE});
 
-    this.stoneGeometry = new BoxGeometry(0.05,0.05,0.05);
+    this.stoneGeometry = new BoxGeometry(0.5,0.5,0.5);
 
     this.addStones();
   }
@@ -211,6 +211,12 @@ class Animation {
     }
   }
 
+  /**
+   * TODO: we don't need to re-add stones all the time,
+   * every field can just have its own stone, the position can be even the same object
+   * as in the torus geometry
+   * and if the stone changes color/vanishes, just change the material
+   */
   addStones() {
     let vId = 0;
     for (let i = 0; i < this.boardSize.x; i++) {
@@ -223,7 +229,8 @@ class Animation {
             curField === 1 ? this.blackStoneMaterial : this.whiteStoneMaterial
           );
 
-          newStone.position.copy(this.customTorusGeometry.quads[vId].position);
+          //newStone.position.copy(this.customTorusGeometry.quads[vId].position);
+          newStone.position.copy(this.customTorusGeometry.quads[vId].discreteMid);
 
           this.stoneGroup.add(newStone);
         }
@@ -313,7 +320,7 @@ class Animation {
     if(this.delta.twist) {
       this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
       this.customTorusGeometry.updateGeometry();
-      //this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
+      this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
       // this.helper.update();
       this.stonesNeedUpdate = true;
     }
