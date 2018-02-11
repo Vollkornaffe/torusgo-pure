@@ -139,6 +139,9 @@ neighFields state@(State s) p = Set.map (getField state) (neighPos s.size p)
 neighWithField :: State -> Field -> Position -> Set.Set Position
 neighWithField state@(State s) field p  = setFilter (\n -> getField state n == field) (neighPos s.size p)
 
+neighWithGeneric :: State -> (Position -> Boolean) -> Position -> Set.Set Position
+neighWithGeneric state@(State s) filterFun p = setFilter filterFun (neighPos s.size p)
+
 flipColor :: Color -> Color
 flipColor Black = White
 flipColor White = Black
@@ -158,22 +161,30 @@ neighEnemies s p =
         Nothing -> Set.empty
         Just color -> neighWithField s (Just (flipColor color)) p
 
+group :: State -> Position -> Set.Set Position
+group s p = let field = getField s p
+                filterFun :: Position -> Boolean
+                filterFun anyP = getField s anyP == field
+            in  groupGeneric s filterFun p
+
 -- finds all members of the position
 -- also finds connected empty regions
-group :: State -> Position -> Set.Set Position
-group state@(State s) p =
-    let startSet = (Set.singleton (canonPos s.size p))
-        field = getField state p
-    in  groupRecursion field startSet startSet
+groupGeneric :: State -> (Position -> Boolean) -> Position -> Set.Set Position
+groupGeneric state@(State s) filterFun p =
+    if filterFun p
+        then let startSet = (Set.singleton (canonPos s.size p))
+                 field = getField state p
+             in  groupRecursion startSet startSet
+        else Set.empty
     where -- uses a breadth first search
           -- members are the allready deduced members of the group
           -- inWork is a subset of members, they may have neighbors which are undiscovered members
-          groupRecursion :: Field -> Set.Set Position -> Set.Set Position -> Set.Set Position
-          groupRecursion field members inWork = if Set.isEmpty inWork
+          groupRecursion :: Set.Set Position -> Set.Set Position -> Set.Set Position
+          groupRecursion members inWork = if Set.isEmpty inWork
               then members
-              else let potentialNew = Set.unions (Set.map (neighWithField state field) inWork)
+              else let potentialNew = Set.unions (Set.map (neighWithGeneric state filterFun) inWork)
                        confirmedNew = Set.difference potentialNew members
-                   in  groupRecursion field (Set.union members confirmedNew) confirmedNew
+                   in  groupRecursion (Set.union members confirmedNew) confirmedNew
 
 toString :: State -> String
 toString state@(State s) =
@@ -262,6 +273,18 @@ directCapture s p =
         Nothing -> s
         _       -> capture s (group s p)
 
+cascadingCapture :: State -> Position -> State
+cascadingCapture s p =
+    case getField s p of
+        Nothing -> s
+        field ->
+            let filterFun :: Position -> Boolean
+                filterFun p' = let field' = getField s p'
+                               in  field' == field || field' == Nothing
+                emptyAndCapColor = groupGeneric s filterFun p
+                justCapColor = setFilter (\p' -> getField s p' == field) emptyAndCapColor
+            in  capture s justCapColor
+
 searchNeighColor :: State -> Color -> Set.Set Position -> Boolean
 searchNeighColor s c = Set.member (Just c) <<< Set.unions <<< Set.map (neighFields s)
 
@@ -342,6 +365,9 @@ interface_makeMove s x y = makeMove s (Play (Tuple x y))
 -- directly capturing a group
 interface_directCapture :: State -> Int -> Int -> State
 interface_directCapture s x y = directCapture s (Tuple x y)
+
+interface_cascadingCapture :: State -> Int -> Int -> State
+interface_cascadingCapture s x y = cascadingCapture s (Tuple x y)
 
 interface_markEmpty :: State -> Array Int
 interface_markEmpty = (map convertField) <<< markEmpty

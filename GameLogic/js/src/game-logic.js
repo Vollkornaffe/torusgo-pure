@@ -1,7 +1,7 @@
 import autoBind from 'auto-bind';
 import {
   interface_init, interface_pass, interface_makeMove, interface_convertState, interface_testLegal,
-  interface_directCapture, interface_computeScore, interface_markEmpty
+  interface_directCapture, interface_cascadingCapture, interface_computeScore, interface_markEmpty
 } from '../lib/GameLogic';
 
 class State {
@@ -39,6 +39,11 @@ class State {
 
   directCapture(x, y) {
     this.purs_State = interface_directCapture(this.purs_State)(x)(y);
+    this.json_State = interface_convertState(this.purs_State);
+  }
+
+  cascadingCapture(x,y) {
+    this.purs_State = interface_cascadingCapture(this.purs_State)(x)(y);
     this.json_State = interface_convertState(this.purs_State);
   }
 

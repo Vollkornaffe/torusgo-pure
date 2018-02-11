@@ -27,7 +27,7 @@ class GameController {
   interact(x, y) {
     if (this.scoring) {
       this.state.updateScore();
-      this.state.directCapture(x, y);
+      this.state.cascadingCapture(x,y);
     } else {
       this.state.makeMove(x, y);
     }

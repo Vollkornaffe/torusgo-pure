@@ -62,6 +62,12 @@ var State = function () {
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
     }
   }, {
+    key: 'cascadingCapture',
+    value: function cascadingCapture(x, y) {
+      this.purs_State = (0, _GameLogic.interface_cascadingCapture)(this.purs_State)(x)(y);
+      this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+    }
+  }, {
     key: 'pass',
     value: function pass() {
       this.purs_State = (0, _GameLogic.interface_pass)(this.purs_State);
