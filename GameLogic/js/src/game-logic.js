@@ -22,6 +22,7 @@ class State {
   setState(state) {
     this.purs_State = state;
     this.json_State = interface_convertState(this.purs_State);
+    this.updateScore();
   }
 
   updateScore() {
@@ -35,21 +36,25 @@ class State {
   makeMove(x, y) {
     this.purs_State = interface_makeMove(this.purs_State)(x)(y);
     this.json_State = interface_convertState(this.purs_State);
+    this.updateScore();
   }
 
   directCapture(x, y) {
     this.purs_State = interface_directCapture(this.purs_State)(x)(y);
     this.json_State = interface_convertState(this.purs_State);
+    this.updateScore();
   }
 
   cascadingCapture(x,y) {
     this.purs_State = interface_cascadingCapture(this.purs_State)(x)(y);
     this.json_State = interface_convertState(this.purs_State);
+    this.updateScore();
   }
 
   pass() {
     this.purs_State = interface_pass(this.purs_State);
     this.json_State = interface_convertState(this.purs_State);
+    this.updateScore();
   }
 
   testLegal(x, y) {

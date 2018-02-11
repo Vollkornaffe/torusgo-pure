@@ -38,6 +38,7 @@ var State = function () {
     value: function setState(state) {
       this.purs_State = state;
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+      this.updateScore();
     }
   }, {
     key: 'updateScore',
@@ -54,24 +55,28 @@ var State = function () {
     value: function makeMove(x, y) {
       this.purs_State = (0, _GameLogic.interface_makeMove)(this.purs_State)(x)(y);
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+      this.updateScore();
     }
   }, {
     key: 'directCapture',
     value: function directCapture(x, y) {
       this.purs_State = (0, _GameLogic.interface_directCapture)(this.purs_State)(x)(y);
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+      this.updateScore();
     }
   }, {
     key: 'cascadingCapture',
     value: function cascadingCapture(x, y) {
       this.purs_State = (0, _GameLogic.interface_cascadingCapture)(this.purs_State)(x)(y);
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+      this.updateScore();
     }
   }, {
     key: 'pass',
     value: function pass() {
       this.purs_State = (0, _GameLogic.interface_pass)(this.purs_State);
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+      this.updateScore();
     }
   }, {
     key: 'testLegal',
