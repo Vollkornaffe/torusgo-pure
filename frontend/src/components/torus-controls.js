@@ -69,13 +69,29 @@ class TorusControlPanel extends React.Component {
         >
           twist- <b>(x)</b>
         </TorusAction>
+        <br />
+        <TorusAction
+          start={()=> setDelta({scoringMode: true}) }
+          stop={()=>{}}
+          keyContext={new KeyContext('g', keyTarget)}
+        >
+          scoringMode ON <b>(g)</b>
+        </TorusAction>
+        <TorusAction
+          start={()=> setDelta({scoringMode: false}) }
+          stop={()=>{}}
+          keyContext={new KeyContext('h', keyTarget)}
+        >
+          scoringMode OFF <b>(h)</b>
+        </TorusAction>
       </div>
     );
   }
 }
 
 class TorusAction extends React.Component {
-  
+
+
   componentDidMount() {
     const {keyContext, start, stop, once} = this.props;
   

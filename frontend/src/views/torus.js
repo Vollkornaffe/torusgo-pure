@@ -31,7 +31,8 @@ class TorusView extends React.Component {
         y:0,
         z:0,
         twist:0,
-        zoom:0
+        zoom:0,
+        scoringMode: false
       },
       mouse:{
         x: 0,
@@ -39,6 +40,10 @@ class TorusView extends React.Component {
       },
       gameState: this.game.getState(),
     };
+  }
+
+  componentDidUpdate() {
+    this.game.setScoringMode(this.state.delta.scoringMode);
   }
 
   componentDidMount() {
@@ -66,7 +71,7 @@ class TorusView extends React.Component {
     let field = this.torus.animation.getSelectedField();
     if(field) {
       if(this.game.suggestMove(field.x, field.y)) {
-        this.game.makeMove(field.x,field.y);
+        this.game.interact(field.x,field.y);
         this.setState({gameState: this.game.getState()});
       } else {
         console.log('illegal move');
@@ -75,7 +80,6 @@ class TorusView extends React.Component {
     }
   }
 
-  
   setDelta(object) {
     let newDelta = {...this.state.delta};
     for(let key in object) {
@@ -104,6 +108,7 @@ class TorusView extends React.Component {
           cursor={this.state.cursor}
           boardSize={this.state.gameState.getSize()}
           boardState={this.state.gameState.getFieldArray()}
+          scoringMarks={this.state.gameState.getScoringMarks()}
         />
       </div>
     );

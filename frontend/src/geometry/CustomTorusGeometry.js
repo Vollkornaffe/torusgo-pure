@@ -32,9 +32,14 @@ class Quad {
     this.discreteScale = 0.0;
   }
 
-  setColor(...args) {
+  setColorRGB(...args) {
     this.faces.forEach((face) => {
       face.color.setRGB(...args);
+    })
+  }
+  setColorHex(...args) {
+    this.faces.forEach((face) => {
+      face.color.setHex(...args);
     })
   }
 }
@@ -118,10 +123,6 @@ class CustomTorusGeometry extends Geometry {
     });
 
     this.quads[idx] = new Quad(vertices, [face1, face2], i, j);
-
-    if(j === 0 && i === 0 ) {
-      this.quads[idx].setColor(0x008800);
-    }
   }
 
   /**

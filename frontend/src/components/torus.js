@@ -44,6 +44,10 @@ class Torus extends React.Component {
     if (prevProps.boardState !== this.props.boardState) {
       this.animation.setBoardState(this.props.boardState);
     }
+
+    if (prevProps.scoringMarks !== this.props.scoringMarks) {
+      this.animation.setScoringMarks(this.props.scoringMarks);
+    }
   }
   
   render() {

@@ -7,7 +7,13 @@ class GameController {
 
     this.size = options.size;
 
+    this.scoring = false;
+
     this.initState();
+  }
+
+  setScoringMode(mode) {
+    this.scoring = mode;
   }
 
   loadState(state) {
@@ -18,11 +24,17 @@ class GameController {
     this.state = new State(this.size.x, this.size.y);
   }
 
-  makeMove(x, y) {
-    this.state.makeMove(x, y);
+  interact(x, y) {
+    if (this.scoring) {
+      this.state.updateScore();
+      this.state.directCapture(x, y);
+    } else {
+      this.state.makeMove(x, y);
+    }
   }
 
   suggestMove(x, y) {
+    if (this.scoring) return true;
     return this.state.testLegal(x, y);
   }
 
