@@ -1,5 +1,8 @@
 import autoBind from 'auto-bind';
-import {interface_init, interface_pass, interface_makeMove, interface_convertState, interface_testLegal} from '../lib/GameLogic';
+import {
+  interface_init, interface_pass, interface_makeMove, interface_convertState, interface_testLegal,
+  interface_directCapture, interface_computeScore, interface_markEmpty
+} from '../lib/GameLogic';
 
 class State {
 
@@ -11,6 +14,8 @@ class State {
     this.purs_State = interface_init(x)(y);
     this.json_State = interface_convertState(this.purs_State);
 
+    this.scoreMarks = interface_markEmpty(this.purs_State);
+
     autoBind(this);
   }
 
@@ -19,8 +24,21 @@ class State {
     this.json_State = interface_convertState(this.purs_State);
   }
 
+  updateScore() {
+    this.scoreMarks = interface_markEmpty(this.purs_State);
+  }
+
+  getScoringMarks() {
+    return this.scoreMarks;
+  }
+
   makeMove(x, y) {
     this.purs_State = interface_makeMove(this.purs_State)(x)(y);
+    this.json_State = interface_convertState(this.purs_State);
+  }
+
+  directCapture(x, y) {
+    this.purs_State = interface_directCapture(this.purs_State)(x)(y);
     this.json_State = interface_convertState(this.purs_State);
   }
 

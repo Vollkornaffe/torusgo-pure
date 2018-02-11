@@ -28,6 +28,8 @@ var State = function () {
     this.purs_State = (0, _GameLogic.interface_init)(x)(y);
     this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
 
+    this.scoreMarks = (0, _GameLogic.interface_markEmpty)(this.purs_State);
+
     (0, _autoBind2.default)(this);
   }
 
@@ -38,9 +40,25 @@ var State = function () {
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
     }
   }, {
+    key: 'updateScore',
+    value: function updateScore() {
+      this.scoreMarks = (0, _GameLogic.interface_markEmpty)(this.purs_State);
+    }
+  }, {
+    key: 'getScoringMarks',
+    value: function getScoringMarks() {
+      return this.scoreMarks;
+    }
+  }, {
     key: 'makeMove',
     value: function makeMove(x, y) {
       this.purs_State = (0, _GameLogic.interface_makeMove)(this.purs_State)(x)(y);
+      this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
+    }
+  }, {
+    key: 'directCapture',
+    value: function directCapture(x, y) {
+      this.purs_State = (0, _GameLogic.interface_directCapture)(this.purs_State)(x)(y);
       this.json_State = (0, _GameLogic.interface_convertState)(this.purs_State);
     }
   }, {
