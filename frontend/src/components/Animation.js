@@ -9,7 +9,7 @@ import {
   BoxGeometry,
   MeshFaceMaterial, MeshPhongMaterial, Mesh,
   AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors, FaceNormalsHelper,
-  LineBasicMaterial, LineSegments, TextureLoader, MeshBasicMaterial, Color,
+  LineBasicMaterial, LineSegments, TextureLoader, MeshBasicMaterial, Color, Matrix4,
 } from 'three';
 
 import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
@@ -67,8 +67,6 @@ function disposeHierarchy (node, callback)
     callback (child);
   }
 }
-
-
 
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
@@ -251,10 +249,14 @@ class Animation {
             curField === 1 ? this.blackStoneMaterial : this.whiteStoneMaterial
           );
 
-          //newStone.position.copy(this.customTorusGeometry.quads[vId].position);
-          newStone.position.copy(this.customTorusGeometry.quads[vId].discreteMid);
-          let newScale = this.customTorusGeometry.quads[vId].discreteScale;
+          let quad = this.customTorusGeometry.quads[vId];
+          //newStone.position.copy(quad.position);
+          newStone.position.copy(quad.discreteMid);
+          let newScale = quad.discreteScale;
+          let basis = (new Matrix4()).makeBasis(quad.coordSystem.x, quad.coordSystem.y, quad.coordSystem.z);
           newStone.scale.set(newScale, newScale, newScale);
+          newStone.setRotationFromMatrix(basis);
+          newStone.matrixWorldNeedsUpdate = true;
 
           this.stoneGroup.add(newStone);
         }
