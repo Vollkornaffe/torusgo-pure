@@ -1,13 +1,15 @@
 'use strict';
 import React from 'react';
 import autoBind from 'react-autobind';
-import {Route, NavLink, HashRouter, BrowserRouter} from "react-router-dom";
+import {Route, NavLink, BrowserRouter} from "react-router-dom";
 
 import {AppBar, Button, Toolbar} from "material-ui";
 
 import Home from './views/home';
 import LogicTest from './views/logic-test';
 import Torus from './views/torus';
+
+import GameInfoDrawer from './components/GameInfoDrawer';
 
 
 import './app.css';
@@ -25,7 +27,8 @@ class App extends React.Component {
       contentWidth: 0,
       contentHeight: 0,
       contentX: 0,
-      contentY: 0
+      contentY: 0,
+      gameInfoDrawerOpen: true
     };
     
     
@@ -41,10 +44,22 @@ class App extends React.Component {
     window.addEventListener('resize', this.resize);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resize);
+  }
+
   componentDidMount() {
     this.setState({ready: true});
     this.resize();
   }
+
+  handleDrawerOpen = () => {
+    this.setState({gameInfoDrawerOpen: true});
+  };
+
+  handleDrawerClose = () => {
+    this.setState({gameInfoDrawerOpen: false});
+  };
 
   resize() {
     let w = window.innerWidth;
@@ -69,12 +84,15 @@ class App extends React.Component {
                 {
                   this.views.map((View, i) => (
                     <NavLink key={i} to={View.navPath}>
-                      <Button color={'contrast'}>
+                      <Button>
                         {View.navLink}
                       </Button>
                     </NavLink>
                   ))
                 }
+                <Button onClick={this.handleDrawerOpen}>
+                  My Games
+                </Button>
               </Toolbar>
             </AppBar>
           </div>
@@ -96,6 +114,10 @@ class App extends React.Component {
                 />
               ))
             }
+            <GameInfoDrawer
+              open={this.state.gameInfoDrawerOpen}
+              handleDrawerClose={this.handleDrawerClose}
+            />
           </div>
         </div>
       </BrowserRouter>
