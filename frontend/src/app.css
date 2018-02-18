@@ -16,3 +16,7 @@ body {
 .torus-button:hover {
     opacity: 1;
 }
+
+.flex {
+    flex: 1
+}

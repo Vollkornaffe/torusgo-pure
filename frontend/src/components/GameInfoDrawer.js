@@ -4,73 +4,30 @@ import React from 'react';
 
 import {
   Drawer, Divider, Button, Toolbar, ExpansionPanel, ExpansionPanelSummary,
-  ExpansionPanelDetails
+  ExpansionPanelDetails, IconButton
 } from 'material-ui';
 
 import GameInfoTable from './GameInfoTable';
+import {ChevronRight} from "material-ui-icons";
 
 class GameInfoDrawer extends React.Component {
 
-  makeid() {
-    let text = "";
-    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (let i = 0; i < 5; i++)
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-  }
-
-  randomBWF() {
-    return ['Black', 'White', 'Finished'][Math.floor(Math.random()*3)];
-  }
-
-  randomBWO() {
-    return ['Black', 'White', 'Observer'][Math.floor(Math.random()*3)];
-  }
-
-  randomTime() {
-    let minutes = Math.floor(Math.random() * (60 - 0 + 1));
-    let seconds = Math.floor(Math.random() * (60 - 0 + 1));
-    return String.concat(minutes.toString, ':', seconds.toString());
-  }
-
-  generateTestGame() {
-    return {
-      players: {
-        black: this.makeid(),
-        white: this.makeid()
-      },
-      client_color: this.randomBWO(),
-      times: {black: this.randomTime(), white: this.randomTime()},
-      in_turn: this.randomBWF(),
-      captures: {black: 123, white:123},
-      score: {black: 0, white: 0}
-    }
-  }
-
   render() {
-    let testGames = [];
-    testGames.push(this.generateTestGame());
-    testGames.push(this.generateTestGame());
-    testGames.push(this.generateTestGame());
-    testGames.push(this.generateTestGame());
-    testGames.push(this.generateTestGame());
+    let props = this.props;
 
     return (
       <Drawer
         variant={'persistent'}
         anchor={'right'}
-        open={this.props.open}>
+        open={props.open}>
           <Toolbar>
-            <Button
-              onClick={this.props.handleDrawerClose}>
-              Close My Games
-            </Button>
+            <IconButton onClick={props.handleDrawerClose}>
+              <ChevronRight />
+            </IconButton>
           </Toolbar>
         <Divider/>
         {
-          testGames.map((testGame, i) => (
+          props.games.map((testGame, i) => (
             <ExpansionPanel>
               <ExpansionPanelSummary>
                 Game im Playing/Observing # {i.toString()}
