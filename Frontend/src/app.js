@@ -9,6 +9,7 @@ import SideBar from './components/SideBar';
 import Game from './logic/Game';
 import User from './logic/User';
 import Test from './logic/test';
+import openSocket from 'socket.io-client';
 
 import './app.css';
 
@@ -40,7 +41,9 @@ class App extends React.Component {
       new User({name: 'Daniel'}),
     ];
 
-    let games = [
+  let socket = openSocket('https://torusgo.com:63730');
+
+  let games = [
       new Game({
         black: {
           id: users[0].id,
