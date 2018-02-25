@@ -42,6 +42,10 @@ class App extends React.Component {
     ];
 
   let socket = openSocket('https://torusgo.com:63730');
+  socket.on('test message', (msg) => {
+    alert(msg);
+    alert('(yey)');
+  });
 
   let games = [
       new Game({

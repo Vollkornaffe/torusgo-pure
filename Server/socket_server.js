@@ -13,6 +13,8 @@ var app = https.createServer(options);
 io = require('socket.io').listen(app);
 
 io.on('connection', function(socket){
+    io.emit('test message', 'You are connected!');
+
     console.log('a user connected');
     socket.on('disconnect', function(){
         console.log('user disconnected');
