@@ -1,234 +1,231 @@
-'use strict';
 import React from 'react';
 import autoBind from 'react-autobind';
-import {Route, NavLink, BrowserRouter} from "react-router-dom";
-
-import {AppBar, Button, IconButton, Toolbar, Typography} from "material-ui";
-
-import {Menu} from 'material-ui-icons';
-import Home from './views/home';
-import LogicTest from './views/logic-test';
-import Torus from './views/torus';
-
-import GameInfoDrawer from './components/GameInfoDrawer';
+import {BrowserRouter} from 'react-router-dom';
+import update from 'immutability-helper';
+import {Reboot, withStyles} from 'material-ui';
+import Torus from './torus/View';
+import MyAppBar from './components/AppBar';
+import SideBar from './components/SideBar';
+import Game from './logic/Game';
+import User from './logic/User';
+import Test from './logic/test';
 
 import './app.css';
 
-function makeid() {
-  let text = "";
-  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const styles = (theme) => ({
+  root: {
 
-  for (let i = 0; i < 5; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  },
+  content: {
 
-  return text;
-}
-
-function randomBWF() {
-  return ['Black', 'White', 'Finished'][Math.floor(Math.random()*3)];
-}
-
-function randomBWO() {
-  return ['Black', 'White', 'Observer'][Math.floor(Math.random()*3)];
-}
-
-function randomTime() {
-  let minutes = Math.floor(Math.random() * (60 - 0 + 1));
-  let seconds = Math.floor(Math.random() * (60 - 0 + 1));
-  return String.concat(minutes.toString, ':', seconds.toString());
-}
-
-function generateTestGame() {
-  return {
-    players: {
-      black: {
-        id: makeid(),
-        name: 'random'
-      },
-      white: {
-        id: makeid(),
-        name: 'random'
-      },
-    },
-    observers: {
-
-    },
-    times: {
-      black: randomTime(),
-      white: randomTime()
-    },
-    inTurn: randomBWF(),
-    captures: {
-      black: 123,
-      white:123
-    },
-    score: {
-      black: 0,
-      white: 0
-    }
-  }
-}
-
+    backgroundColor: 'blue',
+  },
+});
 
 /**
- * data types
- *
- * USER
- *
- * the app instance always has one user object identifying the player, and access to the user objects of
- * other players (opponents)
- *
- * concept:
- * on first visit, user is asked for a name, server creates and saves guest user object, passes to app
- * on repeated visit, the last user object associated with the session is loaded
- *
- * user can make identity permanent by giving name and password (not relevant for the app atm)
- *
- * USER: {
- *  id: string, (primary key)
- *  name: string,
- *  guest: boolean
- * }
- *
- * GAME
- *
- * the app instance loads and maintains an array of active games the user is involved in
- *
- * Games are GameController instances
- *
+ * @class App
  */
-
-
-
 class App extends React.Component {
-
+  /**
+   * @constructor
+   */
   constructor() {
     super();
     autoBind(this);
 
-    let testGames = [];
-    testGames.push(generateTestGame());
-    testGames.push(generateTestGame());
-    testGames.push(generateTestGame());
-    testGames.push(generateTestGame());
-    testGames.push(generateTestGame());
+    let users = [
+      new User({name: 'Lars'}),
+      new User({name: 'Lukas'}),
+      new User({name: 'Sarah'}),
+      new User({name: 'Daniel'}),
+    ];
+
+    let games = [
+      new Game({
+        black: {
+          id: users[0].id,
+        },
+        white: {
+          id: users[1].id,
+        },
+      }),
+      new Game({
+        black: {
+          id: users[3].id,
+        },
+        white: {
+          id: users[2].id,
+        },
+      }),
+      new Game({
+        black: {
+          id: users[1].id,
+        },
+        white: {
+          id: users[3].id,
+        },
+      }),
+      new Game({
+        black: {
+          id: users[0].id,
+        },
+        white: {
+          id: users[2].id,
+        },
+      }),
+      new Game({
+        black: {
+          id: users[1].id,
+        },
+        white: {
+          id: users[1].id,
+        },
+      }),
+    ];
 
     this.state = {
-      user: {
-        id: makeid(),
-        name: 'me'
-      },
-      activeGames: testGames,
-
-      // UI stuff
-
-      height: 0,
-      width: 0,
       contentWidth: 0,
       contentHeight: 0,
       contentX: 0,
       contentY: 0,
-      gameInfoDrawerOpen: true
+      users: users,
+      games: games,
+      thisUserId: users[1].id,
+      activeGame: games[0],
+      activeView: 'torus',
     };
-    
-    
-    this.views = [
-      Home,
-      Torus,
-      LogicTest
-    ];
-    
   }
 
-  componentWillMount() {
-    window.addEventListener('resize', this.resize);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resize);
-  }
-
+  /**
+   */
   componentDidMount() {
-    this.setState({ready: true});
-    this.resize();
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
   }
 
-  handleDrawerOpen = () => {
-    this.setState({gameInfoDrawerOpen: true});
-  };
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    if (prevState.activeGame !== this.state.activeGame) {
+      console.log(this.state.activeGame.getState().jsonState);
+    }
+  }
 
-  handleDrawerClose = () => {
-    this.setState({gameInfoDrawerOpen: false});
-  };
+  /**
+   */
+  onResize() {
+    let ww = window.innerWidth;
+    let wh = window.innerHeight;
 
-  resize() {
-    let w = window.innerWidth;
-    let h = window.innerHeight;
+    let sw = this.sideBar.clientWidth;
+    let ah = this.appBar.clientHeight;
+
     this.setState({
-      width: w,
-      height: h,
-      contentWidth: w,
-      contentHeight: h - this.appBar.clientHeight,
-      contentX: 0,
-      contentY: this.appBar.clientHeight
+      contentWidth: ww - sw,
+      contentHeight: wh - ah,
+      contentY: ah,
     });
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   */
+  onInteraction({x, y}) {
+    const {activeGame, games} = this.state;
+    if (activeGame) {
+      const index = games.indexOf(activeGame);
+      let valid = activeGame.suggest(x, y);
+      let newGame = activeGame.interact(x, y);
+      if (valid) {
+        this.setState({
+          games: update(games, {$splice: [[index, 1, newGame]]}),
+          activeGame: newGame,
+        });
+      } else {
+        console.log('invalid ' + x + ' ' + y);
+      }
+    }
+  }
+
+  /**
+   */
+  onPass() {
+    const {activeGame, games} = this.state;
+    if (activeGame) {
+      const index = games.indexOf(activeGame);
+      const newGame = activeGame.pass();
+      if (newGame !== activeGame) {
+        this.setState({
+          games: update(games, {$splice: [[index, 1, newGame]]}),
+          activeGame: newGame,
+        });
+      }
+    }
+  }
+
+  /**
+   * @param {number} index
+   */
+  onSwitch(index) {
+    const {activeGame, games} = this.state;
+    let currentIndex = games.indexOf(activeGame);
+
+    if (currentIndex !== index) {
+      this.setState({activeGame: games[index]});
+    }
+  }
+
+  /**
+   * @return {XML}
+   */
   render() {
+    let {classes} = this.props;
+    let {
+      contentWidth, contentHeight, contentX, contentY, games, users,
+      activeView, thisUserId, activeGame,
+    } = this.state;
+
+    let content = null;
+
+    switch (activeView) {
+      case 'torus':
+        content = (
+          <Torus
+            handleInteraction={this.onInteraction}
+            handlePass={this.onPass}
+            boardSize={{x: activeGame.x, y: activeGame.y}}
+            boardState={activeGame.getState().getFieldArray()}
+            scoring={activeGame.getState().getScoringMarks()}
+            x={contentX}
+            y={contentY}
+            width={contentWidth}
+            height={contentHeight}/>
+        );
+        break;
+      default: break;
+    }
+
     return (
       <BrowserRouter>
-        <div>
-          <div ref={(appBar) => this.appBar = appBar}>
-            <AppBar position={'static'} >
-              <Toolbar>
-                <Typography variant={'title'} color={'inherit'}>
-                  TorusGo
-                </Typography>
-                <div className={'flex'}>
-                  {
-                    this.views.map((View, i) => (
-                      <NavLink key={i} to={View.navPath}>
-                        <Button color={'white'}>
-                          {View.navLink}
-                        </Button>
-                      </NavLink>
-                    ))
-                  }
-                </div>
-                <IconButton onClick={this.handleDrawerOpen}>
-                  <Menu/>
-                </IconButton>
-              </Toolbar>
-            </AppBar>
+        <div className={classes.root}>
+          <Reboot />
+          <MyAppBar rootRef={(elem) => this.appBar = elem}/>
+          <SideBar
+            rootRef={(elem) => this.sideBar = elem}
+            handleSwitch={this.onSwitch}
+            thisUserId={thisUserId}
+            games={games}
+            users={users}/>
+          <div style={{
+            position: 'fixed',
+            top: contentY,
+            left: contentX,
+          }}>
+            {content}
           </div>
-          <div>
-            {
-              this.views.map((View, i) => (
-                <Route
-                  key={i}
-                  path={View.navPath}
-                  render={(props) => (
-                    <View
-                      {...props}
-                      width={this.state.contentWidth}
-                      height={this.state.contentHeight}
-                      x={this.state.contentX}
-                      y={this.state.contentY}
-                    />
-                  )}
-                />
-              ))
-            }
-          </div>
-          <GameInfoDrawer
-            open={this.state.gameInfoDrawerOpen}
-            handleDrawerClose={this.handleDrawerClose}
-            games={this.state.activeGames}
-          />
         </div>
       </BrowserRouter>
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);

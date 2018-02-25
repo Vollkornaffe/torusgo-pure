@@ -1,14 +1,70 @@
-'use strict';
 import React from 'react';
-import KeyContext from './key';
+import autoBind from 'react-autobind';
 
 const DELTA = 1;
 
-class TorusControlPanel extends React.Component {
+/**
+ * @class KeyContext
+ */
+class KeyContext {
+  /**
+   * Context for Key Events, consisting of a keyCode and DOM element.
+   * A DOM element will only receive key events if it is in focus.
+   * DIVs can be made focusable by adding a tabindex value
+   * @param {number | string} code A key code or a key identifier
+   * @param {object} target A focusable DOM node
+   */
+  constructor(code, target) {
+    autoBind(this);
 
+    if (typeof code === 'number') {
+      this.check = (event) => (event.code === code);
+    } else if (typeof code === 'string') {
+      this.check = (event) => (event.key === code);
+    }
+
+    this.target = target;
+    this.handlers = [];
+  }
+
+  /**
+   * @param {string} type
+   * @param {function} fn
+   */
+  addEventListener(type, fn) {
+    if (typeof fn === 'function') {
+      let check = this.check;
+      let wrapper = function(event) {
+        if (check(event)) {
+          fn(event);
+        }
+      };
+
+      this.target.addEventListener(type, wrapper);
+      this.handlers.push(wrapper);
+    }
+  }
+
+  /**
+   * @param {string} type
+   */
+  removeAllListeners(type) {
+    this.handlers.forEach((handler) => {
+      this.target.removeEventListener(type, handler);
+    });
+  }
+}
+
+/**
+ * @class TorusControlPanel
+ */
+class TorusControlPanel extends React.Component {
+  /**
+   * @return {XML}
+   */
   render() {
-    const {keyTarget, setDelta} = this.props;
-    
+    const {keyTarget, setDelta, handlePass} = this.props;
+
     return (
       <div style={{position: 'absolute'}}>
         <TorusAction
@@ -71,50 +127,50 @@ class TorusControlPanel extends React.Component {
         </TorusAction>
         <br />
         <TorusAction
-          start={()=> setDelta({scoringMode: true}) }
-          stop={()=>{}}
-          keyContext={new KeyContext('g', keyTarget)}
+          once={()=> handlePass() }
+          keyContext={new KeyContext('p', keyTarget)}
         >
-          scoringMode ON <b>(g)</b>
-        </TorusAction>
-        <TorusAction
-          start={()=> setDelta({scoringMode: false}) }
-          stop={()=>{}}
-          keyContext={new KeyContext('h', keyTarget)}
-        >
-          scoringMode OFF <b>(h)</b>
+          Pass <b>(p)</b>
         </TorusAction>
       </div>
     );
   }
 }
 
+/**
+ * @class TorusAction
+ */
 class TorusAction extends React.Component {
-
-
+  /**
+   */
   componentDidMount() {
     const {keyContext, start, stop, once} = this.props;
-  
-    if(keyContext) {
-      if(start) {
+
+    if (keyContext) {
+      if (start) {
         keyContext.addEventListener('keydown', start);
       }
-      if(stop) {
+      if (stop) {
         keyContext.addEventListener('keyup', stop);
       }
-      if(once) {
+      if (once) {
         keyContext.addEventListener('keypress', once);
       }
     }
   }
-  
+
+  /**
+   */
   componentWillUnmount() {
     this.props.keyContext.removeAllListeners();
   }
-  
+
+  /**
+   * @return {XML}
+   */
   render() {
     const {children, start, stop, once} = this.props;
-    
+
     return (
       <button
         className={'torus-button'}

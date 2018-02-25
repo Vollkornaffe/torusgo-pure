@@ -5,7 +5,16 @@ import {Vector3, Face3, Geometry, Vector2} from 'three';
 const TORUS_RADIUS = 2;
 const TORUS_THICKNESS = 1.5;
 
+/**
+ * @class Quad
+ */
 class Quad {
+  /**
+   * @param {array<Vector3>} vertices
+   * @param {array<Face3>} faces
+   * @param {number} x
+   * @param {number} y
+   */
   constructor(vertices, faces, x, y) {
     this.vertices = vertices;
     this.faces = faces || [];
@@ -15,7 +24,7 @@ class Quad {
     this.coordSystem = {
       x: new Vector3(),
       y: new Vector3(),
-      z: new Vector3()
+      z: new Vector3(),
     };
 
     // these are the "true" positions on a perfect torus
@@ -26,31 +35,43 @@ class Quad {
     this.y = y;
 
     // since we dicretize the torus, the true positions look weird
-    this.discreteMid   = new Vector3();
+    this.discreteMid = new Vector3();
     this.discreteEdgeX = new Vector3();
     this.discreteEdgeY = new Vector3();
     this.discreteScale = 0.0;
   }
 
+  /**
+   * @param {object} args
+   */
   setColorRGB(...args) {
     this.faces.forEach((face) => {
       face.color.setRGB(...args);
-    })
+    });
   }
+
+  /**
+   * @param {object} args
+   */
   setColorHex(...args) {
     this.faces.forEach((face) => {
       face.color.setHex(...args);
-    })
+    });
   }
 }
 
-class CustomTorusGeometry extends Geometry {
-
+/**
+ * @class TorusGeometry
+ */
+class TorusGeometry extends Geometry {
+  /**
+   * @param {number} XSegments
+   * @param {number} YSegments
+   */
   constructor(XSegments, YSegments) {
     super();
-    
     autoBind(this);
-  
+
     this.parameters = {
       radius: TORUS_RADIUS,
       thickness: TORUS_THICKNESS,
@@ -81,19 +102,27 @@ class CustomTorusGeometry extends Geometry {
     this.updateGeometry();
   }
 
-  calcCanonPos (x,y) {
-    let x_mod = x % this.parameters.XSegments;
-    let y_mod = y % this.parameters.YSegments;
-    let x_mod_abs = x_mod >= 0 ? x_mod : this.parameters.XSegments + x_mod;
-    let y_mod_abs = y_mod >= 0 ? y_mod : this.parameters.YSegments + y_mod;
-    return x_mod_abs + this.parameters.XSegments * y_mod_abs;
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @return {number}
+   */
+  calcCanonPos(x, y) {
+    let xMod = x % this.parameters.XSegments;
+    let yMod = y % this.parameters.YSegments;
+    let xModAbs = xMod >= 0 ? xMod : this.parameters.XSegments + xMod;
+    let yModAbs = yMod >= 0 ? yMod : this.parameters.YSegments + yMod;
+    return xModAbs + this.parameters.XSegments * yModAbs;
   }
 
   /**
-   * takes Vertex indices and
-   * establishes the correct connectivity
+   * takes Vertex indices and establishes the correct connectivity
    * so that the triangle faces are added to geometry
    * and also fills "adjecentFaces" & "quadFaces"
+   * @param {array} vertices
+   * @param {number} idx
+   * @param {number} i
+   * @param {number} j
    */
   addFaces(vertices, idx, i, j) {
     vertices.forEach((entry)=> {
@@ -102,11 +131,11 @@ class CustomTorusGeometry extends Geometry {
       }
     });
 
-    let [a,b,c,d] = vertices;
+    let [a, b, c, d] = vertices;
 
     let tmp;
 
-    let face1 = new Face3(a,b,c);
+    let face1 = new Face3(a, b, c);
     this.faces.push(face1);
     tmp = 0;
     vertices.forEach((entry)=> {
@@ -114,7 +143,7 @@ class CustomTorusGeometry extends Geometry {
       tmp++;
     });
 
-    let face2 = new Face3(a,c,d);
+    let face2 = new Face3(a, c, d);
     this.faces.push(face2);
     tmp = 0;
     vertices.forEach((entry)=> {
@@ -131,24 +160,22 @@ class CustomTorusGeometry extends Geometry {
   initGeometry() {
     for (let i = 0; i < this.parameters.XSegments; i++) {
       for (let j = 0; j < this.parameters.YSegments; j++) {
-
         this.vertices.push(new Vector3());
         this.vertices_withOffset.push(new Vector3());
 
         // generate faces and quads very easy
         this.addFaces([
-          this.calcCanonPos(i,j),
-          this.calcCanonPos(i+1,j),
-          this.calcCanonPos(i+1,j+1),
-          this.calcCanonPos(i,j+1)
-        ], this.calcCanonPos(i,j), i, j);
-
+          this.calcCanonPos(i, j),
+          this.calcCanonPos(i+1, j),
+          this.calcCanonPos(i+1, j+1),
+          this.calcCanonPos(i, j+1),
+        ], this.calcCanonPos(i, j), i, j);
       }
     }
 
     this.faceVertexUvs = [[]];
     for (let i = 0; i < this.faces.length; i++) {
-      if (i%2 == 0) {
+      if (i%2 === 0) {
         this.faceVertexUvs[0].push(this.face1UV);
       } else {
         this.faceVertexUvs[0].push(this.face2UV);
@@ -167,20 +194,20 @@ class CustomTorusGeometry extends Geometry {
    * we might aswell split up each face into 4 subfaces and use the
    * "true" coordinates there
    */
-  interpolateDiscrete () {
+  interpolateDiscrete() {
+    const vert = this.vertices_withOffset;
     this.quads.forEach((quad) => {
-      quad.discreteEdgeX.set(0,0,0);
-      quad.discreteEdgeY.set(0,0,0);
-      quad.discreteMid.set(0,0,0);
-
-      quad.discreteEdgeX.addScaledVector(this.vertices_withOffset[quad.vertices[0]], 0.5);
-      quad.discreteEdgeX.addScaledVector(this.vertices_withOffset[quad.vertices[1]], 0.5);
-      quad.discreteEdgeY.addScaledVector(this.vertices_withOffset[quad.vertices[0]], 0.5);
-      quad.discreteEdgeY.addScaledVector(this.vertices_withOffset[quad.vertices[3]], 0.5);
-      quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[0]], 0.25);
-      quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[1]], 0.25);
-      quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[2]], 0.25);
-      quad.discreteMid.addScaledVector(this.vertices_withOffset[quad.vertices[3]], 0.25);
+      quad.discreteEdgeX.set(0, 0, 0);
+      quad.discreteEdgeY.set(0, 0, 0);
+      quad.discreteMid.set(0, 0, 0);
+      quad.discreteEdgeX.addScaledVector(vert[quad.vertices[0]], 0.5);
+      quad.discreteEdgeX.addScaledVector(vert[quad.vertices[1]], 0.5);
+      quad.discreteEdgeY.addScaledVector(vert[quad.vertices[0]], 0.5);
+      quad.discreteEdgeY.addScaledVector(vert[quad.vertices[3]], 0.5);
+      quad.discreteMid.addScaledVector(vert[quad.vertices[0]], 0.25);
+      quad.discreteMid.addScaledVector(vert[quad.vertices[1]], 0.25);
+      quad.discreteMid.addScaledVector(vert[quad.vertices[2]], 0.25);
+      quad.discreteMid.addScaledVector(vert[quad.vertices[3]], 0.25);
 
       quad.discreteScale = quad.discreteMid.distanceTo(quad.discreteEdgeX);
     });
@@ -190,49 +217,49 @@ class CustomTorusGeometry extends Geometry {
    * called for initialization and
    * should be called whenever the twist parameter is changed
    */
-  updateGeometry () {
+  updateGeometry() {
     // for conviniece
-    let x_seg = this.parameters.XSegments;
-    let y_seg = this.parameters.YSegments;
+    let xSeg = this.parameters.XSegments;
+    let ySeg = this.parameters.YSegments;
 
     // axis
-    let x_ax = new Vector3(1,0,0);
-    let y_ax = new Vector3(0,1,0);
+    let xAxis = new Vector3(1, 0, 0);
+    let yAxis = new Vector3(0, 1, 0);
 
-    for (let i = 0; i < x_seg; i++) {
-
+    for (let i = 0; i < xSeg; i++) {
       // this is where the TWIST has an influence!
-      let i_rad = i / x_seg * 2 * Math.PI + this.parameters.twist;
-      let i_rad_middle = (i + 0.5) / x_seg * 2 * Math.PI + this.parameters.twist;
+      let iRad = i / xSeg * 2 * Math.PI + this.parameters.twist;
+      let iRadMiddle = (i + 0.5) / xSeg * 2 * Math.PI + this.parameters.twist;
 
 
-      // first we compute the 'offsets', meaning one of many identical 'ring' segments
+      // first we compute the 'offsets',
+      // meaning one of many identical 'ring' segments
       let offset = new Vector3(
-        this.parameters.thickness * Math.cos(i_rad),
-        this.parameters.thickness * Math.sin(i_rad),
+        this.parameters.thickness * Math.cos(iRad),
+        this.parameters.thickness * Math.sin(iRad),
         0
       );
-      let offset_eps = new Vector3(
-        this.parameters.thickness * Math.cos(i_rad) * 1.01,
-        this.parameters.thickness * Math.sin(i_rad) * 1.01,
+      let offsetEps = new Vector3(
+        this.parameters.thickness * Math.cos(iRad) * 1.01,
+        this.parameters.thickness * Math.sin(iRad) * 1.01,
         0
       );
-      let offset_middle = new Vector3(
-        this.parameters.thickness * Math.cos(i_rad_middle),
-        this.parameters.thickness * Math.sin(i_rad_middle),
+      let offsetMiddle = new Vector3(
+        this.parameters.thickness * Math.cos(iRadMiddle),
+        this.parameters.thickness * Math.sin(iRadMiddle),
         0
       );
 
       // now we can spin the ring to form a complete torus!
-      for (let j = 0; j < y_seg; j++) {
-        let vId = this.calcCanonPos(i,j);
+      for (let j = 0; j < ySeg; j++) {
+        let vId = this.calcCanonPos(i, j);
 
-        let j_rad = j / y_seg * 2 * Math.PI;
-        let j_rad_middle = (j + 0.5) / y_seg * 2 * Math.PI;
+        let jRad = j / ySeg * 2 * Math.PI;
+        let jRadMiddle = (j + 0.5) / ySeg * 2 * Math.PI;
 
         // individual vertex positions
         let newPos = new Vector3();
-        let newPos_eps = new Vector3();
+        let newPosEps = new Vector3();
         let newPosMiddle = new Vector3();
         let newPosEdgeX = new Vector3();
         let newPosEdgeY = new Vector3();
@@ -242,13 +269,13 @@ class CustomTorusGeometry extends Geometry {
 
         // first copy the ring position
         newPos.copy(offset);
-        newPos_eps.copy(offset_eps);
-        newPosMiddle.copy(offset_middle);
-        newPosEdgeX.copy(offset_middle);
+        newPosEps.copy(offsetEps);
+        newPosMiddle.copy(offsetMiddle);
+        newPosEdgeX.copy(offsetMiddle);
         newPosEdgeY.copy(offset);
 
-        newNor.copy(offset).normalize()
-        newNorMiddle.copy(offset_middle).normalize();
+        newNor.copy(offset).normalize();
+        newNorMiddle.copy(offsetMiddle).normalize();
 
 
         // individual rotated vertex normals
@@ -257,45 +284,45 @@ class CustomTorusGeometry extends Geometry {
         newRotNorMiddle.setY(-newNorMiddle.x);
 
         // then put it at the disired radius, in y-direction
-        newPos.addScaledVector(y_ax, this.parameters.radius);
-        newPos_eps.addScaledVector(y_ax, this.parameters.radius);
-        newPosMiddle.addScaledVector(y_ax, this.parameters.radius);
-        newPosEdgeX.addScaledVector(y_ax, this.parameters.radius);
-        newPosEdgeY.addScaledVector(y_ax, this.parameters.radius);
+        newPos.addScaledVector(yAxis, this.parameters.radius);
+        newPosEps.addScaledVector(yAxis, this.parameters.radius);
+        newPosMiddle.addScaledVector(yAxis, this.parameters.radius);
+        newPosEdgeX.addScaledVector(yAxis, this.parameters.radius);
+        newPosEdgeY.addScaledVector(yAxis, this.parameters.radius);
         // and rotate it around the x-axis to get to the final position
-        newPos.applyAxisAngle(x_ax, j_rad);
-        newPos_eps.applyAxisAngle(x_ax, j_rad);
-        newPosMiddle.applyAxisAngle(x_ax, j_rad_middle);
-        newPosEdgeX.applyAxisAngle(x_ax, j_rad);
-        newPosEdgeY.applyAxisAngle(x_ax, j_rad_middle);
+        newPos.applyAxisAngle(xAxis, jRad);
+        newPosEps.applyAxisAngle(xAxis, jRad);
+        newPosMiddle.applyAxisAngle(xAxis, jRadMiddle);
+        newPosEdgeX.applyAxisAngle(xAxis, jRad);
+        newPosEdgeY.applyAxisAngle(xAxis, jRadMiddle);
 
-        newNor.applyAxisAngle(x_ax, j_rad);
-        newNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
-        newRotNorMiddle.applyAxisAngle(x_ax, j_rad_middle);
+        newNor.applyAxisAngle(xAxis, jRad);
+        newNorMiddle.applyAxisAngle(xAxis, jRadMiddle);
+        newRotNorMiddle.applyAxisAngle(xAxis, jRadMiddle);
 
         // Position: DONE
         this.vertices[vId].copy(newPos);
-        this.vertices_withOffset[vId].copy(newPos_eps);
+        this.vertices_withOffset[vId].copy(newPosEps);
 
-        this.quads[vId].coordSystem.x.copy(newRotNorMiddle);
-        this.quads[vId].coordSystem.y.crossVectors(newNorMiddle, newRotNorMiddle);
-        this.quads[vId].coordSystem.z.copy(newNorMiddle);
+        let quad = this.quads[vId];
 
-        this.quads[vId].edgePosX.copy(newPosEdgeX);
-        this.quads[vId].edgePosY.copy(newPosEdgeY);
+        quad.coordSystem.x.copy(newRotNorMiddle);
+        quad.coordSystem.y.crossVectors(newNorMiddle, newRotNorMiddle);
+        quad.coordSystem.z.copy(newNorMiddle);
 
-        this.quads[vId].position.copy(newPosMiddle);
-        this.quads[vId].faces.forEach((face) => { face.normal.copy(newNorMiddle);
-        });
+        quad.edgePosX.copy(newPosEdgeX);
+        quad.edgePosY.copy(newPosEdgeY);
+        quad.position.copy(newPosMiddle);
+        quad.faces.forEach((face) => face.normal.copy(newNorMiddle));
       }
     }
 
     this.verticesNeedUpdate = true;
     this.normalsNeedUpdate = true;
-    //this.computeVertexNormals();
+    // this.computeVertexNormals();
 
     this.interpolateDiscrete();
   }
 }
 
-export default CustomTorusGeometry;
+export default TorusGeometry;

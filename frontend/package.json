@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "auto-bind": "^1.2.0",
+    "immutability-helper": "^2.6.5",
     "material-ui": "^1.0.0-beta.33",
     "material-ui-icons": "^1.0.0-beta.17",
     "react": "^16.2.0",
@@ -19,5 +20,17 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "eslint": "^4.18.1",
+    "eslint-config-google": "^0.9.1",
+    "eslint-config-react-app": "^2.1.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "google",
+      "react-app"
+    ],
+    "rules": {}
   }
 }

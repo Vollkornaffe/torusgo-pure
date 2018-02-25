@@ -1,4 +1,5 @@
-import autoBind from 'auto-bind';
+import autoBind from 'react-autobind';
+import update from 'immutability-helper';
 import {
   interface_init, interface_pass, interface_makeMove, interface_convertState, interface_testLegal,
   interface_directCapture, interface_cascadingCapture, interface_computeScore, interface_markEmpty
@@ -7,96 +8,94 @@ import {
 class State {
 
   constructor(x, y) {
+    autoBind(this);
     if(!(typeof x === 'number' && typeof y === 'number')) {
       throw new Error('State\'s constructor requires two numbers as arguments');
     }
 
-    this.purs_State = interface_init(x)(y);
-    this.json_State = interface_convertState(this.purs_State);
+    this.pursState = interface_init(x)(y);
+    this.jsonState = interface_convertState(this.pursState);
+    this.scoreMarks = interface_markEmpty(this.pursState);
 
-    this.scoreMarks = interface_markEmpty(this.purs_State);
-
-    autoBind(this);
   }
 
-  setState(state) {
-    this.purs_State = state;
-    this.json_State = interface_convertState(this.purs_State);
-    this.updateScore();
-  }
-
-  updateScore() {
-    this.scoreMarks = interface_markEmpty(this.purs_State);
-  }
-
-  getScoringMarks() {
-    return this.scoreMarks;
+  /**
+   * returns a new State object if the passed purs state is, in fact,
+   * a new state. returns this otherwise
+   * @param pursState a new purs state
+   * @return {State}
+   */
+  newState(pursState) {
+    if(pursState !== this.pursState) {
+      return update(this, {
+        pursState: {$set: pursState},
+        jsonState: {$set: interface_convertState(pursState)},
+        scoreMarks: {$set: interface_markEmpty(pursState)}
+      });
+    } else {
+      return this;
+    }
   }
 
   makeMove(x, y) {
-    this.purs_State = interface_makeMove(this.purs_State)(x)(y);
-    this.json_State = interface_convertState(this.purs_State);
-    this.updateScore();
+    return this.newState(interface_makeMove(this.pursState)(x)(y));
   }
 
   directCapture(x, y) {
-    this.purs_State = interface_directCapture(this.purs_State)(x)(y);
-    this.json_State = interface_convertState(this.purs_State);
-    this.updateScore();
+    return this.newState(interface_directCapture(this.pursState)(x)(y));
   }
 
-  cascadingCapture(x,y) {
-    this.purs_State = interface_cascadingCapture(this.purs_State)(x)(y);
-    this.json_State = interface_convertState(this.purs_State);
-    this.updateScore();
+  cascadingCapture(x, y) {
+    return this.newState(interface_cascadingCapture(this.pursState)(x)(y));
   }
 
   pass() {
-    this.purs_State = interface_pass(this.purs_State);
-    this.json_State = interface_convertState(this.purs_State);
-    this.updateScore();
+    return this.newState(interface_pass(this.pursState));
   }
 
   testLegal(x, y) {
-    return interface_testLegal(this.purs_State)(x)(y);
+    return interface_testLegal(this.pursState)(x)(y);
   }
 
   getSize() {
-    return this.json_State.size;
+    return this.jsonState.size;
   }
 
   getMoveNumber() {
-    return this.json_State.moveNum;
+    return this.jsonState.moveNum;
   }
 
   getKoPosition() {
-    if (this.json_State.ko) {
-      return this.json_State.koPos;
+    if (this.jsonState.ko) {
+      return this.jsonState.koPos;
     } else {
       return null;
     }
   }
 
   getBlackPrisoners() {
-    return this.json_State.bPrison;
+    return this.jsonState.bPrison;
   }
 
   getWhitePrisoners() {
-    return this.json_State.wPrison;
+    return this.jsonState.wPrison;
   }
 
   getMovingColor() {
-    return this.json_State.curCol;
+    return this.jsonState.curCol;
   }
 
   getFieldArray() {
-    return this.json_State.board;
+    return this.jsonState.board;
+  }
+
+  getScoringMarks() {
+    return this.scoreMarks;
   }
 
   toString() {
-    return JSON.stringify(this.json_State);
+    return JSON.stringify(this.jsonState);
   }
-
 }
 
-export {State};
+export default State;

@@ -39,8 +39,6 @@ function env () {
 }
 
 class LogicTest extends React.Component {
-  static navPath = '/logic_test';
-  static navLink = 'Game Logic';
   
   constructor(props) {
     super(props);

@@ -334,7 +334,10 @@ newtype Interface_State = Interface_State {
     koPos :: Interface_Tuple,
     bPrison :: Int,
     wPrison :: Int }
+newtype Interfrace_ScoringState = Interface_ScoringState {
 
+}
+	
 -- converting field maybe value to common data type int
 -- just an internal helping function
 convertColor :: Color -> Int

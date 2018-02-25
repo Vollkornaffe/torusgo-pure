@@ -1,23 +1,31 @@
-'use strict';
-
 import React from 'react';
 
-import {Table, TableBody, TableRow, TableCell, TableHead} from 'material-ui';
+import {
+  Table, TableBody, TableRow, TableCell, TableHead,
+  Button, IconButton
+} from 'material-ui';
+import Open from 'material-ui-icons/ArrowBack';
 
+/**
+ * @class GameInfoTable
+ */
 class GameInfoTable extends React.Component {
-
+  /**
+   * @return {XML}
+   */
   render() {
     const {
+      handleOpen,
       players,
-      client_color,
+      clientColor,
       times,
-      in_turn,
+      inTurn,
       captures,
       score,
     } = this.props;
 
-    const blackHeader = String.concat('Black (', players.black, ')');
-    const whiteHeader = String.concat('White (', players.white, ')');
+    const blackHeader = 'Black (' + players.black + ')';
+    const whiteHeader = 'White (' + players.white + ')';
 
     const blackCollumn = [
       (<TableCell>{blackHeader}</TableCell>),
@@ -32,26 +40,26 @@ class GameInfoTable extends React.Component {
       (<TableCell numeric>{score.white}</TableCell>),
     ];
 
-    let turn_info;
+    let turnInfo;
     let bothCollumns;
-    if (client_color === 'Observer') {
-      if (in_turn === 'Finished') {
-        turn_info = 'Game Ended.'
+    if (clientColor === 'Observer') {
+      if (inTurn === 'Finished') {
+        turnInfo = 'Game Ended.';
       } else {
-        turn_info = String.concat(in_turn, "'s Turn.");
+        turnInfo = inTurn + '\'s Turn.';
       }
       bothCollumns = [blackCollumn, whiteCollumn];
     } else {
-      if (in_turn === 'Finished') {
-        turn_info = 'Game Ended.'
+      if (inTurn === 'Finished') {
+        turnInfo = 'Game Ended.';
       } else {
-        if (client_color === in_turn) {
-          turn_info = 'Your Turn!';
+        if (clientColor === inTurn) {
+          turnInfo = 'Your Turn!';
         } else {
-          turn_info = 'Waiting.'
+          turnInfo = 'Waiting.';
         }
       }
-      if (client_color === 'Black') {
+      if (clientColor === 'Black') {
         bothCollumns = [blackCollumn, whiteCollumn];
       } else {
         bothCollumns = [whiteCollumn, blackCollumn];
@@ -62,7 +70,14 @@ class GameInfoTable extends React.Component {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>{turn_info}</TableCell>
+            <TableCell>
+              <IconButton
+                title={'View this Game'}
+                color={'primary'}
+                onClick={handleOpen}>
+                <Open />
+              </IconButton>
+            </TableCell>
             {bothCollumns[0][0]}
             {bothCollumns[1][0]}
           </TableRow>

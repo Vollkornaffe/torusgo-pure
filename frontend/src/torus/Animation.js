@@ -1,70 +1,60 @@
-'use strict';
-import React from 'react';
 import autoBind from 'react-autobind';
-import textureFile from '../resources/field_with_lines.jpg';
 
 import {
-  Raycaster, Vector2, Vector3,
-  WebGLRenderer, PerspectiveCamera,
-  BoxGeometry,
-  MeshFaceMaterial, MeshPhongMaterial, Mesh,
-  AmbientLight, PointLight, DirectionalLight, Group, Scene, FaceColors, VertexColors, FaceNormalsHelper,
-  LineBasicMaterial, LineSegments, TextureLoader, MeshBasicMaterial, Color, Matrix4,
+  Raycaster, Vector2, Vector3, WebGLRenderer, PerspectiveCamera, BoxGeometry,
+  MeshFaceMaterial, MeshPhongMaterial, Mesh, AmbientLight, DirectionalLight,
+  Group, Scene, FaceColors, LineBasicMaterial, LineSegments, Color, Matrix4,
 } from 'three';
 
-import CustomTorusGeometry from "../geometry/CustomTorusGeometry";
-import TorusLinesGeometry from "../geometry/TorusLinesGeometry";
+import TorusGeometry from './geometry/TorusGeometry';
+import TorusLinesGeometry from './geometry/TorusLinesGeometry';
 
+// noinspection OverlyComplexFunctionJS
 /**
- * maybe solution to the memory leaks
+ * @param {object} node
  */
-function disposeNode (node)
-{
-  if (node instanceof Mesh)
-  {
-    if (node.geometry)
-    {
-      node.geometry.dispose ();
+function disposeNode(node) {
+  if (node instanceof Mesh) {
+    if (node.geometry) {
+      node.geometry.dispose();
     }
 
-    if (node.material)
-    {
-      if (node.material instanceof MeshFaceMaterial)
-      {
-        node.material.materials.forEach((mtrl)=>
-        {
-          if (mtrl.map)           mtrl.map.dispose ();
-          if (mtrl.lightMap)      mtrl.lightMap.dispose ();
-          if (mtrl.bumpMap)       mtrl.bumpMap.dispose ();
-          if (mtrl.normalMap)     mtrl.normalMap.dispose ();
-          if (mtrl.specularMap)   mtrl.specularMap.dispose ()
-          if (mtrl.envMap)        mtrl.envMap.dispose ();
+    if (node.material) {
+      if (node.material instanceof MeshFaceMaterial) {
+        node.material.materials.forEach((mtrl)=> {
+          if (mtrl.map) mtrl.map.dispose();
+          if (mtrl.lightMap) mtrl.lightMap.dispose();
+          if (mtrl.bumpMap) mtrl.bumpMap.dispose();
+          if (mtrl.normalMap) mtrl.normalMap.dispose();
+          if (mtrl.specularMap) mtrl.specularMap.dispose();
+          if (mtrl.envMap) mtrl.envMap.dispose();
 
-          mtrl.dispose ();    // disposes any programs associated with the material
+          mtrl.dispose(); // disposes any programs associated with the material
         });
-      }
-      else
-      {
-        if (node.material.map)          node.material.map.dispose ();
-        if (node.material.lightMap)     node.material.lightMap.dispose ();
-        if (node.material.bumpMap)      node.material.bumpMap.dispose ();
-        if (node.material.normalMap)    node.material.normalMap.dispose ();
-        if (node.material.specularMap)  node.material.specularMap.dispose ();
-        if (node.material.envMap)       node.material.envMap.dispose ();
+      } else {
+        if (node.material.map) node.material.map.dispose();
+        if (node.material.lightMap) node.material.lightMap.dispose();
+        if (node.material.bumpMap) node.material.bumpMap.dispose();
+        if (node.material.normalMap) node.material.normalMap.dispose();
+        if (node.material.specularMap) node.material.specularMap.dispose();
+        if (node.material.envMap) node.material.envMap.dispose();
 
-        node.material.dispose ();   // disposes any programs associated with the material
+        // disposes any programs associated with the material
+        node.material.dispose();
       }
     }
   }
-}   // disposeNode
+} // disposeNode
 
-function disposeHierarchy (node, callback)
-{
-  for (let i = node.children.length - 1; i >= 0; i--)
-  {
+/**
+ * @param {object} node
+ * @param {function} callback
+ */
+function disposeHierarchy(node, callback) {
+  for (let i = node.children.length - 1; i >= 0; i--) {
     let child = node.children[i];
-    disposeHierarchy (child, callback);
-    callback (child);
+    disposeHierarchy(child, callback);
+    callback(child);
   }
 }
 
@@ -81,7 +71,6 @@ const CAMERA_FAR = 1000;
 
 const CLEAR_COLOR = 0x4286f4;
 const LIGHT_COLOR_AMBIENT = 0x333333;
-const LIGHT_COLOR_POINT = 0x000000;
 const LIGHT_COLOR_DIRECTIONAL = 0x555555;
 
 const STONE_COLOR_BLACK = 0x1a0008;
@@ -94,13 +83,17 @@ const TORUS_COLOR = 0xffcc66;
 const LINE_COLOR = 0x000000;
 
 
-const ORIGIN = new Vector3(0,0,0);
+const ORIGIN = new Vector3(0, 0, 0);
 
 /**
  * Our main class to display the torus. This only contains view code!
+ * @class TorusAnimation
  */
-class Animation {
-
+class TorusAnimation {
+  /**
+   * @constructor
+   * @param {object} options
+   */
   constructor(options) {
     autoBind(this);
 
@@ -113,8 +106,9 @@ class Animation {
     this.height = options.height || 100;
 
     this.renderer = new WebGLRenderer({
-      canvas: this.canvas
+      canvas: this.canvas,
     });
+
     this.renderer.setClearColor(new Color(CLEAR_COLOR), 1);
 
     this.scene = new Scene();
@@ -134,7 +128,7 @@ class Animation {
       y: 0,
       z: 0,
       twist: 0,
-      zoom: 0
+      zoom: 0,
     };
 
     this.selectedField = null;
@@ -144,12 +138,18 @@ class Animation {
     this.stonesNeedUpdate = false;
     this.scoringNeedsUpdate = false;
 
-    //this.helper = new FaceNormalsHelper( this.torusMesh, 0.5, 0x00ff00, 1 );
-    //this.scene.add( this.helper );
+    // this.helper = new FaceNormalsHelper( this.torusMesh, 0.5, 0x00ff00, 1 );
+    // this.scene.add( this.helper );
   }
 
+  /**
+   */
   initCamera() {
-    this.camera = new PerspectiveCamera(CAMERA_FOV, this.width / this.height, CAMERA_NEAR, CAMERA_FAR
+    this.camera = new PerspectiveCamera(
+      CAMERA_FOV,
+      this.width / this.height,
+      CAMERA_NEAR,
+      CAMERA_FAR
     );
     this.scene.add(this.camera);
 
@@ -157,43 +157,58 @@ class Animation {
     this.camera.lookAt(ORIGIN.clone());
   }
 
+  /**
+   */
   initLights() {
     this.light = {
       ambient: new AmbientLight(LIGHT_COLOR_AMBIENT),
-      directional: new DirectionalLight(LIGHT_COLOR_DIRECTIONAL)
-      //point: new PointLight(LIGHT_COLOR_POINT),
+      directional: new DirectionalLight(LIGHT_COLOR_DIRECTIONAL),
+      // point: new PointLight(LIGHT_COLOR_POINT),
     };
-    this.scene.add(this.light.ambient, this.light.directional /*, this.light.point */);
+    this.scene.add(this.light.ambient, this.light.directional);
 
-    //this.light.point.position.set(0, 0, 0);
-    this.light.directional.position.set(1,0,0).normalize();
-
+    // this.light.point.position.set(0, 0, 0);
+    this.light.directional.position.set(1, 0, 0).normalize();
   }
 
+  /**
+   */
   initTorus() {
     this.torusGroup = new Group();
     this.scene.add(this.torusGroup);
 
-    //this.texture = new TextureLoader().load(textureFile);
-    this.torusMaterial = new MeshPhongMaterial({ color: TORUS_COLOR, vertexColors: FaceColors });
-    //this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
-    //this.torusMaterial.wireframe = true;
-    this.lineMaterial = new LineBasicMaterial({ color: LINE_COLOR, linewidth: 1 , linecap: 'round'});
+    // this.texture = new TextureLoader().load(textureFile);
+    this.torusMaterial = new MeshPhongMaterial({
+      color: TORUS_COLOR,
+      vertexColors: FaceColors,
+    });
+    // this.torusMaterial = new MeshPhongMaterial({ map: this.texture });
+    // this.torusMaterial.wireframe = true;
+    this.lineMaterial = new LineBasicMaterial({
+      color: LINE_COLOR,
+      linewidth: 1,
+      linecap: 'round',
+    });
 
-    this.customTorusGeometry = new CustomTorusGeometry(
-      this.boardSize.x,   // XSegments
-      this.boardSize.y    // YSegments
+    this.torusGeometry = new TorusGeometry(
+      this.boardSize.x, // XSegments
+      this.boardSize.y // YSegments
     );
-    //this.customTorusGeometry = new BoxGeometry(1,1,1);
-    this.torusLinesGeometry = new TorusLinesGeometry(this.customTorusGeometry);
+    // this.torusGeometry = new BoxGeometry(1,1,1);
+    this.torusLinesGeometry = new TorusLinesGeometry(this.torusGeometry);
 
-    this.torusMesh = new Mesh(this.customTorusGeometry, this.torusMaterial);
-    this.lineMesh = new LineSegments(this.torusLinesGeometry, this.lineMaterial);
+    this.torusMesh = new Mesh(this.torusGeometry, this.torusMaterial);
+    this.lineMesh = new LineSegments(
+      this.torusLinesGeometry,
+      this.lineMaterial
+    );
 
     this.torusGroup.add(this.torusMesh);
     this.torusGroup.add(this.lineMesh);
   }
 
+  /**
+   */
   initStones() {
     this.stoneGroup = new Group();
     this.scene.add(this.stoneGroup);
@@ -201,47 +216,49 @@ class Animation {
     this.blackStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_BLACK});
     this.whiteStoneMaterial = new MeshPhongMaterial({color: STONE_COLOR_WHITE});
 
-    this.stoneGeometry = new BoxGeometry(1,1,1);
+    this.stoneGeometry = new BoxGeometry(1, 1, 1);
 
     this.addStones();
   }
 
+  /**
+   */
   removeStones() {
     let children = this.stoneGroup.children;
-    while(children.length) {
+    while (children.length) {
       this.stoneGroup.remove(children[0]);
     }
   }
 
+  /**
+   */
   addScoring() {
     let vId = 0;
     for (let i = 0; i < this.boardSize.x; i++) {
       for (let j = 0; j < this.boardSize.y; j++) {
-
         let curField = this.scoringMarks[vId];
         let fieldColor = TORUS_COLOR;
         if (curField !== 0) {
           fieldColor = curField === 1 ? SCORE_COLOR_BLACK : SCORE_COLOR_WHITE;
         }
-        this.customTorusGeometry.quads[vId].setColorHex(fieldColor);
+        this.torusGeometry.quads[vId].setColorHex(fieldColor);
 
         vId++;
       }
     }
-    this.customTorusGeometry.colorsNeedUpdate = true;
+    this.torusGeometry.colorsNeedUpdate = true;
   }
 
   /**
    * TODO: we don't need to re-add stones all the time,
-   * every field can just have its own stone, the position can be even the same object
-   * as in the torus geometry
+   * every field can just have its own stone,
+   * the position can be even the same object as in the torus geometry
    * and if the stone changes color/vanishes, just change the material
    */
   addStones() {
     let vId = 0;
     for (let i = 0; i < this.boardSize.x; i++) {
       for (let j = 0; j < this.boardSize.y; j++) {
-
         let curField = this.boardState[vId];
         if (curField !== 0) {
           let newStone = new Mesh(
@@ -249,11 +266,15 @@ class Animation {
             curField === 1 ? this.blackStoneMaterial : this.whiteStoneMaterial
           );
 
-          let quad = this.customTorusGeometry.quads[vId];
-          //newStone.position.copy(quad.position);
+          let quad = this.torusGeometry.quads[vId];
+          // newStone.position.copy(quad.position);
           newStone.position.copy(quad.discreteMid);
           let newScale = quad.discreteScale;
-          let basis = (new Matrix4()).makeBasis(quad.coordSystem.x, quad.coordSystem.y, quad.coordSystem.z);
+          let basis = (new Matrix4()).makeBasis(
+            quad.coordSystem.x,
+            quad.coordSystem.y,
+            quad.coordSystem.z
+          );
           newStone.scale.set(newScale, newScale, newScale);
           newStone.setRotationFromMatrix(basis);
           newStone.matrixWorldNeedsUpdate = true;
@@ -266,38 +287,54 @@ class Animation {
     }
   }
 
+  /**
+   */
   start() {
-    if(!this.playing) {
+    if (!this.playing) {
       this.playing = true;
       this.animate();
     }
   }
 
+  /**
+   */
   stop() {
     cancelAnimationFrame(this.animationHandler);
     this.playing = false;
     this.renderer.dispose();
-    while(this.scene.children.length > 0){
+    while (this.scene.children.length > 0) {
       disposeHierarchy(this.scene.children[0], disposeNode);
       this.scene.remove(this.scene.children[0]);
     }
   }
 
+  /**
+   */
   reset() {
-    this.torusGroup.rotation.set(0,0,0);
-    this.customTorusGeometry.parameters.twist = 0.0;
+    this.torusGroup.rotation.set(0, 0, 0);
+    this.torusGeometry.parameters.twist = 0.0;
   }
 
+  /**
+   * @param {number} width
+   * @param {number} height
+   */
   setSize(width, height) {
     this.renderer.setSize(width, height);
     this.camera.aspect = width/height;
     this.camera.updateProjectionMatrix();
   }
 
+  /**
+   * @param {object} delta
+   */
   setDelta(delta) {
     this.delta = delta;
   }
 
+  /**
+   * @param {object} cursor
+   */
   setCursor(cursor) {
     this.cursor.set(
       cursor.x * 2 / this.renderer.getSize().width - 1,
@@ -305,22 +342,32 @@ class Animation {
     );
   }
 
+  /**
+   * @param {array} boardState
+   */
   setBoardState(boardState) {
     this.boardState = boardState;
     this.stonesNeedUpdate = true;
   }
 
+  /**
+   * @param {array} marks
+   */
   setScoringMarks(marks) {
     this.scoringMarks = marks;
     this.scoringNeedsUpdate = true;
   }
 
+  /**
+   * @return {object}
+   */
   getSelectedField() {
     return this.selectedField;
   }
 
+  /**
+   */
   updateRotation() {
-
     let pos = this.camera.position;
     let up = this.camera.up;
 
@@ -347,18 +394,23 @@ class Animation {
     up.applyAxisAngle(pos.clone().normalize(), this.delta.z * DELTA_Z);
   }
 
+  /**
+   */
   updateTwist() {
-    if(this.delta.twist) {
-      this.customTorusGeometry.parameters.twist += this.delta.twist * DELTA_TWIST;
-      this.customTorusGeometry.updateGeometry();
-      this.torusLinesGeometry.updateGeometry(this.customTorusGeometry);
+    const geo = this.torusGeometry;
+    if (this.delta.twist) {
+      geo.parameters.twist += this.delta.twist * DELTA_TWIST;
+      geo.updateGeometry();
+      this.torusLinesGeometry.updateGeometry(geo);
       // this.helper.update();
       this.stonesNeedUpdate = true;
     }
   }
 
+  /**
+   */
   updateStones() {
-    if(this.stonesNeedUpdate) {
+    if (this.stonesNeedUpdate) {
       this.stonesNeedUpdate = false;
 
       this.removeStones();
@@ -366,37 +418,43 @@ class Animation {
     }
   }
 
+  /**
+   */
   updateScoring() {
-    if(this.scoringNeedsUpdate) {
+    if (this.scoringNeedsUpdate) {
       this.scoringNeedsUpdate = false;
 
       this.addScoring();
     }
   }
 
+  /**
+   */
   updateRaycast() {
     this.raycaster.setFromCamera(this.cursor, this.camera);
 
     let intersects = this.raycaster.intersectObject( this.torusMesh);
 
-    if(intersects.length > 0) {
+    if (intersects.length > 0) {
       let quad = intersects[0].face.quad;
-      //quad.setColorRGB( Math.random(), Math.random(), Math.random() );
-      //this.customTorusGeometry.colorsNeedUpdate = true;
+      // quad.setColorRGB( Math.random(), Math.random(), Math.random() );
+      // this.torusGeometry.colorsNeedUpdate = true;
 
       this.selectedField = {
         x: quad.x,
-        y: quad.y
+        y: quad.y,
       };
     } else {
       this.selectedField = null;
     }
   }
 
+  /**
+   */
   animate() {
     this.animationHandler = requestAnimationFrame(this.animate);
 
-    //Start of animation code
+    // Start of animation code
 
     this.updateRotation();
     this.updateTwist();
@@ -404,10 +462,10 @@ class Animation {
     this.updateScoring();
     this.updateRaycast();
 
-    //End of animation code
+    // End of animation code
 
     this.renderer.render(this.scene, this.camera);
   }
 }
 
-export default Animation;
+export default TorusAnimation;
