@@ -9,7 +9,7 @@ app.use('*', function(req, res, next){
     next();
 });
 
-app.use('/static', express.static(__dirname + '/build_frontend/static', {cacheControl: false}));
+app.use('/static', express.static(__dirname + '/build_frontend/static'));
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/build_frontend/index.html');
