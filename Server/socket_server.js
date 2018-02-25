@@ -3,6 +3,7 @@ var SOCKET_PORT = process.env.SOCKET_PORT;
 var https = require('https');
 var fs    = require('fs');
 var moment = require('moment');
+var sgf = require('sgf');
 
 var options = {
     key:    fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/privkey.pem'),
@@ -16,6 +17,7 @@ var io = require('socket.io').listen(app);
 
 io.on('connection', function(socket){
     io.emit('test message', 'You are connected!');
+    io.emit('test message', sgf(fs.readFileSync(__dirname + '../test.sgf')).toString());
 
     console.log('a user connected');
     socket.on('disconnect', function(){
@@ -28,7 +30,7 @@ io.on('connection', function(socket){
     });
 });
 
-setInterval(()=>{
+setInterval(() => {
   io.emit('tick', moment());
 },1000);
 
