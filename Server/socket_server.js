@@ -2,6 +2,7 @@ var SOCKET_PORT = process.env.SOCKET_PORT;
 
 var https = require('https');
 var fs    = require('fs');
+var moment = require('moment');
 
 var options = {
     key:    fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/privkey.pem'),
@@ -10,7 +11,8 @@ var options = {
 };
 
 var app = https.createServer(options);
-io = require('socket.io').listen(app);
+var io = require('socket.io').listen(app);
+
 
 io.on('connection', function(socket){
     io.emit('test message', 'You are connected!');
@@ -25,6 +27,10 @@ io.on('connection', function(socket){
         io.emit('chat message', msg);
     });
 });
+
+setInterval(()=>{
+  io.emit('tick', moment());
+},1000);
 
 app.listen(SOCKET_PORT, function(){
     console.log('socket listening on *: ', SOCKET_PORT);

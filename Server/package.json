@@ -16,7 +16,8 @@
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "http": "0.0.0",
-    "https": "^1.0.0"
+    "https": "^1.0.0",
+    "moment": "^2.20.1"
   },
   "devDependencies": {
     "concurrently": "^3.5.0"
