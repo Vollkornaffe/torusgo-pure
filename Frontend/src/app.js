@@ -47,9 +47,10 @@ class App extends React.Component {
     alert('(yey)');
   });
   socket.on('tick', (timestamp) => {
-    console.log("recieved time:");
+    console.log('recieved time:');
     console.log(timestamp);
   });
+
 
   let games = [
       new Game({

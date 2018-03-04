@@ -1,5 +1,5 @@
 {
-  "name": "TorusGo_pure",
+  "name": "torusgo_pure",
   "ignore": [
     "**/.*",
     "node_modules",
