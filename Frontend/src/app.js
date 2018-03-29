@@ -44,13 +44,11 @@ class App extends React.Component {
     let socket = openSocket('https://torusgo.com:63730');
 
     // handle server -> client
-    socket.on('test message', (msg) => {
-      alert(msg);
-    });
     socket.on('token provision', (tokenPacket) => {
       alert("got token");
       window.localStorage["user id token"] = tokenPacket.token;
     });
+    socket.on('failure', (msg) => { alert(msg); });
 
     // handle client -> server
     let backendAPI = {

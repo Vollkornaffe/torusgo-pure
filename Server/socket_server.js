@@ -24,6 +24,7 @@ io.on('connection', (socket) => {
           default:
             socket.emit('failure', 'tokentype not recognised');
         }
+        return;
       }
       socket.emit('failure', 'tokentype missing');
     });
