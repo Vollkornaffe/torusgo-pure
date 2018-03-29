@@ -1,6 +1,7 @@
 import {AppBar, Typography, withStyles} from 'material-ui';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import LoginFormDialog from './LoginFormDialog';
 const styles = (theme) => ({
   root: {
     padding: 16,
@@ -19,7 +20,7 @@ class MyAppBar extends React.Component {
    * @return {XML}
    */
   render() {
-    const {classes} = this.props;
+    const {classes, loginFunction} = this.props;
     return (
       <AppBar
         className={classes.root}
@@ -29,6 +30,7 @@ class MyAppBar extends React.Component {
           <strong>TorusGo</strong>&nbsp;
           <small style={{fontSize: 16}}>Why not GO around?</small>
         </Typography>
+        <LoginFormDialog loginFunction={loginFunction}/>
       </AppBar>
     );
   }

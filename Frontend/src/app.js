@@ -41,17 +41,32 @@ class App extends React.Component {
       new User({name: 'Daniel'}),
     ];
 
-  let socket = openSocket('https://torusgo.com:63730');
-  socket.on('test message', (msg) => {
-    alert(msg);
-    alert('(yey)');
-  });
-  socket.on('tick', (timestamp) => {
-    console.log("recieved time:");
-    console.log(timestamp);
-  });
+    let socket = openSocket('https://torusgo.com:63730');
 
-  let games = [
+    // handle server -> client
+    socket.on('test message', (msg) => {
+      alert(msg);
+    });
+    socket.on('token provision', (tokenPacket) => {
+      alert("got token");
+      window.localStorage["user id token"] = tokenPacket.token;
+    });
+
+    // handle client -> server
+    let backendAPI = {
+      requestLoginToken: (username, password) => {
+        alert("requesting user id token...");
+        socket.emit('token request', {
+          tokentype: 'userid',
+          credentials: {
+            username: username,
+            password: password
+          }
+        });
+      },
+    };
+
+    let games = [
       new Game({
         black: {
           id: users[0].id,
@@ -104,6 +119,9 @@ class App extends React.Component {
       thisUserId: users[1].id,
       activeGame: games[0],
       activeView: 'torus',
+
+      socket: socket,
+      backendAPI: backendAPI,
     };
   }
 
@@ -192,7 +210,7 @@ class App extends React.Component {
     let {classes} = this.props;
     let {
       contentWidth, contentHeight, contentX, contentY, games, users,
-      activeView, thisUserId, activeGame,
+      activeView, thisUserId, activeGame, backendAPI
     } = this.state;
 
     let content = null;
@@ -219,7 +237,10 @@ class App extends React.Component {
       <BrowserRouter>
         <div className={classes.root}>
           <Reboot />
-          <MyAppBar rootRef={(elem) => this.appBar = elem}/>
+          <MyAppBar
+            rootRef={(elem) => this.appBar = elem}
+            loginFunction={backendAPI.requestLoginToken}
+          />
           <SideBar
             rootRef={(elem) => this.sideBar = elem}
             handleSwitch={this.onSwitch}
