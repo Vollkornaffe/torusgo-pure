@@ -2,7 +2,7 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import {BrowserRouter} from 'react-router-dom';
 import update from 'immutability-helper';
-import {Reboot, withStyles} from 'material-ui';
+import {CssBaseline, withStyles} from 'material-ui';
 import Torus from './torus/View';
 import MyAppBar from './components/AppBar';
 import SideBar from './components/SideBar';
@@ -53,14 +53,13 @@ class App extends React.Component {
     // handle client -> server
     let backendAPI = {
       requestLoginToken: (username, password) => {
-        alert("requesting user id token...");
         socket.emit('token request', {
-          tokentype: 'userid',
-          credentials: {
-            username: username,
-            password: password
-          }
+          tokentype: 'userid', 
+          credentials: { username, password }
         });
+      },
+      requestAccountCreation: (username, password, email) => {
+        socket.emit('account creation', { username, password, email });
       },
     };
 
@@ -234,10 +233,11 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div className={classes.root}>
-          <Reboot />
+          <CssBaseline />
           <MyAppBar
             rootRef={(elem) => this.appBar = elem}
             loginFunction={backendAPI.requestLoginToken}
+            signupFunction={backendAPI.requestAccountCreation}
           />
           <SideBar
             rootRef={(elem) => this.sideBar = elem}
