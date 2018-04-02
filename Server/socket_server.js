@@ -5,7 +5,7 @@ let fs    = require('fs');
 let sanitizer = require('sanitizer');
 
 let mysql = require('promise-mysql');
-let db_pool = promise_mysql.createPool({
+let db_pool = mysql.createPool({
     host     : 'example.org',
     user     : 'bob',
     password : 'secret',
