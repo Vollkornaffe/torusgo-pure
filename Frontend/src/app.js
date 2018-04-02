@@ -2,7 +2,7 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import {BrowserRouter} from 'react-router-dom';
 import update from 'immutability-helper';
-import {CssBaseline, withStyles} from 'material-ui';
+import {Reboot, withStyles} from 'material-ui';
 import Torus from './torus/View';
 import MyAppBar from './components/AppBar';
 import SideBar from './components/SideBar';
@@ -233,7 +233,7 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div className={classes.root}>
-          <CssBaseline />
+          <Reboot />
           <MyAppBar
             rootRef={(elem) => this.appBar = elem}
             loginFunction={backendAPI.requestLoginToken}
