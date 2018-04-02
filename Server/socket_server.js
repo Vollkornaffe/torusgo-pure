@@ -20,7 +20,7 @@ let app = https.createServer({
 let io = require('socket.io').listen(app);
 
 let register_user = (accountData, socket) => {
-  cosnt {username, password, email} = accountData;
+  const {username, password, email} = accountData;
   // first check whether username or email is duplicate
   let sql_check_dup = "FROM users SELECT 1 WHERE username = ? OR email = ?";
   sql_check_dup = mysql.format(sql_check_dup, [username, email]);
