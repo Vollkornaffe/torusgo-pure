@@ -2,7 +2,7 @@ import {AppBar, Typography, withStyles} from 'material-ui';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import LoginFormDialog from './LoginFormDialog';
-import SignupFormDialog from './LoginFormDialog';
+import SignupFormDialog from './SignupFormDialog';
 const styles = (theme) => ({
   root: {
     padding: 16,
