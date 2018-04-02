@@ -24,7 +24,7 @@ export default class SignupFormDialog extends React.Component {
     this.setState({ password: e.target.value });
   };
   handleEmailChange = (e) => {
-    this.setState({ username: e.target.value });
+    this.setState({ email: e.target.value });
   };
 
   handleSubmit = (signupFunction) => {

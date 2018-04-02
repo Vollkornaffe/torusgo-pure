@@ -45,13 +45,8 @@ let register_user = (accountData, socket) => {
 };
 
 io.on('connection', (socket) => {
-  let failure = (err, msgForClient) => {
-    console.log(err);
-    socket.emit('failure', msgForClient);
-  }
-
   socket.on('account creation', (accountData) => {
-    
+    register_user(accountData, socket);
   });
 
   socket.on('token request', (tokenPacket) => {
