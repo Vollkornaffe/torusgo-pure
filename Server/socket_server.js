@@ -4,7 +4,7 @@ let https     = require('https');
 let fs        = require('fs');
 let sanitizer = require('sanitizer');
 let mysql     = require('promise-mysql');
-let bcrypt    = require('bcrytp');
+let bcrypt    = require('bcrypt');
 
 let app = https.createServer({
     key:    fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/privkey.pem'),
