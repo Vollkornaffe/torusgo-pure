@@ -32,13 +32,21 @@ let register_user = (accountData, socket) => {
       // first check whether username or email is duplicate
       let sql = "SELECT * FROM users WHERE username = ? OR email = ?;";
       sql = mysql.format(sql, [username, email]);
-      let duplicates = connection.query(sql);
+      return connection.query(sql);
+    })
+    .then((duplicates) => {
       if (duplicates.length !== 0) {
         if (duplicates[0].username === username) throw {name: "FeedbackError", message: "Username in use."};
         if (duplicates[0].email === email) throw {name: "FeedbackError", message: "Email in use."};
       }
     })
-    // TODO actually create account
+    .then(() => {
+      let sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?);";
+      // TODO hash password
+      sql = mysql.format(sql, [username, password, email]);
+      return connection.query(sql);
+    })
+    // TODO use userid to create logintoken
     .then(() => {
       socket.emit("success", "Account was created.");
     })
