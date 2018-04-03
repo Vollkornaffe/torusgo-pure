@@ -30,7 +30,7 @@ let register_user = (accountData, socket) => {
     })
     .then(() => {
       // first check whether username or email is duplicate
-      let sql = "FROM users SELECT 1 WHERE username = ? OR email = ?";
+      let sql = "SELECT * FROM users WHERE username = ? OR email = ?;";
       sql = mysql.format(sql, [username, email]);
       let duplicates = connection.query(sql);
       if (duplicates.length !== 0) {
@@ -43,6 +43,8 @@ let register_user = (accountData, socket) => {
       socket.emit("success", "Account was created.");
     })
     .catch((err) => {
+      if (connection && connection.end) connection.end();
+
       console.log(err);
       if (err.name === "FeedbackError") {
         socket.emit("failure", err.message);
@@ -52,9 +54,47 @@ let register_user = (accountData, socket) => {
     });
 };
 
+let checkPayload = (payload, template) => {
+  let valid = true;
+  let summary = {};
+  for (let property in template) {
+    if (template.hasOwnProperty(property)) {
+      summary[property] = {};
+      if (payload.hasOwnProperty(property)) {
+        summary[property].exists = true;
+        if (typeof template[property] === typeof payload[property]) {
+          summary[property].typematch = true;
+        } else {
+          summary[property].typematch = false;
+          valid = false;
+        }
+      } else {
+        summary[property].missing = false;
+        valid = false;
+      }
+    }
+  }
+  return {valid: valid, summary: summary};
+};
+
+let checkPayloadWithCallback = (payload, template, socket, callback) => {
+  let payloadCheck = checkPayload(payload, template);
+  if (payloadCheck.valid) {
+    callback();
+  } else {
+    socket.emit('failure', "payloadcheck failed: " + JSON.stringify(payloadCheck.summary));
+  }
+}
+
+// templates
+let template_accountData = {username: "username", password: "password", email: "email"};
+
 io.on('connection', (socket) => {
   socket.on('account creation', (accountData) => {
-    register_user(accountData, socket);
+    let callback = () => {
+      register_user(accountData, socket);
+    };
+    checkPayloadWithCallback(accountData, template_accountData, socket, callback);
   });
 
   socket.on('token request', (tokenPacket) => {
