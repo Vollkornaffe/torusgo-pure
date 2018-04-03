@@ -1,7 +1,11 @@
 let SOCKET_PORT = process.env.SOCKET_PORT;
 
-let https = require('https');
-let fs    = require('fs');
+let https     = require('https');
+let fs        = require('fs');
+let sanitizer = require('sanitizer');
+let mysql     = require('promise-mysql');
+let io        = require('socket.io').listen(app);
+let bcrypt    = require('bcrytp');
 
 let app = https.createServer({
     key:    fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/privkey.pem'),
@@ -9,9 +13,6 @@ let app = https.createServer({
     ca:     fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/chain.pem')
 });
 
-let sanitizer = require('sanitizer');
-
-let mysql = require('promise-mysql');
 let db_credentials = {
     host     : 'example.org',
     user     : 'bob',
@@ -19,7 +20,6 @@ let db_credentials = {
     database : 'my_db'
 };
 
-let io = require('socket.io').listen(app);
 
 let register_user = (accountData, socket) => {
   let connection;
@@ -41,9 +41,11 @@ let register_user = (accountData, socket) => {
       }
     })
     .then(() => {
+      return bcrypt.hash(password, 10);
+    })
+    .then((password_hash) => {
       let sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?);";
-      // TODO hash password
-      sql = mysql.format(sql, [username, password, email]);
+      sql = mysql.format(sql, [username, password_hash, email]);
       return connection.query(sql);
     })
     // TODO use userid to create logintoken
