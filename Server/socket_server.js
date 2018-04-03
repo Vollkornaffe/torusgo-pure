@@ -4,7 +4,6 @@ let https     = require('https');
 let fs        = require('fs');
 let sanitizer = require('sanitizer');
 let mysql     = require('promise-mysql');
-let io        = require('socket.io').listen(app);
 let bcrypt    = require('bcrytp');
 
 let app = https.createServer({
@@ -12,6 +11,8 @@ let app = https.createServer({
     cert:   fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/fullchain.pem'),
     ca:     fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/chain.pem')
 });
+
+let io        = require('socket.io').listen(app);
 
 let db_credentials = {
     host     : 'example.org',
