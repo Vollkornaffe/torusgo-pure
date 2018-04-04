@@ -3,17 +3,18 @@ import {
   ExpansionPanelSummary, Grid, withStyles,
 } from 'material-ui';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactResizeDetector from 'react-resize-detector';
 import GameInfoTable from './GameInfoTable';
+import {convertState} from 'torusgo-logic';
+
+const SIDE_BAR_PADDING = 20;
 
 const styles = (theme) => ({
   fullHeight: {
     height: '100%',
   },
   paper: {
-    /* top: 64,
-    height: 'calc(100% - 64px)', */
-    padding: 20,
+    padding: SIDE_BAR_PADDING,
   },
   black: {
     backgroundColor: theme.palette.common.black,
@@ -27,120 +28,97 @@ const styles = (theme) => ({
   },
 });
 
-/**
- * @param {props} props
- * @return {XML}
- * @constructor
- */
-function MyGameItem(props) {
-  const {game, black, white, classes, handleOpen} = props;
-
-  const whiteToMove = game.getState().getMovingColor() - 1;
-
+const MyGameItem = ({game, black, white, classes, handleView}) => {
+  const state = convertState(game.details.currentState);
+  const whiteToMove = state.curCol - 1; // so hacky, cmon this isn't C
   return (
     <ExpansionPanel>
-      <ExpansionPanelSummary className={whiteToMove ? classes.white: classes.black}>
-        {black.name} vs {white.name}: Move {game.getState().getMoveNumber()}
+      <ExpansionPanelSummary
+        className={whiteToMove ? classes.white : classes.black}>
+        {black.name} vs {white.name}: Move {state.moveNum}
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
         <GameInfoTable
-          handleOpen={handleOpen}
+          handleView={handleView}
           players={{black: black.name, white: white.name}}
           clientColor={'Black'}
-          times={{black: game.black.time, white: game.white.time}}
+          times={{black: 0, white: 0}}
           inTurn={whiteToMove ? 'White' : 'Black'}
           captures={{
-            black: game.getState().getBlackPrisoners(),
-            white: game.getState().getWhitePrisoners(),
+            black: state.bPrison,
+            white: state.wPrison,
           }}
           score={{black: 0, white: 0}}
         />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
-}
+};
 
-/**
- * @param {props} props
- * @return {XML}
- * @constructor
- */
-function MyBoxButton(props) {
+const MyBoxButton = ({children, ...other}) => {
   return (
     <Button
       fullWidth
       color={'primary'}
-      variant={'raised'}>
-      {props.children}
+      variant={'raised'}
+      {...other}>
+      {children}
     </Button>
   );
-}
+};
 
-/**
- * @class SideBar
- */
-class SideBar extends React.Component {
-  /**
-   */
-  componentDidMount() {
-    this.props.rootRef(ReactDOM.findDOMNode(this).children[0]);
-  }
-  /**
-   * @return {XML}
-   */
-  render() {
-    const {users, games, classes, handleSwitch} = this.props;
+const SideBar = (props) => {
+  const {
+    users, games, handleSwitch, handleResize, handleNewGame, classes,
+  } = props;
 
-    const handler = (index) => () => handleSwitch(index);
+  const onResize = (width, height) => {
+    handleResize(width + 2 * SIDE_BAR_PADDING, height + 2 * SIDE_BAR_PADDING);
+  };
 
-    return (
-      <Drawer
-        classes={{paper: classes.paper}}
-        variant={'permanent'}
-        anchor={'right'}>
-        <Grid
-          container
-          wrap={'nowrap'}
-          className={classes.fullHeight}
-          direction={'column'}
-          spacing={16}
-          justify={'flex-start'}
-          alignContent={'center'}
-          alignItems={'stretch'}>
-          <Grid item>
-            <MyBoxButton>
-              Find Opponent
-            </MyBoxButton>
-          </Grid>
-          <Grid item>
-            <MyBoxButton>
-              Offline Game
-            </MyBoxButton>
-          </Grid>
-          <Divider/>
-          <Grid item>
-            <Grid
-              container
-              direction={'column'}
-              justify={'flex-start'}>
-              {
-                games.map((game, i) => (
-                  <Grid item key={i}>
-                    <MyGameItem
-                      classes={classes}
-                      handleOpen={handler(i)}
-                      black={users.filter((u) => u.id === game.black.id)[0]}
-                      white={users.filter((u) => u.id === game.white.id)[0]}
-                      game={game}/>
-                  </Grid>
-                ))
-              }
-            </Grid>
+  return (
+    <Drawer
+      classes={{paper: classes.paper}}
+      variant={'permanent'}
+      anchor={'right'}>
+      <ReactResizeDetector handleWidth onResize={onResize}/>
+      <Grid
+        container
+        wrap={'nowrap'}
+        className={classes.fullHeight}
+        direction={'column'}
+        spacing={16}
+        justify={'flex-start'}
+        alignContent={'center'}
+        alignItems={'stretch'}>
+        <Grid item>
+          <MyBoxButton onClick={handleNewGame}>
+            Start a new Game
+          </MyBoxButton>
+        </Grid>
+        <Divider/>
+        <Grid item>
+          <Grid
+            container
+            direction={'column'}
+            justify={'flex-start'}>
+            {
+              games.map((game, i) => (
+                <Grid item key={i}>
+                  <MyGameItem
+                    classes={classes}
+                    handleView={() => handleSwitch(game.id)}
+                    black={users.filter((u) => u.id === game.meta.blackId)[0]}
+                    white={users.filter((u) => u.id === game.meta.whiteId)[0]}
+                    game={game}/>
+                </Grid>
+              ))
+            }
           </Grid>
         </Grid>
-      </Drawer>
-    );
-  }
-}
+      </Grid>
+    </Drawer>
+  );
+};
 
 export default withStyles(styles)(SideBar);

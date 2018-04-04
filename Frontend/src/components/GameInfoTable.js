@@ -15,7 +15,7 @@ class GameInfoTable extends React.Component {
    */
   render() {
     const {
-      handleOpen,
+      handleView,
       players,
       clientColor,
       times,
@@ -74,7 +74,7 @@ class GameInfoTable extends React.Component {
               <IconButton
                 title={'View this Game'}
                 color={'primary'}
-                onClick={handleOpen}>
+                onClick={handleView}>
                 <Open />
               </IconButton>
             </TableCell>

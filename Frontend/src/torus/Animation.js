@@ -336,9 +336,10 @@ class TorusAnimation {
    * @param {object} cursor
    */
   setCursor(cursor) {
+    // translation from canvas coordinates to world coordinates
     this.cursor.set(
       cursor.x * 2 / this.renderer.getSize().width - 1,
-      -cursor.y * 2 / this.renderer.getSize().height + 1
+      -cursor.y * 2 / this.renderer.getSize().height + 1,
     );
   }
 

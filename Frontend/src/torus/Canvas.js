@@ -1,14 +1,19 @@
-
 import React from 'react';
-
 import autoBind from 'react-autobind';
-
 import Animation from './Animation';
 
 /**
  * @class TorusCanvas
  */
 class TorusCanvas extends React.Component {
+  /**
+   * @constructor
+   */
+  constructor() {
+    super();
+    autoBind(this);
+  }
+
   /**
    */
   componentDidMount() {
@@ -25,17 +30,44 @@ class TorusCanvas extends React.Component {
     });
 
     this.animation.start();
+
+    this.canvas.addEventListener('mousemove', this.onMouseMove);
+    this.canvas.addEventListener('click', this.onMouseClick);
+  }
+
+  /**
+   * click event callback function
+   */
+  onMouseClick() {
+    const field = this.animation.getSelectedField();
+    if (field) {
+      this.props.handleInteraction(this.props.gameId, field);
+    }
+  }
+
+  /**
+   * mousemove event callback function
+   * @param {event} event
+   */
+  onMouseMove(event) {
+    this.animation.setCursor({
+      x: event.clientX - this.props.x,
+      y: event.clientY - this.props.y,
+    });
   }
 
   /**
    */
   componentWillUnmount() {
+    this.canvas.removeEventListener('click', this.onMouseClick);
+    this.canvas.removeEventListener('mousemove', this.onMouseMove);
+
     this.animation.stop();
-    this.canvas = null;
-    this.animation = null;
   }
 
   /**
+   * 'listen' for prop/state changes and call the respective animation functions
+   *
    * @param {object} prevProps
    * @param {object} prevState
    * @param {object} prevContext
@@ -50,10 +82,6 @@ class TorusCanvas extends React.Component {
       this.animation.setDelta(this.props.delta);
     }
 
-    if (prevProps.cursor !== this.props.cursor) {
-      this.animation.setCursor(this.props.cursor);
-    }
-
     if (prevProps.boardState !== this.props.boardState) {
       this.animation.setBoardState(this.props.boardState);
     }
@@ -64,7 +92,7 @@ class TorusCanvas extends React.Component {
   }
 
   /**
-   * @return {XML}
+   * @return {*}
    */
   render() {
     const {width, height} = this.props;

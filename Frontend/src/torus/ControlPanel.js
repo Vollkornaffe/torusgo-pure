@@ -63,7 +63,7 @@ class TorusControlPanel extends React.Component {
    * @return {XML}
    */
   render() {
-    const {keyTarget, setDelta, handlePass} = this.props;
+    const {keyTarget, setDelta, handlePass, gameId} = this.props;
 
     return (
       <div style={{position: 'absolute'}}>
@@ -127,7 +127,7 @@ class TorusControlPanel extends React.Component {
         </TorusAction>
         <br />
         <TorusAction
-          once={()=> handlePass() }
+          once={() => handlePass(gameId)}
           keyContext={new KeyContext('p', keyTarget)}
         >
           Pass <b>(p)</b>
