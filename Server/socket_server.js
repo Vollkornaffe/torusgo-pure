@@ -65,6 +65,49 @@ let register_user = (accountData, socket) => {
     });
 };
 
+let authentificate = (credentials, socket) => {
+  let connection;
+  let userEntry;
+  const {username, password} = credentials;
+  mysql.createConnection(db_credentials)
+    .then((conn) => {
+      connection = conn;
+    })
+    .then(() => {
+      let sql = "SELECT * FROM users WHERE username = ?;";
+      sql = mysql.format(sql, [username]);
+      return connection.query(sql);
+    })
+    .then((res) => {
+      if (res.length === 0) {
+        throw {name: "FeedbackError", message: "Username not found."};
+      } else {
+        userEntry = res[0];
+      }
+    })
+    .then(() => {
+      return bcrypt.compare(password, stored_password_hash);
+    })
+    .then((res) => {
+      if (res === true) {
+        // TODO sign logintoken
+        socket.emit("success", "Authentification success.");
+      } else {
+        throw {name: "FeedbackError", message: "Password incorrect."};
+      }
+    })
+    .catch((err) => {
+      if (connection && connection.end) connection.end();
+
+      console.log(err);
+      if (err.name === "FeedbackError") {
+        socket.emit("failure", err.message);
+      } else {
+        socket.emit("failure", "DB error without feedback... try again later");
+      }
+    });
+};
+
 let checkPayload = (payload, template) => {
   let valid = true;
   let summary = {};
@@ -99,13 +142,12 @@ let checkPayloadWithCallback = (payload, template, socket, callback) => {
 
 // templates
 let template_accountData = {username: "username", password: "password", email: "email"};
+let template_credentials = {username: "username", password: "password"};
 
 io.on('connection', (socket) => {
   socket.on('account creation', (accountData) => {
-    let callback = () => {
-      register_user(accountData, socket);
-    };
-    checkPayloadWithCallback(accountData, template_accountData, socket, callback);
+    let callback = ;
+    checkPayloadWithCallback(accountData, template_accountData, socket, () => {register_user(accountData, socket);});
   });
 
   socket.on('token request', (tokenPacket) => {
@@ -113,6 +155,7 @@ io.on('connection', (socket) => {
     let tokentype = sanitizer.sanitize(tokenPacket.tokentype);
     switch (tokentype) {
      case 'userid':
+      checkPayloadWithCallback(accountData, template_credentials, socket, () => {authentificate(tockenPacket, socket);});
       socket.emit('token provision', {
        token: 'asdf'
       });
