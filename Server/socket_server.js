@@ -146,7 +146,6 @@ let template_credentials = {username: "username", password: "password"};
 
 io.on('connection', (socket) => {
   socket.on('account creation', (accountData) => {
-    let callback = ;
     checkPayloadWithCallback(accountData, template_accountData, socket, () => {register_user(accountData, socket);});
   });
 
