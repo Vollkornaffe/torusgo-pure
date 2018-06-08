@@ -2,6 +2,11 @@ const addDefaultGame = () => ({
   type: 'GAME_ADD_DEFAULT',
 });
 
+const requestUser = (name) => ({
+  type: 'FETCH_USER_REQUEST',
+  name: name,
+});
+
 const addUser = (id, name, rank = '20 kyu') => ({
   type: 'USER_ADD',
   id,

@@ -2,9 +2,9 @@ import React from 'react';
 
 import {
   Table, TableBody, TableRow, TableCell, TableHead,
-  Button, IconButton
-} from 'material-ui';
-import Open from 'material-ui-icons/ArrowBack';
+  Button, IconButton,
+} from '@material-ui/core';
+import Open from '@material-ui/icons/ArrowBack';
 
 /**
  * @class GameInfoTable

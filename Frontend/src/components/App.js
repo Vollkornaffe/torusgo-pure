@@ -1,11 +1,12 @@
 import React from 'react';
-import {withStyles} from 'material-ui';
+import {withStyles} from '@material-ui/core';
 
 import MyAppBar from './AppBarContainer';
 import SideBar from './SideBarContainer';
 import TorusContainer from '../torus/TorusContainer';
 
 import '../app.css';
+import Welcome from './WelcomeContainer';
 
 const styles = (theme) => ({
   root: {},
@@ -15,8 +16,7 @@ const App = ({classes}) => {
   return (
     <div className={classes.root}>
       <MyAppBar/>
-      <SideBar/>
-      <TorusContainer/>
+      <Welcome/>
     </div>
   );
 };

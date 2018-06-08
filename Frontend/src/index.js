@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
-import {Reboot} from 'material-ui';
+import {CssBaseline} from '@material-ui/core';
 import logger from 'redux-logger';
 
 import App from './components/App';
@@ -23,8 +23,11 @@ const appReducer = combineReducers({
 
 const store = createStore(appReducer, applyMiddleware(logger));
 
-store.dispatch(addUser('default', 'Lukas'));
+let clientId = window.localStorage.getItem('torusgoClientId');
 
+let sessionId = window.sessionStorage.getItem('torusgoSessionId');
+
+store.dispatch(addUser('default', 'Lukas'));
 
 const handleResize = () => {
   const width = window.innerWidth;
@@ -33,12 +36,16 @@ const handleResize = () => {
   store.dispatch(windowResize(width, height));
 };
 
+const storage = window.localStorage;
+
+console.log(storage);
+
 window.addEventListener('resize', handleResize);
 handleResize();
 
 const Root = () => (
   <div>
-    <Reboot/>
+    <CssBaseline/>
     <Provider store={store}>
       <Router>
         <Route path="/" component={App}/>

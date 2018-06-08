@@ -1,7 +1,7 @@
 import {
   Button, Divider, Drawer, ExpansionPanel, ExpansionPanelDetails,
   ExpansionPanelSummary, Grid, withStyles,
-} from 'material-ui';
+} from '@material-ui/core';
 import React from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 import GameInfoTable from './GameInfoTable';

@@ -1,4 +1,4 @@
-import {AppBar, Typography, withStyles} from 'material-ui';
+import {AppBar, Typography, withStyles} from '@material-ui/core';
 import React from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 

@@ -3,7 +3,7 @@ import autoBind from 'react-autobind';
 import update from 'immutability-helper';
 import TorusCanvas from './Canvas';
 import TorusControlPanel from './ControlPanel';
-import {Button, Grid, Typography} from 'material-ui';
+import {Button, Grid, Typography} from '@material-ui/core';
 
 const NoGame = (props) => (
   <Grid
