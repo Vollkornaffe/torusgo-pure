@@ -1,26 +1,68 @@
-let SOCKET_PORT = process.env.SOCKET_PORT;
+// get the environment variables defined in CONFIG.env
+require('dotenv').config({path: '../CONFIG.env'});
 
 let https     = require('https');
+let http      = require('http'); // for local testing only
+
 let fs        = require('fs');
-let sanitizer = require('sanitizer');
 let mysql     = require('promise-mysql');
 let bcrypt    = require('bcrypt');
 
-let app = https.createServer({
-    key:    fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/privkey.pem'),
-    cert:   fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/fullchain.pem'),
-    ca:     fs.readFileSync('/home/vollkorn/.config/letsencrypt/live/torusgo.com/chain.pem')
-});
+let app;
 
-let io        = require('socket.io').listen(app);
+// setup http server and socket
+if (process.env.PRODUCTION === "1")
+{
+    app = https.createServer({
+        key:    fs.readFileSync(process.env.SLL_KEY),
+        cert:   fs.readFileSync(process.env.SLL_CERT),
+        ca:     fs.readFileSync(process.env.SLL_CA)
+    });
+} else {
+    app = http.createServer();
+}
 
+let io = require('socket.io').listen(app);
+
+// setup & test database connection
 let db_credentials = {
-    host     : 'example.org',
-    user     : 'bob',
-    password : 'secret',
-    database : 'my_db'
+    host     : process.env.DB_HOST,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PASSWORD,
+    database : process.env.DB_DATABASE
 };
+mysql.createConnection(db_credentials)
+    .then((conn) => {
+        console.log("GREAT NEWS connection to DB established! GREAT NEWS");
+    })
+    .catch((err) => {
+        if (connection && connection.end) connection.end();
+        console.log(err);
+    });
 
+// setup user table
+if (process.env.PRODUCTION !== "1")
+{
+    let connection;
+    mysql.createConnection(db_credentials)
+        .then((conn) => {
+            connection = conn;
+        })
+        .then(() => {
+            let sql = 'CREATE TABLE IF NOT EXISTS users (';
+                sql += 'id INT NOT NULL AUTO_INCREMENT,';
+                sql += 'username VARCHAR(32) NOT NULL,';
+                sql += 'password_hash VARCHAR(60) NOT NULL,';
+                sql += 'email VARCHAR(254) NOT NULL,';
+                sql += 'PRIMARY KEY (id)';
+                sql += ');';
+            return connection.query(sql);
+        })
+        .catch((err) => {
+            if (connection && connection.end) connection.end();
+            console.log(err);
+        });
+}
 
 let register_user = (accountData, socket) => {
   let connection;

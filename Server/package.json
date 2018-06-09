@@ -5,15 +5,16 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently --kill-others \"npm run start_http\" \"npm run start_socket\"",
-    "start_http": "HTTP_PORT=61553 node http_server.js",
-    "start_socket": "DEBUG=socket.io* SOCKET_PORT=63730 node socket_server.js",
+    "start_http": "node http_server.js",
+    "start_socket": "DEBUG=socket.io* node socket_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^2.0.1",
     "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "http": "0.0.0",

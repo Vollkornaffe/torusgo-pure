@@ -1,3 +1,6 @@
+// get the environment variables defined in CONFIG.env
+require('dotenv').config({path: '../CONFIG.env'});
+
 var HTTP_PORT = process.env.HTTP_PORT;
 
 var express = require('express');
