@@ -4,10 +4,18 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^1.2.1",
+    "@material-ui/icons": "latest",
+    "immutability-helper": "latest",
     "react": "^16.4.0",
+    "react-autobind": "latest",
     "react-dom": "^16.4.0",
+    "react-redux": "latest",
     "react-resize-detector": "^2.3.0",
-    "react-scripts-ts": "2.16.0"
+    "react-router-dom": "latest",
+    "react-scripts-ts": "2.16.0",
+    "redux": "latest",
+    "redux-logger": "latest",
+    "three": "^0.93.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -20,7 +28,11 @@
     "@types/node": "^10.3.2",
     "@types/react": "^16.3.17",
     "@types/react-dom": "^16.0.6",
+    "@types/react-redux": "^6.0.2",
     "@types/react-resize-detector": "^2.2.0",
+    "@types/react-router-dom": "^4.2.7",
+    "@types/redux-logger": "^3.0.6",
+    "@types/three": "^0.92.4",
     "typescript": "^2.9.1"
   }
 }
