@@ -2,7 +2,7 @@ import * as React from 'react';
 import autoBind from 'react-autobind';
 // import TorusCanvas from './Canvas';
 // import TorusControlPanel from './ControlPanel';
-import {IViewProps} from '../types';
+import {IProps as IViewProps} from '../views/View';
 
 export type TTorusProps = IViewProps;
 

@@ -1,6 +1,5 @@
-import {ComponentType} from 'react';
 import {connect} from 'react-redux';
-import {IState, IViewProps} from '../types';
+import {IState} from '../types';
 import View from './View';
 
 const mapStateToProps = (state: IState) => {
@@ -19,7 +18,4 @@ const mapStateToProps = (state: IState) => {
 
 const mapDispatchToProps = () => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(View);
+export default connect(mapStateToProps, mapDispatchToProps)(View);

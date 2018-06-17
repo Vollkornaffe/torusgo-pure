@@ -3,39 +3,6 @@ import autoBind from 'react-autobind';
 import update from 'immutability-helper';
 import TorusCanvas from './Canvas';
 import TorusControlPanel from './ControlPanel';
-import {Button, Grid, Typography} from '@material-ui/core';
-
-const NoGame = (props) => (
-  <Grid
-    container
-    style={{
-      poisition: 'relative',
-      width: '100%',
-      height: '100%',
-    }}
-    justify={'center'}
-    alignItems={'center'}
-    direction={'column'}>
-    <Grid item>
-      <Typography>
-        You can select a game one the right
-      </Typography>
-    </Grid>
-    <Grid item>
-      <Typography>
-        <b>-or-</b>
-      </Typography>
-    </Grid>
-    <Grid item>
-      <Button
-        onClick={props.handleNewGame}
-        color={'primary'}
-        variant={'raised'}>
-        Start a new Game
-      </Button>
-    </Grid>
-  </Grid>
-);
 
 /**
  * @class TorusView
@@ -72,46 +39,23 @@ class TorusView extends React.Component {
   }
 
   /**
-   * @return {XML}
+   * @return {JSX}
    */
   render() {
-    const {
-      handlePass, handleNewGame, gameId, x, y, width, height, ...other,
-    } = this.props;
+    const {handlePass, x, y, width, height, ...other} = this.props;
     const {delta} = this.state;
-
-    const style = {
-      position: 'absolute',
-      left: x,
-      top: y,
-      width: width,
-      height: height,
-    };
-
-    if (!gameId) {
-      return (
-        <div style={style}>
-          <NoGame handleNewGame={handleNewGame}/>
-        </div>
-      );
-    }
-
     return (
-      <div style={style}>
+      <div>
         <TorusControlPanel
           setDelta={this.setDelta}
           handlePass={handlePass}
-          gameId={gameId}
           keyTarget={document}
         />
         <TorusCanvas
           ref={(elem) => this.torus = elem}
           delta={delta}
-          width={width}
-          height={height}
-          x={x}
-          y={y}
-          gameId={gameId}
+          width={width} height={height}
+          x={x} y={y}
           {...other}
         />
       </div>

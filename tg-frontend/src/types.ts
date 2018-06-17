@@ -4,6 +4,10 @@ interface IMap<T> {
   [key: string]: T,
 }
 
+//
+// game types
+//
+
 export interface IRegMove {
   type: 'M',
   x: number,
@@ -26,10 +30,7 @@ export enum EField {Empty=0, Black=1, White=2}
 
 export type TGameBoard = EField[];
 
-export enum EGamePhase {
-  Waiting=0,
-  Running=1,
-}
+export enum EGamePhase {Waiting = 0, Running = 1}
 
 export interface IMeta {
   observers: string[],
@@ -59,16 +60,23 @@ export interface IGame {
   capturedByWhite: number,
 }
 
-export enum ELoginState {
-  Undefined='undefined',
-  User='user',
-  Guest='guest',
+//
+// user types
+//
+
+export interface IUser {
+  id: string,
+  name: string,
+  rank?: string,
 }
 
-export enum EConnectionState {
-  Disconnected='disconnected',
-  Connected='connected',
-  Waiting='waiting',
+//
+// state/action types
+//
+
+export interface IError {
+  error: string,
+  message?: string,
 }
 
 export interface IDimension {
@@ -80,23 +88,64 @@ export type TResizable = 'window' | 'appBar' | 'sideBar';
 
 export interface IState {
   games: {
-    local?: IGame,
-    byId: IMap<IGame>,
-    allIds: IGame[],
+    byId: IMap<TSubscribe<IGame>>,
+    allIds: TSubscribe<string[]>,
   },
+  localGame?: IGame,
+  users: {
+    byId: IMap<TSubscribe<IUser>>,
+    allIds: TSubscribe<string[]>,
+  },
+  ownUserId?: string,
   dimensions: {
     [key in TResizable]: IDimension;
   },
   loginState: ELoginState,
-  connectionState: EConnectionState,
-  activeGameId: string | null,
+  connectionStatus: EConnectionStatus,
+  activeGameId?: string,
 }
 
-export type TReducer<T> = (state: IState, action: Action & T) => IState;
+export type TAction<T={}> = Action & T;
 
-export interface IViewProps {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
+//
+// network
+//
+
+export type TSubscribe<T> = undefined | 'waiting' | IError | T;
+
+export enum ELoginState {
+  Undefined = 'undefined',
+  User = 'user',
+  Guest = 'guest',
+}
+
+export enum EConnectionStatus {
+  Disconnected = 'disconnected',
+  Connected = 'connected',
+  Broken = 'broken'
+}
+
+export interface ILoginCredentialsResponse {
+  token: string,
+  id: string,
+}
+
+export interface ILoginTokenResponse {
+  token?: string,
+  id: string,
+  loginState: ELoginState,
+}
+
+export interface ILoginGuestResponse {
+  token: string,
+  id: string,
+}
+
+export interface IRegisterResponse {
+  token: string,
+  id: string,
+}
+
+export interface IUpgradeResponse {
+  token?: string,
 }

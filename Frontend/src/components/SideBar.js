@@ -70,14 +70,22 @@ const MyBoxButton = ({children, ...other}) => {
 const SideBar = (props) => {
   const {
     users, games, handleSwitch, handleResize, handleNewGame, classes,
+    appBarHeight, visible,
   } = props;
 
   const onResize = (width, height) => {
     handleResize(width + 2 * SIDE_BAR_PADDING, height + 2 * SIDE_BAR_PADDING);
   };
 
+  if (!visible) return null;
+
   return (
     <Drawer
+      PaperProps={{
+        style: {
+          marginTop: appBarHeight,
+        },
+      }}
       classes={{paper: classes.paper}}
       variant={'permanent'}
       anchor={'right'}>

@@ -60,10 +60,10 @@ class KeyContext {
  */
 class TorusControlPanel extends React.Component {
   /**
-   * @return {XML}
+   * @return {JSX}
    */
   render() {
-    const {keyTarget, setDelta, handlePass, gameId} = this.props;
+    const {keyTarget, setDelta, handlePass} = this.props;
 
     return (
       <div style={{position: 'absolute'}}>
@@ -127,7 +127,7 @@ class TorusControlPanel extends React.Component {
         </TorusAction>
         <br />
         <TorusAction
-          once={() => handlePass(gameId)}
+          once={() => handlePass()}
           keyContext={new KeyContext('p', keyTarget)}
         >
           Pass <b>(p)</b>
@@ -166,7 +166,7 @@ class TorusAction extends React.Component {
   }
 
   /**
-   * @return {XML}
+   * @return {JSX}
    */
   render() {
     const {children, start, stop, once} = this.props;

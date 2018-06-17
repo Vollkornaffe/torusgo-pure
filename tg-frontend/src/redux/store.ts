@@ -1,13 +1,21 @@
 import {applyMiddleware, createStore} from 'redux';
 import logger from 'redux-logger';
-import {EConnectionState, ELoginState, IState} from '../types';
+// thunk accepts functions as actions
+import thunk from 'redux-thunk'
+import {EConnectionStatus, ELoginState, IState} from '../types';
 import reducer from './reducer';
 
 const initialState: IState = {
   games: {
     byId: {},
-    allIds: [],
+    allIds: undefined,
   },
+  localGame: undefined,
+  users: {
+    byId: {},
+    allIds: undefined,
+  },
+  ownUserId: undefined,
   dimensions: {
     window: {
       width: 0,
@@ -23,8 +31,8 @@ const initialState: IState = {
     },
   },
   loginState: ELoginState.Undefined,
-  connectionState: EConnectionState.Disconnected,
-  activeGameId: null,
+  connectionStatus: EConnectionStatus.Disconnected,
+  activeGameId: undefined,
 };
 
-export default createStore(reducer(initialState), applyMiddleware(logger));
+export default createStore(reducer(initialState), applyMiddleware(thunk, logger));

@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import App from './App';
 import './index.css';
-import {windowResize} from './redux/actions';
+import {resizeWindow} from './redux/actions';
 import store from './redux/store';
 import registerServiceWorker from './registerServiceWorker';
 
@@ -11,7 +11,7 @@ const handleResize = () => {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  store.dispatch(windowResize(width, height));
+  store.dispatch(resizeWindow(width, height));
 };
 
 window.addEventListener('resize', handleResize);

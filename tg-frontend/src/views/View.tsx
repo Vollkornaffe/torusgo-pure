@@ -1,8 +1,13 @@
 import * as React from 'react';
-import {IViewProps} from '../types';
-import connectView from './ViewContainer';
 
-const View: React.SFC<IViewProps> = ({x, y, width, height, children}) => (
+export interface IProps {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+}
+
+const View: React.SFC<IProps> = ({x, y, width, height, children}) => (
   <div style={{
     position: 'relative',
     left: x,

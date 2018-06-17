@@ -13,8 +13,10 @@
     "react-resize-detector": "^2.3.0",
     "react-router-dom": "latest",
     "react-scripts-ts": "2.16.0",
-    "redux": "latest",
+    "redux": "^4.0.0",
     "redux-logger": "latest",
+    "redux-thunk": "latest",
+    "socket.io-client": "latest",
     "three": "^0.93.0"
   },
   "scripts": {
@@ -32,6 +34,7 @@
     "@types/react-resize-detector": "^2.2.0",
     "@types/react-router-dom": "^4.2.7",
     "@types/redux-logger": "^3.0.6",
+    "@types/socket.io-client": "^1.4.32",
     "@types/three": "^0.92.4",
     "typescript": "^2.9.1"
   }

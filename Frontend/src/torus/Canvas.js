@@ -17,16 +17,16 @@ class TorusCanvas extends React.Component {
   /**
    */
   componentDidMount() {
-    let {width, height} = this.props;
+    let {width, height, boardSize, boardState} = this.props;
 
     this.animation = new Animation({
-      width: width,
-      height: height,
+      width,
+      height,
       canvas: this.canvas,
 
       // board properties
-      boardSize: this.props.boardSize,
-      boardState: this.props.boardState,
+      boardSize,
+      boardState,
     });
 
     this.animation.start();

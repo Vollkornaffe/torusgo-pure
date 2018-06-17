@@ -1,5 +1,5 @@
 import {connect} from 'react-redux';
-import App from './App';
+import App from '../views/App';
 import {sideBarResize, viewGame} from '../redux/actions';
 
 const mapStateToProps = (state) => {

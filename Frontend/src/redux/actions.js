@@ -1,51 +1,22 @@
-const addDefaultGame = () => ({
-  type: 'GAME_ADD_DEFAULT',
+const initLocalGame = (ruleset) => ({
+  type: 'GAME_LOCAL_INIT',
+  ruleset,
 });
 
-const requestUser = (name) => ({
-  type: 'FETCH_USER_REQUEST',
-  name: name,
-});
-
-const addUser = (id, name, rank = '20 kyu') => ({
-  type: 'USER_ADD',
-  id,
-  name,
-  rank,
-});
-
-
-const addGame = (id, blackId, whiteId, rules) => ({
-  type: 'GAME_ADD',
-  id,
-  rules,
-  whiteId,
-  blackId,
-});
-
-const addPass = (id) => ({
-  type: 'GAME_ADD_MOVE',
-  id,
+const addLocalPass = () => ({
+  type: 'GAME_LOCAL_ADD_MOVE',
   move: {
     type: 'P',
   },
 });
 
-const addRegularMove = (id, x, y) => ({
-  type: 'GAME_ADD_MOVE',
-  id,
+const addLocalMove = (x, y) => ({
+  type: 'GAME_LOCAL_ADD_MOVE',
   move: {
     type: 'M',
     x,
     y,
   },
-});
-
-// TODO add scoring move
-
-const viewGame = (id) => ({
-  type: 'VIEW_GAME',
-  id,
 });
 
 const windowResize = (width, height) => ({
@@ -67,13 +38,10 @@ const sideBarResize = (width, height) => ({
 });
 
 export {
-  addUser,
-  addPass,
-  addRegularMove,
-  addDefaultGame,
-  addGame,
-  viewGame,
   windowResize,
   appBarResize,
   sideBarResize,
+  addLocalMove,
+  addLocalPass,
+  initLocalGame,
 };

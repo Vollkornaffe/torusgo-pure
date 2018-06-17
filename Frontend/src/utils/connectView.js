@@ -1,4 +1,3 @@
-import Welcome from './Welcome';
 import {connect} from 'react-redux';
 
 const mapStateToProps = (state) => {
@@ -15,12 +14,9 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    handleSubmit: (name) => {
-      dispatch()
-    }
-  };
-};
+const mapDispatchToProps = (dispatch) => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(Welcome);
+export default (Component) => connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Component);

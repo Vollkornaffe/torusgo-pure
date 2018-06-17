@@ -1,5 +1,11 @@
 import {
-  AppBar, Button, InputAdornment, TextField, Toolbar, Typography, withStyles
+  AppBar,
+  Button,
+  InputAdornment,
+  TextField,
+  Toolbar,
+  Typography,
+  withStyles
 } from '@material-ui/core';
 
 import {AccountCircle, VpnKey} from '@material-ui/icons';
@@ -33,39 +39,48 @@ const loginStyles = () => ({
   },
 });
 
-const LoginForm = withStyles(loginStyles)(({classes}) => (
-  <div className={classes.root}>
-    <TextField
-      className={classes.input}
-      placeholder={'username'}
-      margin={'dense'}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <AccountCircle/>
-          </InputAdornment>
-        ),
-      }}/>
-    <TextField
-      className={classes.input}
-      placeholder={'password'}
-      type={'password'}
-      margin={'dense'}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <VpnKey/>
-          </InputAdornment>
-        ),
-      }}/>
-    <Button color={'primary'}
-            variant={'contained'}
-            size={'small'}
-            className={classes.btn}>
-      Login
-    </Button>
-  </div>
-));
+const LoginForm = withStyles(loginStyles)(({classes}) => {
+
+  const onClick = () => {
+    // foo
+  };
+
+  return (
+    <div className={classes.root}>
+      <TextField
+        className={classes.input}
+        placeholder={'username'}
+        margin={'dense'}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <AccountCircle/>
+            </InputAdornment>
+          ),
+        }}/>
+      <TextField
+        className={classes.input}
+        placeholder={'password'}
+        type={'password'}
+        margin={'dense'}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <VpnKey/>
+            </InputAdornment>
+          ),
+        }}/>
+      <Button
+        onClick={onClick}
+        color={'primary'}
+        variant={'contained'}
+        size={'small'}
+        className={classes.btn}>
+        Login
+      </Button>
+    </div>
+  );
+});
 
 export interface IAppBarProps {
   handleResize: (width: number, height: number) => void,
