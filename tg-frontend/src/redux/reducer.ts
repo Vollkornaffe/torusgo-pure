@@ -1,20 +1,15 @@
 import {Action, Reducer, ReducersMapObject} from 'redux';
+import {IDimension, IError, TResizable} from '../types';
+import {EColor, EField, EGamePhase, IRuleSet, TMove} from '../types/game';
+import {EConnectionStatus, ELoginState} from '../types/network';
+import {IState, TAction} from '../types/redux';
 import {
-  EColor,
-  EConnectionStatus,
-  EField,
-  EGamePhase,
-  ELoginState,
-  IDimension,
-  IError,
-  IGame,
-  IRuleSet,
-  IState,
-  IUser,
-  TAction,
-  TMove,
-  TResizable
-} from '../types';
+  EResourceStatus,
+  EResourceType,
+  isLoaded,
+  isLoading,
+  TResource,
+} from '../types/resource';
 import {applyMove, testMove} from '../utils/game-logic';
 
 const resize = (element: TResizable) => (state: IState, action: TAction<IDimension>): IState => {
@@ -34,7 +29,6 @@ const resize = (element: TResizable) => (state: IState, action: TAction<IDimensi
     },
   };
 };
-
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {
@@ -77,7 +71,6 @@ const addLocalMove = (state: IState, action: TAction<{ move: TMove }>): IState =
   };
 };
 
-
 const changeConnectionStatus = (state: IState, action: TAction<{ status: EConnectionStatus }>): IState => {
   if (action.status === state.connectionStatus) {
     return state;
@@ -98,198 +91,87 @@ const changeLoginState = (state: IState, action: TAction<{ state: ELoginState }>
   }
 };
 
+const changeOwnUserId = (state: IState, action: TAction<{ id?: string }>): IState => ({
+  ...state,
+  ownUserId: action.id,
+});
 
-const updateGame = (state: IState, action: TAction<{ id: string, game: IGame }>): IState => {
-  if (!state.users.byId[action.id]) {
+const updateResource = (state: IState, action: TAction<{ resource: TResource, id: string }>): IState => {
+  const type = action.resource.resourceType;
+
+  if(!isLoaded(state.resources[type][action.id])) {
     return state;
   }
+
   return {
     ...state,
-    games: {
-      ...state.games,
-      byId: {
-        ...state.games.byId,
-        [action.id]: action.game,
+    resources: {
+      ...state.resources,
+      [type]: {
+        ...state.resources[type],
+        [action.id]: {
+          ...state.resources[type][action.id],
+          value: action.resource,
+        },
       },
-    },
-  }
+    }
+  };
 };
 
-const updateUser = (state: IState, action: TAction<{ id: string, user: IUser }>): IState => {
-  if (!state.users.byId[action.id]) {
+const subscribeResponse = (state: IState, action: TAction<{ resource: TResource, id: string }>): IState => {
+  const type = action.resource.resourceType;
+
+  if(!isLoading(state.resources[type][action.id])) {
     return state;
   }
+
   return {
     ...state,
-    users: {
-      ...state.users,
-      byId: {
-        ...state.users.byId,
-        [action.id]: action.user,
+    resources: {
+      ...state.resources,
+      [type]: {
+        ...state.resources[type],
+        [action.id]: {
+          status: EResourceStatus.Loaded,
+          value: action.resource,
+        },
       },
-    },
+    }
+  };
+};
+
+const subscribeRequest = (state: IState, action: TAction<{ resourceType: EResourceType, id: string }>): IState => {
+  return ({
+    ...state,
+    resources: {
+      ...state.resources,
+      [action.resourceType]: {
+        ...state.resources[action.resourceType],
+        [action.id]: {
+          status: EResourceStatus.Loading,
+        },
+      },
+    }
+  });
+};
+
+const subscribeError = (state: IState, action: TAction<{ resourceType: EResourceType, id: string, err: IError }>): IState => {
+  if(!isLoading(state.resources[action.resourceType][action.id])) {
+    return state;
   }
-};
 
-const updateGameList = (state: IState, action: TAction<{ id: string, gameIds: string[] }>): IState => {
   return {
     ...state,
-    games: {
-      ...state.games,
-      allIds: action.gameIds,
-    },
-  }
-};
-
-const updateUserList = (state: IState, action: TAction<{ id: string, userIds: string[] }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      allIds: action.userIds,
-    },
-  }
-};
-
-
-const subscribeToGameRequest = (state: IState, action: TAction<{ id: string }>): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      byId: {
-        ...state.games.byId,
-        [action.id]: 'waiting',
+    resources: {
+      ...state.resources,
+      [action.resourceType]: {
+        ...state.resources[action.resourceType],
+        [action.id]: {
+          status: EResourceStatus.Unavailable,
+          error: action.err,
+        },
       },
-    },
-  };
-};
-
-const subscribeToGameResponse = (state: IState, action: TAction<{ id: string, data: IGame }>): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      byId: {
-        ...state.games.byId,
-        [action.id]: action.data,
-      },
-    },
-  };
-};
-
-const subscribeToGameError = (state: IState, action: TAction<{ id: string, err: IError }>): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      byId: {
-        ...state.games.byId,
-        [action.id]: action.err,
-      },
-    },
-  };
-};
-
-
-const subscribeToGameListRequest = (state: IState): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      allIds: 'waiting',
-    },
-  };
-};
-
-const subscribeToGameListResponse = (state: IState, action: TAction<{ data: string[] }>): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      allIds: action.data,
-    },
-  };
-};
-
-const subscribeToGameListError = (state: IState, action: TAction<{ err: IError }>): IState => {
-  return {
-    ...state,
-    games: {
-      ...state.games,
-      allIds: action.err,
-    },
-  };
-};
-
-
-const subscribeToUserRequest = (state: IState, action: TAction<{ id: string }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      byId: {
-        ...state.users.byId,
-        [action.id]: 'waiting',
-      },
-    },
-  };
-};
-
-const subscribeToUserResponse = (state: IState, action: TAction<{ id: string, data: IUser }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      byId: {
-        ...state.users.byId,
-        [action.id]: action.data,
-      },
-    },
-  };
-};
-
-const subscribeToUserError = (state: IState, action: TAction<{ id: string, err: IError }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      byId: {
-        ...state.users.byId,
-        [action.id]: action.err,
-      },
-    },
-  };
-};
-
-
-const subscribeToUserListRequest = (state: IState): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      allIds: 'waiting',
-    },
-  };
-};
-
-const subscribeToUserListResponse = (state: IState, action: TAction<{ data: string[] }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      allIds: action.data,
-    },
-  };
-};
-
-const subscribeToUserListError = (state: IState, action: TAction<{ err: IError }>): IState => {
-  return {
-    ...state,
-    users: {
-      ...state.users,
-      allIds: action.err,
-    },
+    }
   };
 };
 
@@ -312,27 +194,14 @@ export default <S>(initialState: S) => createReducer(initialState, {
   'GAME_LOCAL_ADD_MOVE': addLocalMove,
 
   'CONNECTION_STATUS_CHANGE': changeConnectionStatus,
-  'LOGIN_STATUS_CHANGE': changeLoginState,
+  'LOGIN_STATE_CHANGE': changeLoginState,
 
-  'USER_UPDATE': updateUser,
-  'GAME_UPDATE': updateGame,
+  'OWN_USER_ID_CHANGE': changeOwnUserId,
 
-  'USER_LIST_UPDATE': updateUserList,
-  'GAME_LIST_UPDATE': updateGameList,
+  'RESOURCE_UPDATE': updateResource,
 
-  'USER_SUBSCRIBE_REQUEST': subscribeToUserRequest,
-  'USER_SUBSCRIBE_RESPONSE': subscribeToUserResponse,
-  'USER_SUBSCRIBE_ERROR': subscribeToUserError,
+  'SUBSCRIBE_REQUEST': subscribeRequest,
+  'SUBSCRIBE_RESPONSE': subscribeResponse,
+  'SUBSCRIBE_ERROR': subscribeError,
 
-  'GAME_SUBSCRIBE_REQUEST': subscribeToGameRequest,
-  'GAME_SUBSCRIBE_RESPONSE': subscribeToGameResponse,
-  'GAME_SUBSCRIBE_ERROR': subscribeToGameError,
-
-  'USER_LIST_SUBSCRIBE_REQUEST': subscribeToUserListRequest,
-  'USER_LIST_SUBSCRIBE_RESPONSE': subscribeToUserListResponse,
-  'USER_LIST_SUBSCRIBE_ERROR': subscribeToUserListError,
-
-  'GAME_LIST_SUBSCRIBE_REQUEST': subscribeToGameListRequest,
-  'GAME_LIST_SUBSCRIBE_RESPONSE': subscribeToGameListResponse,
-  'GAME_LIST_SUBSCRIBE_ERROR': subscribeToGameListError,
 });

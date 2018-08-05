@@ -1,16 +1,20 @@
 import {
-  AppBar,
-  Button,
-  InputAdornment,
-  TextField,
+  AppBar, CircularProgress,
   Toolbar,
   Typography,
+  WithStyles,
   withStyles
-} from '@material-ui/core';
-
-import {AccountCircle, VpnKey} from '@material-ui/icons';
+} from '@material-ui/core/es';
 import * as React from 'react';
+import {Component, ComponentClass, SFC} from 'react';
 import ReactResizeDetector from 'react-resize-detector';
+import {resizeAppBar} from '../redux/actions';
+import {asyncLogout} from '../redux/async-actions';
+import {EConnectionStatus, ELoginState} from '../types/network';
+import {IResourceWrapper} from '../types/resource';
+import {IUser} from '../types/user';
+import AccountDialog from './AccountDialog';
+import LoginForm from './LoginFormContainer';
 
 const APP_BAR_PADDING = 0;
 
@@ -24,72 +28,37 @@ const styles = () => ({
   flex: {
     flex: 1,
   },
+  progress: {}
 });
 
-
-const loginStyles = () => ({
-  root: {
-    minWidth: 550,
-  },
-  input: {
-    margin: 8,
-  },
-  btn: {
-    marginTop: -14,
-  },
-});
-
-const LoginForm = withStyles(loginStyles)(({classes}) => {
-
-  const onClick = () => {
-    // foo
-  };
-
-  return (
-    <div className={classes.root}>
-      <TextField
-        className={classes.input}
-        placeholder={'username'}
-        margin={'dense'}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <AccountCircle/>
-            </InputAdornment>
-          ),
-        }}/>
-      <TextField
-        className={classes.input}
-        placeholder={'password'}
-        type={'password'}
-        margin={'dense'}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <VpnKey/>
-            </InputAdornment>
-          ),
-        }}/>
-      <Button
-        onClick={onClick}
-        color={'primary'}
-        variant={'contained'}
-        size={'small'}
-        className={classes.btn}>
-        Login
-      </Button>
-    </div>
-  );
-});
-
-export interface IAppBarProps {
-  handleResize: (width: number, height: number) => void,
+export interface IProps {
+  connectionStatus: EConnectionStatus,
+  loginState: ELoginState,
+  user?: IResourceWrapper<IUser>,
 }
 
-export default withStyles(styles)<IAppBarProps>(({classes, handleResize}) => {
+const MyAppBar: React.SFC<IProps & WithStyles<typeof styles>> = ({connectionStatus, loginState, user, classes}) => {
+
   const onResize = (width: number, height: number) => {
-    handleResize(width + 2 * APP_BAR_PADDING, height + 2 * APP_BAR_PADDING);
+    resizeAppBar(width + 2 * APP_BAR_PADDING, height + 2 * APP_BAR_PADDING);
   };
+
+  let rightSideComponent: JSX.Element;
+
+  if (connectionStatus === EConnectionStatus.Disconnected) {
+    rightSideComponent = <p>disconnected</p>;
+  } else if (connectionStatus === EConnectionStatus.Connecting) {
+    rightSideComponent = (
+      <div>
+        <CircularProgress className={classes.progress}/>
+        <span>Reconnecting...</span>
+      </div>
+    );
+  } else if (loginState === ELoginState.Undefined) {
+    rightSideComponent = <LoginForm/>;
+  } else {
+    rightSideComponent = (<AccountDialog user={user} handleLogout={asyncLogout}/>);
+  }
 
   return (
     <AppBar
@@ -106,8 +75,10 @@ export default withStyles(styles)<IAppBarProps>(({classes, handleResize}) => {
           className={classes.flex}>
           TorusGo
         </Typography>
-        <LoginForm/>
+        {rightSideComponent}
       </Toolbar>
     </AppBar>
   );
-});
+};
+
+export default withStyles(styles)(MyAppBar);

@@ -1,26 +1,38 @@
-import {connect} from 'socket.io-client';
-import {changeConnectionStatus, update} from '../redux/actions';
+import * as socketIO from 'socket.io-client';
+import {changeConnectionStatus} from '../redux/actions';
 
 import store from '../redux/store';
-import {EConnectionStatus} from '../types';
+import tokenManager from './token';
 
-let url = 'http://localhost:3450/';
+let URL = 'http://localhost:3450/';
 
 if (process.env.NODE_ENV === 'production') {
-  url = 'https://torusgo.com:12345/';
+  URL = 'https://torusgo.com:12345/';
 }
 
-const socket = connect(url);
+const socket = socketIO.connect(URL);
 
-const dispatcher = (status: EConnectionStatus) => () => store.dispatch(changeConnectionStatus(status));
+['connect', 'connect_error', 'connect_timeout', 'error', 'disconnect', 'reconnect', 'reconnect_attempt',
+'reconnecting', 'reconnect_error', 'reconnect_failed'].forEach((name) => {
+  socket.on(name, (...args: any[]) => {
+    console.log(name + ': ' + args.join(' '));
+  });
+});
 
-// bind connection event listeners
-socket.on('connect', dispatcher(EConnectionStatus.Connected));
-socket.on('disconnect', dispatcher(EConnectionStatus.Disconnected));
-socket.on('error', dispatcher(EConnectionStatus.Broken));
+socket.on('connect', () => {
+  store.dispatch(changeConnectionStatus(EConnectionStatus.Connected));
+  const tokenString = tokenManager.read();
+  if(tokenString) {
+    (store.dispatch as IDispatch)(asyncLoginWithToken(tokenString));
+  }
+});
 
-socket.on('update', (payload: any) => {
-  store.dispatch(update(payload.type, payload.item, payload.id))
+socket.on('disconnect', () => {
+  store.dispatch(changeConnectionStatus(EConnectionStatus.Disconnected));
+});
+
+socket.on('reconnecting', () => {
+  store.dispatch(changeConnectionStatus(EConnectionStatus.Connecting));
 });
 
 const withTimeout = (callback: (response: any) => void) => {

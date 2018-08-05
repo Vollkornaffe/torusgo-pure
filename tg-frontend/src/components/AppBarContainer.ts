@@ -1,13 +1,13 @@
-import {connect, Dispatch} from 'react-redux';
+import {connect} from 'react-redux';
 import {resizeAppBar} from '../redux/actions';
-import AppBar, {IAppBarProps} from './AppBar';
+import {IState} from '../types/redux';
+import AppBar, {IProps} from './AppBar';
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = <T>(dispatch: Dispatch): Partial<IAppBarProps> => ({
-  handleResize: (width, height) => {
-    dispatch(resizeAppBar(width, height));
-  },
+const mapStateToProps = (state: IState): IProps => ({
+  loginState: state.loginState,
+  connectionStatus: state.connectionStatus,
+  user: state.ownUserId ? state.resources.user[state.ownUserId] : undefined,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppBar);
+
+export default connect(mapStateToProps)(AppBar);
