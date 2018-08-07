@@ -1,15 +1,9 @@
 import {Action, Reducer, ReducersMapObject} from 'redux';
-import {IDimension, IError, TResizable} from '../types';
 import {EColor, EField, EGamePhase, IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState} from '../types/network';
 import {IState, TAction} from '../types/redux';
-import {
-  EResourceStatus,
-  EResourceType,
-  isLoaded,
-  isLoading,
-  TResource,
-} from '../types/resource';
+import {EResourceStatus, EResourceType, IError,} from '../types/resource';
+import {IDimension, TResizable} from '../types/ui';
 import {applyMove, testMove} from '../utils/game-logic';
 
 const resize = (element: TResizable) => (state: IState, action: TAction<IDimension>): IState => {
@@ -96,50 +90,6 @@ const changeOwnUserId = (state: IState, action: TAction<{ id?: string }>): IStat
   ownUserId: action.id,
 });
 
-const updateResource = (state: IState, action: TAction<{ resource: TResource, id: string }>): IState => {
-  const type = action.resource.resourceType;
-
-  if(!isLoaded(state.resources[type][action.id])) {
-    return state;
-  }
-
-  return {
-    ...state,
-    resources: {
-      ...state.resources,
-      [type]: {
-        ...state.resources[type],
-        [action.id]: {
-          ...state.resources[type][action.id],
-          value: action.resource,
-        },
-      },
-    }
-  };
-};
-
-const subscribeResponse = (state: IState, action: TAction<{ resource: TResource, id: string }>): IState => {
-  const type = action.resource.resourceType;
-
-  if(!isLoading(state.resources[type][action.id])) {
-    return state;
-  }
-
-  return {
-    ...state,
-    resources: {
-      ...state.resources,
-      [type]: {
-        ...state.resources[type],
-        [action.id]: {
-          status: EResourceStatus.Loaded,
-          value: action.resource,
-        },
-      },
-    }
-  };
-};
-
 const subscribeRequest = (state: IState, action: TAction<{ resourceType: EResourceType, id: string }>): IState => {
   return ({
     ...state,
@@ -155,8 +105,29 @@ const subscribeRequest = (state: IState, action: TAction<{ resourceType: EResour
   });
 };
 
+const subscribeResponse = (state: IState, action: TAction<{ resource: any, resourceType: EResourceType, id: string }>): IState => {
+  if (state.resources[action.resourceType][action.id].status
+    !== EResourceStatus.Loading) {
+    return state;
+  }
+
+  return {
+    ...state,
+    resources: {
+      ...state.resources,
+      [action.resourceType]: {
+        ...state.resources[action.resourceType],
+        [action.id]: {
+          ...state.resources[action.resourceType][action.id],
+          value: action.resource,
+        },
+      },
+    },
+  };
+};
+
 const subscribeError = (state: IState, action: TAction<{ resourceType: EResourceType, id: string, err: IError }>): IState => {
-  if(!isLoading(state.resources[action.resourceType][action.id])) {
+  if (!state.resources[action.resourceType][action.id]) {
     return state;
   }
 
@@ -175,6 +146,25 @@ const subscribeError = (state: IState, action: TAction<{ resourceType: EResource
   };
 };
 
+const updateResource = (state: IState, action: TAction<{ resource: any, resourceType: EResourceType, id: string }>): IState => {
+  if (!state.resources[action.resourceType][action.id]) {
+    return state;
+  }
+
+  return {
+    ...state,
+    resources: {
+      ...state.resources,
+      [action.resourceType]: {
+        ...state.resources[action.resourceType],
+        [action.id]: {
+          ...state.resources[action.resourceType][action.id],
+          value: action.resource,
+        },
+      },
+    },
+  };
+};
 
 function createReducer<S>(initialState: S, reducerObject: ReducersMapObject): Reducer<S> {
   return (state = initialState, action: Action) => {

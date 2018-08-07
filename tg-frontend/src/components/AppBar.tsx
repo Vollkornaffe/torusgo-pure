@@ -1,20 +1,18 @@
 import {
-  AppBar, CircularProgress,
+  AppBar,
+  CircularProgress,
   Toolbar,
   Typography,
   WithStyles,
   withStyles
 } from '@material-ui/core/es';
 import * as React from 'react';
-import {Component, ComponentClass, SFC} from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 import {resizeAppBar} from '../redux/actions';
-import {asyncLogout} from '../redux/async-actions';
 import {EConnectionStatus, ELoginState} from '../types/network';
-import {IResourceWrapper} from '../types/resource';
-import {IUser} from '../types/user';
+import {IUserWrapper} from '../types/resource';
 import AccountDialog from './AccountDialog';
-import LoginForm from './LoginFormContainer';
+import LoginForm from './LoginForm';
 
 const APP_BAR_PADDING = 0;
 
@@ -34,7 +32,7 @@ const styles = () => ({
 export interface IProps {
   connectionStatus: EConnectionStatus,
   loginState: ELoginState,
-  user?: IResourceWrapper<IUser>,
+  user?: IUserWrapper,
 }
 
 const MyAppBar: React.SFC<IProps & WithStyles<typeof styles>> = ({connectionStatus, loginState, user, classes}) => {
@@ -57,7 +55,7 @@ const MyAppBar: React.SFC<IProps & WithStyles<typeof styles>> = ({connectionStat
   } else if (loginState === ELoginState.Undefined) {
     rightSideComponent = <LoginForm/>;
   } else {
-    rightSideComponent = (<AccountDialog user={user} handleLogout={asyncLogout}/>);
+    rightSideComponent = (<AccountDialog user={user}/>);
   }
 
   return (

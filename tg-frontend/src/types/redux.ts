@@ -1,23 +1,26 @@
 import {Action} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
-import {IDimension, TResizable} from '../types';
-import {IGame, TGameId} from './game';
+import {IGame} from './game';
 import {EConnectionStatus, ELoginState} from './network';
-import {EResourceType, IResourceWrapper, TWithType} from './resource';
-import {IUser, TUserId} from './user';
+import {
+  IGameListWrapper,
+  IGameWrapper,
+  IUserListWrapper,
+  IUserWrapper,
+} from './resource';
+import {IDimension, TResizable} from './ui';
 import {IMap} from './utils';
 
 export type TAction<T={}> = Action & T;
 
 export interface IState {
   resources: {
-    game: IMap<IResourceWrapper<IGame & { resourceType: EResourceType.Game }>>;
-    user: IMap<IResourceWrapper<IUser & { resourceType: EResourceType.User }>>;
-    gameList: IMap<IResourceWrapper<TGameId[] & { resourceType: EResourceType.GameList }>>;
-    userList: IMap<IResourceWrapper<TUserId[] & { resourceType: EResourceType.UserList }>>;
+    game: IMap<IGameWrapper>;
+    user: IMap<IUserWrapper>;
+    gameList: IMap<IGameListWrapper>;
+    userList: IMap<IUserListWrapper>;
   },
   localGame?: IGame,
-  ownUserId?: TUserId,
+  ownUserId?: string,
   dimensions: {
     [key in TResizable]: IDimension;
   },

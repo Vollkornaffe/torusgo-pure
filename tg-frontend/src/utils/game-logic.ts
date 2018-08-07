@@ -1,4 +1,4 @@
-import {IGame, TMove} from '../types';
+import {IGame, TMove} from '../types/game';
 
 export function testMove(game: IGame, move: TMove): boolean {
 

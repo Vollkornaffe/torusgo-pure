@@ -1,8 +1,5 @@
-export type TUserId = string;
-export type TUserListId = string;
-
 export interface IUser {
-  id: TUserId,
+  id: string,
   name: string,
   rank?: string,
 }

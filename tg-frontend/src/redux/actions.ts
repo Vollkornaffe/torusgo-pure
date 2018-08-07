@@ -1,9 +1,6 @@
-import {IError} from '../types';
 import {IRuleSet} from '../types/game';
 import {EConnectionStatus, ELoginState} from '../types/network';
-import {EResourceType, TResource} from '../types/resource';
-import {TUserId} from '../types/user';
-
+import {EResourceType} from '../types/resource';
 import store from './store';
 
 export const initLocalGame = (ruleSet: IRuleSet) => store.dispatch({
@@ -55,18 +52,18 @@ export const changeLoginState = (status: ELoginState) => store.dispatch({
   status,
 });
 
-export const changeOwnUserId = (id?: TUserId) => store.dispatch({
+export const changeOwnUserId = (id?: any) => store.dispatch({
   type: 'OWN_USER_ID_CHANGE',
   id,
 });
 
-export const updateResource = (resource: TResource, id: string) => store.dispatch({
+export const updateResource = (resourceType: EResourceType, id: string, resource: any) => store.dispatch({
   type: 'RESOURCE_UPDATE',
   resource,
   id,
 });
 
-export const subscribeResponse = (resource: TResource, id: string) => store.dispatch({
+export const subscribeResponse = (resourceType: EResourceType, id: string, resource: any) => store.dispatch({
   type: 'SUBSCRIBE_RESPONSE',
   resource,
   id,
@@ -78,7 +75,7 @@ export const subscribeRequest = (resourceType: EResourceType, id: string) => sto
   id,
 });
 
-export const subscribeError = (resourceType: EResourceType, id: string, err: IError) => store.dispatch({
+export const subscribeError = (resourceType: EResourceType, id: string, err: any) => store.dispatch({
   type: 'SUBSCRIBE_ERROR',
   err,
   id,

@@ -1,4 +1,3 @@
-import {IError} from '../types';
 import {
   ELoginState,
   ILoginCredentialsResponse,
@@ -7,7 +6,7 @@ import {
   IRegisterResponse,
   IUpgradeResponse
 } from '../types/network';
-import {EResourceType, isLoaded, isLoading, TResource} from '../types/resource';
+import {EResourceStatus, EResourceType} from '../types/resource';
 import {sendWithAck} from '../utils/socket-io';
 import tokenManager from '../utils/token';
 import {
@@ -33,7 +32,7 @@ export const asyncLoginWithToken = (token: string) => {
       changeLoginState(response.loginState);
       asyncChangeOwnUserId(response.id);
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       return console.log(err);
     });
 };
@@ -49,7 +48,7 @@ export const asyncLoginWithCredentials = (username: string, password: string) =>
       changeLoginState(ELoginState.User);
       asyncChangeOwnUserId(response.id);
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       console.log(err);
     });
 };
@@ -64,7 +63,7 @@ export const asyncLoginAsGuest = () => {
       changeLoginState(ELoginState.Guest);
       asyncChangeOwnUserId(response.id);
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       console.log(err);
     });
 };
@@ -86,7 +85,7 @@ export const asyncRegister = (username: string, email: string, password: string)
       changeLoginState(ELoginState.User);
       changeOwnUserId(response.id);
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       console.log(err);
     });
 };
@@ -102,7 +101,7 @@ export const asyncUpgrade = (username: string, email: string, password: string) 
       }
       changeLoginState(ELoginState.User);
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       console.log(err);
     });
 };
@@ -117,7 +116,7 @@ export const asyncLogout = () => {
       changeLoginState(ELoginState.Undefined);
       changeOwnUserId();
     })
-    .catch((err: IError) => {
+    .catch((err: any) => {
       console.log(err);
     });
 };
@@ -125,12 +124,13 @@ export const asyncLogout = () => {
 export const asyncSubscribe = (resourceType: EResourceType, id: string) => {
   const resource = store.getState().resources[resourceType][id];
 
-  if (isLoading(resource) || isLoaded(resource)) {
+  if (!resource || resource.status !== EResourceStatus.Unavailable) {
+    // only subscribe if the resource is not already loading or loaded
     return;
   }
 
   subscribeRequest(resourceType, id);
   sendWithAck('subscribe', {type: resourceType, id})
-    .then((data: TResource) => subscribeResponse(data, id))
-    .catch((err: IError) => subscribeError(resourceType, id, err));
+    .then((data: any) => subscribeResponse(resourceType, id, data))
+    .catch((err: any) => subscribeError(resourceType, id, err));
 };

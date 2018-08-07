@@ -1,11 +1,15 @@
 import {
   Button,
-  Dialog, DialogActions,
+  Dialog,
+  DialogActions,
   DialogContent,
-  DialogTitle, TextField, withStyles,
+  DialogTitle,
+  TextField,
+  withStyles,
   WithStyles
 } from '@material-ui/core/es';
 import * as React from 'react';
+import {asyncRegister} from '../redux/async-actions';
 
 const styles = () => ({
   root: {},
@@ -14,8 +18,7 @@ const styles = () => ({
   }
 });
 
-export interface IProps extends WithStyles<typeof styles> {
-  onSubmit: (username: string, email: string, password: string) => void,
+interface IProps extends WithStyles<typeof styles> {
   onClose: () => void,
   open: boolean,
 }
@@ -38,7 +41,7 @@ class RegisterDialog extends React.Component<IProps, IState> {
 
   public render() {
 
-    const {onSubmit, onClose, classes, open} = this.props;
+    const {onClose, classes, open} = this.props;
 
     const {username, email, password} = this.state;
 
@@ -64,7 +67,7 @@ class RegisterDialog extends React.Component<IProps, IState> {
     };
 
     const onSubmitClick = () => {
-      onSubmit(username, email, password);
+      asyncRegister(username, email, password);
     };
 
     return (

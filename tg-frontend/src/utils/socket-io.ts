@@ -1,7 +1,8 @@
 import * as socketIO from 'socket.io-client';
-import {changeConnectionStatus} from '../redux/actions';
+import {changeConnectionStatus, updateResource} from '../redux/actions';
+import {asyncLoginWithToken} from '../redux/async-actions';
 
-import store from '../redux/store';
+import {EConnectionStatus} from '../types/network';
 import tokenManager from './token';
 
 let URL = 'http://localhost:3450/';
@@ -20,19 +21,28 @@ const socket = socketIO.connect(URL);
 });
 
 socket.on('connect', () => {
-  store.dispatch(changeConnectionStatus(EConnectionStatus.Connected));
+  changeConnectionStatus(EConnectionStatus.Connected);
   const tokenString = tokenManager.read();
   if(tokenString) {
-    (store.dispatch as IDispatch)(asyncLoginWithToken(tokenString));
+    asyncLoginWithToken(tokenString);
   }
 });
 
 socket.on('disconnect', () => {
-  store.dispatch(changeConnectionStatus(EConnectionStatus.Disconnected));
+  changeConnectionStatus(EConnectionStatus.Disconnected);
 });
 
 socket.on('reconnecting', () => {
-  store.dispatch(changeConnectionStatus(EConnectionStatus.Connecting));
+  changeConnectionStatus(EConnectionStatus.Connecting);
+});
+
+socket.on('update', (data: any) => {
+  // discard invalid data
+  if (!data || !data.name || !data.id) {
+    return;
+  }
+
+  updateResource(data.name, data.id, data.item);
 });
 
 const withTimeout = (callback: (response: any) => void) => {

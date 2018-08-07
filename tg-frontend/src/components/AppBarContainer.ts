@@ -1,5 +1,4 @@
 import {connect} from 'react-redux';
-import {resizeAppBar} from '../redux/actions';
 import {IState} from '../types/redux';
 import AppBar, {IProps} from './AppBar';
 

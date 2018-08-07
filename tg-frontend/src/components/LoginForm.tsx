@@ -1,11 +1,16 @@
 import {
   Button,
   InputAdornment,
-  TextField, Typography, WithStyles,
+  TextField,
+  WithStyles,
   withStyles
 } from '@material-ui/core/es/index';
 import {AccountCircle, VpnKey} from '@material-ui/icons';
 import * as React from 'react';
+import {
+  asyncLoginAsGuest,
+  asyncLoginWithCredentials
+} from '../redux/async-actions';
 import RegisterDialog from './RegisterDialog';
 
 const styles = () => ({
@@ -26,13 +31,8 @@ const styles = () => ({
   }
 });
 
-export interface IDispatchProps {
-  handleLogin: (username: string, password: string) => void,
-  handleGuest: () => void,
-  handleRegister: (username: string, email: string, password: string) => void,
+interface IProps extends WithStyles<typeof styles> {
 }
-
-export interface IProps extends WithStyles<typeof styles>, IDispatchProps {}
 
 interface IState {
   username: string,
@@ -41,7 +41,6 @@ interface IState {
 }
 
 class LoginForm extends React.Component<IProps, IState> {
-
   constructor(props: IProps) {
     super(props);
     this.state = {
@@ -52,7 +51,7 @@ class LoginForm extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const {handleLogin, handleRegister, handleGuest, classes} = this.props;
+    const {classes} = this.props;
 
     const {username, password, open} = this.state;
 
@@ -70,13 +69,9 @@ class LoginForm extends React.Component<IProps, IState> {
       });
     };
 
-    const onLoginClick = () => {
-      handleLogin(this.state.username, this.state.password);
-    };
+    const onLoginClick = () => asyncLoginWithCredentials(this.state.username, this.state.password);
 
-    const onGuestClick = () => {
-      handleGuest();
-    };
+    const onGuestClick = () => asyncLoginAsGuest();
 
     const onClose = () => {
       this.setState({open: false});
@@ -143,8 +138,7 @@ class LoginForm extends React.Component<IProps, IState> {
         </Button>
         <RegisterDialog
           open={open}
-          onClose={onClose}
-          onSubmit={handleRegister}/>
+          onClose={onClose}/>
       </div>
     );
   }

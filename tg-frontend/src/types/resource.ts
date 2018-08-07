@@ -1,6 +1,10 @@
-import {IError} from '../types';
-import {IGame, TGameId, TGameListId} from './game';
-import {IUser, TUserId, TUserListId} from './user';
+import {IGame} from './game';
+import {IUser} from './user';
+
+export interface IError {
+  error: string,
+  message: string,
+}
 
 export enum EResourceStatus {
   Loading,
@@ -9,57 +13,31 @@ export enum EResourceStatus {
 }
 
 export enum EResourceType {
-  Game,
-  User,
-  UserList,
-  GameList,
+  Game = 'game',
+  User = 'user',
+  UserList = 'gameList',
+  GameList = 'userList',
 }
 
-export type TWithType<T> = T & { resourceType: EResourceType };
-
-export type TResource = (IGame & { resourceType: EResourceType.Game })
-  | (IUser & { resourceType: EResourceType.User })
-  | (TUserId[] & { resourceType: EResourceType.UserList })
-  | (TGameId[] & { resourceType: EResourceType.GameList });
-
-export interface IResourceWrapper<T extends TResource> {
-  status: EResourceStatus,
+export interface IResourceWrapper<T> {
+  status: EResourceStatus;
+  resourceType: EResourceType;
   value?: T;
-  error?: IError,
+  error?: IError;
 }
 
-export interface ILoadedResource<T extends TResource> extends IResourceWrapper<T>{
-  status: EResourceStatus.Loaded;
-  value: T;
+export interface IGameWrapper extends IResourceWrapper<IGame> {
+  resourceType: EResourceType.Game;
 }
 
-export interface ILoadingResource<T extends TResource> extends IResourceWrapper<T>{
-  status: EResourceStatus.Loading;
+export interface IUserWrapper extends IResourceWrapper<IUser> {
+  resourceType: EResourceType.User;
 }
 
-export interface IUnavailableResource<T extends TResource> extends IResourceWrapper<T> {
-  status: EResourceStatus.Unavailable;
-  error: IError,
-}
-export interface IGameResource {
-  type: EResourceType.Game;
-  value: IGame;
+export interface IGameListWrapper extends IResourceWrapper<string[]> {
+  resourceType: EResourceType.GameList;
 }
 
-interface IRes {
-  status: EResourceStatus,
-  type: EResourceType,
+export interface IUserListWrapper extends IResourceWrapper<string[]> {
+  resourceType: EResourceType.UserList;
 }
-
-
-export const isLoaded = <T extends TResource>(resource?: IResourceWrapper<T>): resource is ILoadedResource<T> => {
-  return resource ? resource.status === EResourceStatus.Loaded : false;
-};
-
-export const isLoading = <T extends TResource>(resource?: IResourceWrapper<T>): resource is ILoadingResource<T> => {
-  return resource ? resource.status === EResourceStatus.Loading : false;
-};
-
-export const isUnavailable = <T extends TResource>(resource?: IResourceWrapper<T>): resource is IUnavailableResource<T> => {
-  return resource ? resource.status === EResourceStatus.Unavailable : false;
-};

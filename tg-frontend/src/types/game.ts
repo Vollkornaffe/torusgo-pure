@@ -1,6 +1,3 @@
-export type TGameId = string;
-export type TGameListId = string;
-
 export interface IRegMove {
   type: 'M',
   x: number,
@@ -29,7 +26,7 @@ export interface IMeta {
   observers: string[],
   blackId: string,
   whiteId: string,
-  id: TGameId,
+  id: string,
 }
 
 export interface IRuleSet {
