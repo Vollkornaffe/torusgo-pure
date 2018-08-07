@@ -75,13 +75,13 @@ const changeConnectionStatus = (state: IState, action: TAction<{ status: EConnec
   }
 };
 
-const changeLoginState = (state: IState, action: TAction<{ state: ELoginState }>): IState => {
-  if (action.state === state.loginState) {
+const changeLoginState = (state: IState, action: TAction<{ status: ELoginState }>): IState => {
+  if (action.status === state.loginState) {
     return state;
   }
   return {
     ...state,
-    loginState: action.state,
+    loginState: action.status,
   }
 };
 
@@ -118,7 +118,7 @@ const subscribeResponse = (state: IState, action: TAction<{ resource: any, resou
       [action.resourceType]: {
         ...state.resources[action.resourceType],
         [action.id]: {
-          ...state.resources[action.resourceType][action.id],
+          status: EResourceStatus.Loaded,
           value: action.resource,
         },
       },
@@ -158,7 +158,7 @@ const updateResource = (state: IState, action: TAction<{ resource: any, resource
       [action.resourceType]: {
         ...state.resources[action.resourceType],
         [action.id]: {
-          ...state.resources[action.resourceType][action.id],
+          status: EResourceStatus.Loaded,
           value: action.resource,
         },
       },

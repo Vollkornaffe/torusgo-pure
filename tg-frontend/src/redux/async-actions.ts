@@ -124,7 +124,7 @@ export const asyncLogout = () => {
 export const asyncSubscribe = (resourceType: EResourceType, id: string) => {
   const resource = store.getState().resources[resourceType][id];
 
-  if (!resource || resource.status !== EResourceStatus.Unavailable) {
+  if (resource && resource.status !== EResourceStatus.Unavailable) {
     // only subscribe if the resource is not already loading or loaded
     return;
   }

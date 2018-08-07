@@ -59,14 +59,16 @@ export const changeOwnUserId = (id?: any) => store.dispatch({
 
 export const updateResource = (resourceType: EResourceType, id: string, resource: any) => store.dispatch({
   type: 'RESOURCE_UPDATE',
-  resource,
+  resourceType,
   id,
+  resource,
 });
 
 export const subscribeResponse = (resourceType: EResourceType, id: string, resource: any) => store.dispatch({
   type: 'SUBSCRIBE_RESPONSE',
-  resource,
+  resourceType,
   id,
+  resource,
 });
 
 export const subscribeRequest = (resourceType: EResourceType, id: string) => store.dispatch({
@@ -77,6 +79,7 @@ export const subscribeRequest = (resourceType: EResourceType, id: string) => sto
 
 export const subscribeError = (resourceType: EResourceType, id: string, err: any) => store.dispatch({
   type: 'SUBSCRIBE_ERROR',
-  err,
+  resourceType,
   id,
+  err,
 });
