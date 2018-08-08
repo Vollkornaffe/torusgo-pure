@@ -1,6 +1,8 @@
 import * as React from 'react';
 import autoBind from 'react-autobind';
 
+import TorusAnimation from '../ThreeGraphic/TorusAnimation';
+
 export interface IProps {
   width: number,
   height: number,
@@ -11,6 +13,7 @@ export interface IProps {
 class ThreeComponent extends React.Component<IProps> {
 
   private canvas: HTMLCanvasElement;
+  private torusAnimation: TorusAnimation;
 
   constructor(props: IProps) {
     super(props);
@@ -20,17 +23,17 @@ class ThreeComponent extends React.Component<IProps> {
   public componentDidMount() {
     const {width, height, boardSizeX, boardSizeY,} = this.props;
 
-    /*
-    this.animation = new Animation({
-      width,
-      height,
-      canvas: this.canvas,
-
-      // board properties
-      boardSize,
-      boardState,
-    });
-    */
+    this.torusAnimation = new TorusAnimation(
+      {
+        "width": width,
+        "height": height,
+        "boardSizeX": boardSizeX,
+        "boardSizeY": boardSizeY,
+        "radius": 1,
+        "thickness": 1,
+      },
+      this.canvas,
+    );
 
     // this.animation.start();
 
