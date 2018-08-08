@@ -11,8 +11,11 @@ export default () => (
         <ThreeComponent
           width={1000}
           height={1000}
-          boardSizeX={1}
-          boardSizeY={1}
+          boardSizeX={19}
+          boardSizeY={19}
+          radius={2}
+          thickness={0.5}
+          twist={0.0}
           />
       </div>
     </Router>

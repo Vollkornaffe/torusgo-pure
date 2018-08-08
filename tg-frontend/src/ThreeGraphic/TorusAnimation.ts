@@ -21,6 +21,7 @@ import {
   WebGLRenderer,
 } from 'three';
 
+import TorusGeometry from './TorusGeometry';
 
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
@@ -49,12 +50,13 @@ const LINE_COLOR = 0x000000;
 const ORIGIN = new Vector3(0, 0, 0);
 
 export interface ITorusAnimationSetup {
-  width: number;
-  height: number;
+  width:      number;
+  height:     number;
   boardSizeX: number;
   boardSizeY: number;
-  radius: number;
-  thickness: number;
+  radius:     number;
+  thickness:  number;
+  twist:      number;
 };
 
 class TorusAnimation {
@@ -67,7 +69,8 @@ class TorusAnimation {
   private ambientLight: THREE.AmbientLight;
   private directionalLight: THREE.DirectionalLight;
   private torusMaterial: THREE.MeshPhongMaterial;
-  private torusGeometry: THREE.BoxGeometry;
+  // private torusGeometry: THREE.BoxGeometry;
+  private torusGeometry: TorusGeometry;
   private torusMesh: THREE.Mesh;
 
   public constructor(
@@ -96,7 +99,14 @@ class TorusAnimation {
       color: TORUS_COLOR,
       vertexColors: FaceColors,
     });
-    this.torusGeometry = new BoxGeometry(1,1,1);
+    // this.torusGeometry = new BoxGeometry(1,1,1);
+    this.torusGeometry = new TorusGeometry(
+      givenSetup.boardSizeX,
+      givenSetup.boardSizeY,
+      givenSetup.radius,
+      givenSetup.thickness,
+      givenSetup.twist,
+    );
     this.torusMesh = new Mesh(this.torusGeometry, this.torusMaterial);
     this.scene.add(this.torusMesh);
 

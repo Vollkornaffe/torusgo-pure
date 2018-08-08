@@ -4,10 +4,13 @@ import autoBind from 'react-autobind';
 import TorusAnimation from '../ThreeGraphic/TorusAnimation';
 
 export interface IProps {
-  width: number,
-  height: number,
+  width:      number,
+  height:     number,
   boardSizeX: number,
   boardSizeY: number,
+  radius:     number,
+  thickness:  number,
+  twist:      number,
 }
 
 class ThreeComponent extends React.Component<IProps> {
@@ -21,21 +24,10 @@ class ThreeComponent extends React.Component<IProps> {
   }
 
   public componentDidMount() {
-    const {width, height, boardSizeX, boardSizeY,} = this.props;
-
     this.torusAnimation = new TorusAnimation(
-      {
-        "width": width,
-        "height": height,
-        "boardSizeX": boardSizeX,
-        "boardSizeY": boardSizeY,
-        "radius": 1,
-        "thickness": 1,
-      },
+      this.props,
       this.canvas,
     );
-
-    // this.animation.start();
 
     this.canvas.addEventListener('mousemove', this.onMouseMove);
     this.canvas.addEventListener('click', this.onMouseClick);
@@ -60,7 +52,7 @@ class ThreeComponent extends React.Component<IProps> {
     this.canvas.removeEventListener('click', this.onMouseClick);
     this.canvas.removeEventListener('mousemove', this.onMouseMove);
 
-    // this.animation.stop();
+    this.torusAnimation.cleanup();
   }
 
   // componentDidUpdate(prevProps, prevState, prevContext) {
