@@ -50,13 +50,6 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
   public state = {
     open: false,
   };
-  private handleDrawerOpen = () => {
-    this.setState({open: true});
-  };
-  private handleDrawerClose = () => {
-    this.setState({open: false});
-  };
-
   constructor(props: WithStyles<typeof styles>) {
     super(props);
     autoBind(this);
@@ -86,6 +79,15 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
       </div>
     );
   }
+
+  private handleDrawerOpen = () => {
+    this.setState({open: true});
+  };
+  
+  private handleDrawerClose = () => {
+    this.setState({open: false});
+  };
+
 }
 
 export default withStyles(styles)(Layout);
