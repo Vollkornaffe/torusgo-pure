@@ -17,7 +17,8 @@
     "redux-logger": "latest",
     "redux-thunk": "latest",
     "socket.io-client": "latest",
-    "three": "^0.93.0"
+    "three": "^0.93.0",
+    "classnames": "latest"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -26,6 +27,7 @@
     "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
+    "@types/classnames": "^2.2.6",
     "@types/jest": "^23.0.0",
     "@types/node": "^10.3.2",
     "@types/react": "^16.3.17",

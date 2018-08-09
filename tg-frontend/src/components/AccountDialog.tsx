@@ -79,9 +79,7 @@ class AccountDialog extends React.Component<IProps, IState> {
 
     return (
       <div>
-        <Button
-          onClick={onLogoutClick}
-          color={'default'}>
+        <Button onClick={onLogoutClick} color={'inherit'}>
           Logout
         </Button>
         <IconButton

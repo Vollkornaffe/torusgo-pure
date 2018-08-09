@@ -14,13 +14,14 @@ export interface IPosition {
   x: number,
   y: number,
 }
-export enum EColor {Black=1, White=2}
 
-export enum EField {Empty=0, Black=1, White=2}
+export enum EColor {Black = 'black', White = 'white'}
+
+export enum EField {Empty = 'empty', Black = 'black', White = 'white'}
 
 export type TGameBoard = EField[];
 
-export enum EGamePhase {Waiting = 0, Running = 1}
+export enum EGamePhase {Waiting = 'waiting', Running = 'running'}
 
 export interface IMeta {
   observers: string[],

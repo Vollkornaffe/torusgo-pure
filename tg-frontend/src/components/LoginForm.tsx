@@ -1,3 +1,4 @@
+import {createStyles, Theme} from '@material-ui/core';
 import {
   Button,
   InputAdornment,
@@ -13,12 +14,15 @@ import {
 } from '../redux/async-actions';
 import RegisterDialog from './RegisterDialog';
 
-const styles = () => ({
+const styles = (theme: Theme) => createStyles({
   root: {
     minWidth: 550,
   },
   input: {
     margin: 8,
+  },
+  inputElem: {
+    color: theme.palette.primary.contrastText,
   },
   btn: {
     marginTop: -14,
@@ -28,11 +32,8 @@ const styles = () => ({
     borderRight: '0.1em solid black',
     padding: 5,
     paddingTop: -14,
-  }
+  },
 });
-
-interface IProps extends WithStyles<typeof styles> {
-}
 
 interface IState {
   username: string,
@@ -40,8 +41,8 @@ interface IState {
   open: boolean,
 }
 
-class LoginForm extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
+class LoginForm extends React.Component<WithStyles<typeof styles>, IState> {
+  constructor(props: WithStyles<typeof styles>) {
     super(props);
     this.state = {
       username: '',
@@ -83,62 +84,40 @@ class LoginForm extends React.Component<IProps, IState> {
 
     return (
       <div className={classes.root}>
-        <TextField
-          value={username}
-          onChange={onUsernameChange}
-          className={classes.input}
-          placeholder={'username'}
-          margin={'dense'}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AccountCircle/>
-              </InputAdornment>
-            ),
-          }}/>
-        <TextField
-          value={password}
-          onChange={onPasswordChange}
-          className={classes.input}
-          placeholder={'password'}
-          type={'password'}
-          margin={'dense'}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <VpnKey/>
-              </InputAdornment>
-            ),
-          }}/>
-        <Button
-          onClick={onLoginClick}
-          color={'primary'}
-          variant={'contained'}
-          size={'small'}
-          className={classes.btn}>
+        <TextField value={username} onChange={onUsernameChange} className={classes.input}
+                   placeholder={'username'} margin={'dense'} InputProps={{
+          className: classes.inputElem,
+          startAdornment: (
+            <InputAdornment position={'start'}>
+              <AccountCircle />
+            </InputAdornment>
+          ),
+        }} />
+        <TextField value={password} onChange={onPasswordChange} className={classes.input}
+                   placeholder={'password'} type={'password'} margin={'dense'}
+                   InputProps={{
+                     className: classes.inputElem,
+                     startAdornment: (
+                       <InputAdornment position={'start'}>
+                         <VpnKey />
+                       </InputAdornment>
+                     ),
+                   }} />
+        <Button onClick={onLoginClick} color={'default'} variant={'contained'}
+                size={'small'} className={classes.btn}>
           Login
         </Button>
         <span className={classes.divider}/>
-        <Button
-          onClick={onGuestClick}
-          color={'primary'}
-          variant={'contained'}
-          size={'small'}
-          className={classes.btn}>
+        <Button onClick={onGuestClick} color={'default'} variant={'contained'}
+                size={'small'} className={classes.btn}>
           Guest
         </Button>
         <span className={classes.divider}/>
-        <Button
-          onClick={onOpen}
-          color={'primary'}
-          variant={'contained'}
-          size={'small'}
-          className={classes.btn}>
+        <Button onClick={onOpen} color={'default'} variant={'contained'} size={'small'}
+                className={classes.btn}>
           Register
         </Button>
-        <RegisterDialog
-          open={open}
-          onClose={onClose}/>
+        <RegisterDialog open={open} onClose={onClose} />
       </div>
     );
   }

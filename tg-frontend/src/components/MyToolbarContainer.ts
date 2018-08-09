@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import {IState} from '../types/redux';
-import AppBar, {IProps} from './AppBar';
+import Toolbar, {IProps} from './MyToolbar';
 
 const mapStateToProps = (state: IState): IProps => ({
   loginState: state.loginState,
@@ -9,4 +9,4 @@ const mapStateToProps = (state: IState): IProps => ({
 });
 
 
-export default connect(mapStateToProps)(AppBar);
+export default connect(mapStateToProps)(Toolbar);
