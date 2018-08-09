@@ -13,9 +13,10 @@ export default () => (
           height={1000}
           boardSizeX={19}
           boardSizeY={19}
-          radius={2}
-          thickness={0.5}
+          radius={1.5}
+          thickness={1}
           twist={0.0}
+          lineOff={0.05}
           />
       </div>
     </Router>

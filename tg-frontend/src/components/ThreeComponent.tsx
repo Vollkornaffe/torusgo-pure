@@ -11,6 +11,7 @@ export interface IProps {
   radius:     number,
   thickness:  number,
   twist:      number,
+  lineOff:    number,
 }
 
 class ThreeComponent extends React.Component<IProps> {
