@@ -16,7 +16,7 @@ export default () => (
           radius={1.5}
           thickness={1}
           twist={0.0}
-          lineOff={0.05}
+          lineOff={0.0}
           />
       </div>
     </Router>
