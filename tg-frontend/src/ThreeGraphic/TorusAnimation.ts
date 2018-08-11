@@ -16,6 +16,7 @@ import {
   PerspectiveCamera,
   Raycaster,
   Scene,
+  ShaderMaterial,
   TorusBufferGeometry,
   Vector2,
   Vector3,
@@ -77,6 +78,8 @@ class TorusAnimation {
   private torusMaterialFaces: THREE.MeshPhongMaterial;
   private torusMaterialLines: THREE.LineBasicMaterial;
 
+  private experimentalShader: THREE.ShaderMaterial;
+
   // private torusGeometry: THREE.BoxGeometry;
   private torusGeometryGeneral: TorusGeometryGeneral;
   private torusGeometryFaces: TorusGeometryFaces;
@@ -121,6 +124,20 @@ class TorusAnimation {
       linecap: 'round',
     });
 
+    this.experimentalShader = new ShaderMaterial({
+    	vertexShader: [
+        "void main() {",
+          "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+        "}"
+      ].join( "\n" ),
+
+      fragmentShader: [
+        "void main() {",
+          "gl_FragColor = vec4( 1.0, 0.0, 0.0, 0.5 );",
+        "}"
+      ].join( "\n" )
+    });
+
     this.torusGeometryGeneral = new TorusGeometryGeneral(
       givenSetup.boardSizeX,
       givenSetup.boardSizeY,
@@ -133,15 +150,16 @@ class TorusAnimation {
     this.torusGeometryLines = new TorusGeometryLines(this.torusGeometryGeneral);
     // this.torusGeometryRaycast = new TorusGeometryRaycast(this.torusGeometryGeneral);
 
-    this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.torusMaterialFaces);
+    // this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.torusMaterialFaces);
+    this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.experimentalShader);
     this.torusMeshLines = new LineSegments(this.torusGeometryLines, this.torusMaterialLines);
     // this.torusMeshRaycast = new Mesh(this.torusGeometryFancy, this.torusMaterialFancy);
 
     // this.torusMeshFancy.rotation.y = Math.PI / 2;
     // this.torusMeshFancy.geometry.computeVertexNormals();
 
-    // this.scene.add(this.torusMeshFaces);
-    this.scene.add(this.torusMeshLines);
+    this.scene.add(this.torusMeshFaces);
+    // this.scene.add(this.torusMeshLines);
     // this.scene.add(this.torusMeshRaycast);
 
     this.animate();
