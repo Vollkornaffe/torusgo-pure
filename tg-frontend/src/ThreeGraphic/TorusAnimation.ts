@@ -2,6 +2,7 @@ import autoBind from 'react-autobind';
 
 import {
   AmbientLight,
+	AxesHelper,
   BoxGeometry,
   Color,
   DirectionalLight,
@@ -280,17 +281,19 @@ class TorusAnimation {
     // this.torusGeometryRaycast = new TorusGeometryRaycast(this.torusGeometryGeneral);
 
     this.testMesh = new Mesh(this.testGeometry, this.experimentalShader);
-    this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.torusMaterialFaces);
+    this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.experimentalShader);
+    // this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.torusMaterialFaces);
     this.torusMeshLines = new LineSegments(this.torusGeometryLines, this.torusMaterialLines);
     // this.torusMeshRaycast = new Mesh(this.torusGeometryFancy, this.torusMaterialFancy);
 
     // this.torusMeshFancy.rotation.y = Math.PI / 2;
     // this.torusMeshFancy.geometry.computeVertexNormals();
 
-    this.scene.add(this.testMesh);
-    // this.scene.add(this.torusMeshFaces);
-    // this.scene.add(this.torusMeshLines);
+    // this.scene.add(this.testMesh);
+    this.scene.add(this.torusMeshFaces);
+    this.scene.add(this.torusMeshLines);
     // this.scene.add(this.torusMeshRaycast);
+		this.scene.add( new AxesHelper(3) );
 
     this.animate();
   }
@@ -320,6 +323,7 @@ class TorusAnimation {
 		// Use Math.cos and Math.sin to set camera X and Z values based on angle. 
 		this.camera.position.x = 5.0 * Math.cos( this.angle );  
 		this.camera.position.z = 5.0 * Math.sin( this.angle );
+		this.camera.position.y = 1.0;
 		console.log(this.camera.position);
 		this.camera.lookAt(0.0,0.0,0.0);
 		this.angle += 0.01;
