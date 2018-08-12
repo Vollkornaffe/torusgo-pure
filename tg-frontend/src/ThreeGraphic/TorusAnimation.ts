@@ -256,6 +256,13 @@ class TorusAnimation {
 		"float amb = clamp( 0.5 + 0.5*dot(nor,vec3(0.0,1.0,0.0)), 0.0, 1.0 );",
 		"col = vec3(0.2,0.3,0.4)*amb + vec3(1.0,0.9,0.7)*dif;",
 		"col *= 0.8;",
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) < 0.1) {col.x = 0.0;}",
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) < 0.01) {col.y = 1.0;}",
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) < 0.001) {col.z = 0.0;}",
+
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) > 0.9) {col.x = 0.0;}",
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) > 0.99) {col.y = 1.0;}",
+		"if (abs(dot(nor, vec3(1.0,0.0,0.0))) + abs(dot(nor, vec3(0.0,1.0,0.0))) > 0.999) {col.z = 0.0;}",
 	"}",
 	"",
 	"col = sqrt( col );",
@@ -267,7 +274,7 @@ class TorusAnimation {
       ].join( "\n" )
     });
 
-    this.testGeometry = new BoxGeometry(2,2,2);
+    this.testGeometry = new BoxGeometry(5,5,5);
     this.torusGeometryGeneral = new TorusGeometryGeneral(
       givenSetup.boardSizeX,
       givenSetup.boardSizeY,
@@ -289,9 +296,9 @@ class TorusAnimation {
     // this.torusMeshFancy.rotation.y = Math.PI / 2;
     // this.torusMeshFancy.geometry.computeVertexNormals();
 
-    // this.scene.add(this.testMesh);
-    this.scene.add(this.torusMeshFaces);
-    this.scene.add(this.torusMeshLines);
+    this.scene.add(this.testMesh);
+    // this.scene.add(this.torusMeshFaces);
+    // this.scene.add(this.torusMeshLines);
     // this.scene.add(this.torusMeshRaycast);
 		this.scene.add( new AxesHelper(3) );
 
