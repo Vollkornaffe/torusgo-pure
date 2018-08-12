@@ -57,8 +57,8 @@ class TorusGeometryGeneral extends Geometry {
 
   public update() {
     // axis
-    const xAxis = new Vector3(1, 0, 0);
-    const yAxis = new Vector3(0, 1, 0);
+    const xAxis = new Vector3(0, 0, 1);
+    const yAxis = new Vector3(1, 0, 0);
 
     for (let i = 0; i < this.boardSizeX; i++) {
       // this is where the TWIST has an influence!
@@ -66,8 +66,8 @@ class TorusGeometryGeneral extends Geometry {
 
       const offset = new Vector3(
         this.thickness * Math.cos(iRad),
-        this.thickness * Math.sin(iRad),
         0,
+        this.thickness * Math.sin(iRad),
       );
       const offsetNormalized = new Vector3();
       offsetNormalized.copy(offset);
