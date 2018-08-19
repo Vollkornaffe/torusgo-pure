@@ -12,6 +12,7 @@ void main()
 const fragmentShader = `
 
 uniform mat4 inverseViewMatrix;
+uniform float twist;
 #define PI 3.1415926535897932384626433832795
 
 float iTorus( in vec3 ro, in vec3 rd, in vec2 torus )
@@ -128,7 +129,7 @@ void main() {
   vec4 ray_wc = normalize(imgplane_wc - camera_wc);
 
   // raytrace-plane
-  vec2 torus = vec2(2.0,1.5);
+  vec2 torus = vec2(2.0,1.0);
   float t = iTorus( camera_wc.xyz, ray_wc.xyz, torus );
 
   if (t < 0.0) {discard;}
@@ -140,24 +141,23 @@ void main() {
     vec3 pos = camera_wc.xyz + t*ray_wc.xyz;
 
     vec3 nor = nTorus( pos, torus );
-    float dif = clamp( dot(nor,vec3(0.57703)), 0.0, 1.0 );
+    float dif = clamp( dot(nor,-ray_wc.xyz), 0.0, 1.0 );
     float amb = clamp( 0.5 + 0.5*dot(nor,vec3(0.0,1.0,0.0)), 0.0, 1.0 );
 
-    col = vec3(0.2,0.3,0.4)*amb + vec3(1.0,0.9,0.7)*dif;
-    col *= 0.8;
+    col = vec3(253.0, 136.0, 43.0) / 255.0;
+
+    col *= amb + dif;
+    col *= pow(t/50.0, -1.0);
 
     float theta_0 = atan2(pos.y, pos.x);
     mat3 rotMat = rotationMatrix(vec3(0.0,0.0,1.0), theta_0);
-    vec3 pos_rotated =  rotMat * pos - vec3(2.0,0.0,0.0);
+    vec3 pos_rotated =  rotMat * pos - vec3(torus.x,0.0,0.0);
 
-    if (mod(atan2(pos.y, pos.x), 2.0*PI/20.0) < 0.05) { col *= 0.5;}
-    if (mod(atan2(pos.y, pos.x), 2.0*PI/20.0) < 0.01) { col *= 0.0;}
-    if (mod(atan2(pos.y, pos.x), 2.0*PI/20.0) > 2.0*PI/20.0 -0.01 ) { col *= 0.0;}
-    if (mod(atan2(pos.y, pos.x), 2.0*PI/20.0) > 2.0*PI/20.0 -0.05 ) { col *= 0.5;}
-    if (mod(atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0) < 0.05) { col *= 0.5;}
-    if (mod(atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0) < 0.01) { col *= 0.0;}
-    if (mod(atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0) > 2.0*PI/20.0 -0.01 ) { col *= 0.0;}
-    if (mod(atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0) > 2.0*PI/20.0 -0.05 ) { col *= 0.5;}
+    float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/20.0);
+    float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/20.0);
+    float mod_y_pos = mod(+twist+atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0);
+    float mod_y_neg = mod(-twist-atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/20.0);
+    col *= pow(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg, 0.5);
 
   }
 
@@ -169,12 +169,13 @@ void main() {
 `;
 
 export default class TorusMaterialBoard extends ShaderMaterial {
-  constructor(matrixWorld: THREE.Matrix4) {
+  constructor(matrixWorld: THREE.Matrix4, twist: number) {
     const parameters =
     {
       side: DoubleSide,
       uniforms: {
         inverseViewMatrix: new Uniform(matrixWorld),
+        twist: new Uniform(twist),
       },
       vertexShader: vertexShader.concat(),
       fragmentShader: fragmentShader.concat(),

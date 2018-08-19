@@ -82,7 +82,7 @@ class TorusAnimation {
   private torusMaterialFaces: THREE.MeshPhongMaterial;
   private torusMaterialLines: THREE.LineBasicMaterial;
 
-    private angle: number;
+  private angle: number;
   private experimentalShader: THREE.ShaderMaterial;
 
   private testGeometry: THREE.BoxGeometry;
@@ -132,7 +132,7 @@ class TorusAnimation {
 
     
     this.angle = 0.0;
-    this.experimentalShader = new TorusMaterialBoard(this.camera.matrixWorld);
+    this.experimentalShader = new TorusMaterialBoard(this.camera.matrixWorld, this.angle);
 
     this.testGeometry = new BoxGeometry(10,10,10);
     this.torusGeometryGeneral = new TorusGeometryGeneral(
@@ -187,12 +187,13 @@ class TorusAnimation {
 
     // End of animation code
 
-        // Use Math.cos and Math.sin to set camera X and Z values based on angle.
-        this.camera.position.x = 5.0 * Math.cos( this.angle );
-        this.camera.position.z = 5.0 * Math.sin( this.angle );
-        this.camera.position.y = 1.0;
-        this.camera.lookAt(0.0,0.0,0.0);
-        this.angle += 0.01;
+    // Use Math.cos and Math.sin to set camera X and Z values based on angle.
+    this.camera.position.x = 5.0 * Math.cos( this.angle );
+    this.camera.position.z = 5.0 * Math.sin( this.angle );
+    this.camera.position.y = 0.0;
+    this.camera.lookAt(0.0,0.0,0.0);
+    this.angle += 0.005;
+    this.experimentalShader.uniforms.twist.value = this.angle;
 
     this.torusGeometryGeneral.update();
     this.torusGeometryFaces.update();
