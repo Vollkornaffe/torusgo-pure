@@ -1,36 +1,17 @@
 import autoBind from 'react-autobind';
 
 import {
-  AmbientLight,
-    AxesHelper,
+  AxesHelper,
   BoxGeometry,
   Color,
-  DirectionalLight,
-  DoubleSide,
-  FaceColors,
-  Group,
-  LineBasicMaterial,
-  LineSegments,
-  Matrix4,
-  Mesh,
-  MeshFaceMaterial,
-  MeshPhongMaterial,
+  Mesh, MeshBasicMaterial,
   PerspectiveCamera,
-  Raycaster,
   Scene,
-  ShaderMaterial,
-  TorusBufferGeometry,
-  Uniform,
-  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
 
-import TorusGeometryFaces from './TorusGeometryFaces';
-import TorusGeometryGeneral from './TorusGeometryGeneral';
-import TorusGeometryLines from './TorusGeometryLines';
 import TorusMaterialBoard from './TorusMaterialBoard';
-// import TorusGeometryRaycast from './TorusGeometryRaycast';
 
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
@@ -53,7 +34,7 @@ const STONE_COLOR_WHITE = 0xe6ffff;
 const SCORE_COLOR_BLACK = 0x33000f;
 const SCORE_COLOR_WHITE = 0xccffff;
 
-const TORUS_COLOR = 0xffcc66;
+const TORUS_COLOR = 0xFF6B00;
 const LINE_COLOR = 0x000000;
 
 const ORIGIN = new Vector3(0, 0, 0);
@@ -76,25 +57,11 @@ class TorusAnimation {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
-  private ambientLight: THREE.AmbientLight;
-  private directionalLight: THREE.DirectionalLight;
-
-  private torusMaterialFaces: THREE.MeshPhongMaterial;
-  private torusMaterialLines: THREE.LineBasicMaterial;
 
   private angle: number;
-  private experimentalShader: THREE.ShaderMaterial;
-
-  private testGeometry: THREE.BoxGeometry;
-  private torusGeometryGeneral: TorusGeometryGeneral;
-  private torusGeometryFaces: TorusGeometryFaces;
-  private torusGeometryLines: TorusGeometryLines;
-  // private torusGeometryRaycast: TorusGeometryRaycast;
-
-  private testMesh: THREE.Mesh;
-  private torusMeshFaces: THREE.Mesh;
-  private torusMeshLines: THREE.LineSegments;
-  // private torusMeshRaycast: THREE.Mesh;
+  private torusMaterialBoard: TorusMaterialBoard;
+  private torusGeometryBoard: THREE.BoxGeometry;
+  private torusMeshBoard: THREE.Mesh;
 
   public constructor(
     givenSetup: ITorusAnimationSetup,
@@ -114,64 +81,36 @@ class TorusAnimation {
     this.scene.add(this.camera);
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(ORIGIN.clone());
-    this.ambientLight = new AmbientLight(LIGHT_COLOR_AMBIENT);
-    this.directionalLight = new DirectionalLight(LIGHT_COLOR_DIRECTIONAL);
-    this.scene.add(this.ambientLight, this.directionalLight);
-    this.directionalLight.position.set(1, 0, 0).normalize();
-    this.torusMaterialFaces = new MeshPhongMaterial({
-      color: TORUS_COLOR,
-      vertexColors: FaceColors,
-    });
-    this.torusMaterialFaces = new MeshPhongMaterial({ color: TORUS_COLOR });
 
-    this.torusMaterialLines = new LineBasicMaterial({
-      color: LINE_COLOR,
-      linewidth: 1,
-      linecap: 'round',
-    });
-
-    
     this.angle = 0.0;
-    this.experimentalShader = new TorusMaterialBoard(this.camera.matrixWorld, this.angle);
-
-    this.testGeometry = new BoxGeometry(10,10,10);
-    this.torusGeometryGeneral = new TorusGeometryGeneral(
-      givenSetup.boardSizeX,
-      givenSetup.boardSizeY,
-      givenSetup.radius,
-      givenSetup.thickness,
-      givenSetup.twist,
-      givenSetup.lineOff,
+    this.torusMaterialBoard = new TorusMaterialBoard(
+      this.camera.matrixWorld,
+      this.givenSetup.boardSizeX,
+      this.givenSetup.boardSizeY,
+      this.givenSetup.radius,
+      this.givenSetup.thickness,
+      this.givenSetup.twist,
+      new Color(TORUS_COLOR),
     );
-    this.torusGeometryFaces = new TorusGeometryFaces(this.torusGeometryGeneral);
-    this.torusGeometryLines = new TorusGeometryLines(this.torusGeometryGeneral);
-    // this.torusGeometryRaycast = new TorusGeometryRaycast(this.torusGeometryGeneral);
 
-    this.testMesh = new Mesh(this.testGeometry, this.experimentalShader);
-    this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.experimentalShader);
-    // this.torusMeshFaces = new Mesh(this.torusGeometryFaces, this.torusMaterialFaces);
-    this.torusMeshLines = new LineSegments(this.torusGeometryLines, this.torusMaterialLines);
-    // this.torusMeshRaycast = new Mesh(this.torusGeometryFancy, this.torusMaterialFancy);
+    this.torusGeometryBoard = new BoxGeometry(
+      2.0*this.givenSetup.thickness,
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+    );
 
-    // this.torusMeshFancy.rotation.y = Math.PI / 2;
-    // this.torusMeshFancy.geometry.computeVertexNormals();
+    this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
+    this.torusMeshBoard.rotateY(0.5*Math.PI);
 
-    this.scene.add(this.testMesh);
-    // this.scene.add(this.torusMeshFaces);
-    // this.scene.add(this.torusMeshLines);
-    // this.scene.add(this.torusMeshRaycast);
-        // this.scene.add( new AxesHelper(3) );
+    this.scene.add(this.torusMeshBoard);
 
     this.animate();
   }
 
   public cleanup() {
     this.renderer.dispose();
-    this.torusMaterialFaces.dispose();
-    this.torusMaterialLines.dispose();
-    this.torusGeometryFaces.dispose();
-    this.torusGeometryLines.dispose();
-    this.torusGeometryGeneral.dispose();
+    this.torusMaterialBoard.dispose();
+    this.torusGeometryBoard.dispose();
   }
 
   public animate() {
@@ -192,12 +131,8 @@ class TorusAnimation {
     this.camera.position.z = 5.0 * Math.sin( this.angle );
     this.camera.position.y = 0.0;
     this.camera.lookAt(0.0,0.0,0.0);
-    this.angle += 0.005;
-    this.experimentalShader.uniforms.twist.value = this.angle;
-
-    this.torusGeometryGeneral.update();
-    this.torusGeometryFaces.update();
-    this.torusGeometryLines.update();
+    this.angle += 0.001;
+    this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
 
     this.renderer.render(this.scene, this.camera);
   }
