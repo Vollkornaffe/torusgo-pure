@@ -1,6 +1,6 @@
 import {IError} from '../types';
-import {IGame, TGameId, TGameListId} from './game';
-import {IUser, TUserId, TUserListId} from './user';
+import {IGame, TGameId} from './game';
+import {IUser, TUserId} from './user';
 
 export enum EResourceStatus {
   Loading,

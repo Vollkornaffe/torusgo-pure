@@ -1,4 +1,11 @@
-import {DoubleSide, ShaderMaterial, Uniform, Vector3} from "three";
+import {
+  Color,
+  DoubleSide,
+  Matrix4,
+  ShaderMaterial,
+  Uniform,
+  Vector3
+} from "three";
 
 const vertexShader = `
 
@@ -170,13 +177,13 @@ void main() {
 
 export default class TorusMaterialBoard extends ShaderMaterial {
   constructor(
-    matrixWorld: THREE.Matrix4,
+    matrixWorld: Matrix4,
     boardSizeX:  number,
     boardSizeY:  number,
     radius:      number,
     thickness:   number,
     twist:       number,
-    torusColor:  THREE.Color,
+    torusColor: Color,
     ) {
     const parameters =
     {

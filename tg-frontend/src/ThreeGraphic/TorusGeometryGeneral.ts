@@ -1,13 +1,13 @@
 import autoBind from 'react-autobind';
 
-import { Face3, Geometry, Vector2, Vector3, } from 'three';
+import {Geometry, Vector3} from 'three';
 
 class TorusGeometryGeneral extends Geometry {
   public quads: Array<{
     vertices: number[];
-    middle: THREE.Vector3;
-    normal: THREE.Vector3;
-    offMid: THREE.Vector3;
+    middle: Vector3;
+    normal: Vector3;
+    offMid: Vector3;
   }>;
 
   public boardSizeX: number;
@@ -19,7 +19,7 @@ class TorusGeometryGeneral extends Geometry {
 
   private lineOff:   number;
 
-  private vertexNormals: THREE.Vector3[];
+  private vertexNormals: Vector3[];
   
   public constructor(
     boardSizeX: number,

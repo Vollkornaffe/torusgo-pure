@@ -1,10 +1,7 @@
-import autoBind from 'react-autobind';
-
 import {
-  AxesHelper,
   BoxGeometry,
   Color,
-  Mesh, MeshBasicMaterial,
+  Mesh,
   PerspectiveCamera,
   Scene,
   Vector3,
@@ -48,20 +45,20 @@ export interface ITorusAnimationSetup {
   thickness:  number;
   twist:      number;
   lineOff:    number;
-};
+}
 
 class TorusAnimation {
   private givenSetup: ITorusAnimationSetup;
   private canvas: HTMLCanvasElement;
 
-  private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
-  private renderer: THREE.WebGLRenderer;
+  private scene: Scene;
+  private camera: PerspectiveCamera;
+  private renderer: WebGLRenderer;
 
   private angle: number;
   private torusMaterialBoard: TorusMaterialBoard;
-  private torusGeometryBoard: THREE.BoxGeometry;
-  private torusMeshBoard: THREE.Mesh;
+  private torusGeometryBoard: BoxGeometry;
+  private torusMeshBoard: Mesh;
 
   public constructor(
     givenSetup: ITorusAnimationSetup,

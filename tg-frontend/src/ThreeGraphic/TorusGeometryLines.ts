@@ -1,4 +1,4 @@
-import {Geometry, Vector3, } from 'three';
+import {Geometry,} from 'three';
 import TorusGeometryGeneral from './TorusGeometryGeneral';
 
 class TorusLinesGeometry extends Geometry {

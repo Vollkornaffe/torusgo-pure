@@ -1,9 +1,8 @@
 import {Action} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
 import {IDimension, TResizable} from '../types';
 import {IGame, TGameId} from './game';
 import {EConnectionStatus, ELoginState} from './network';
-import {EResourceType, IResourceWrapper, TWithType} from './resource';
+import {EResourceType, IResourceWrapper} from './resource';
 import {IUser, TUserId} from './user';
 import {IMap} from './utils';
 
