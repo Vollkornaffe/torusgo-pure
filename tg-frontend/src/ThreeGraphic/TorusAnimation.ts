@@ -10,6 +10,8 @@ import {
 
 import TorusMaterialBoard from './TorusMaterialBoard';
 
+import {fmod} from '../utils/custom_math';
+
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
 const DELTA_Z = 0.05;
@@ -76,10 +78,11 @@ class TorusAnimation {
       CAMERA_FAR
     );
     this.scene.add(this.camera);
+    this.camera.up.set(0, 0, 1);
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(ORIGIN.clone());
 
-    this.angle = 0.0;
+    this.angle = Math.PI;
     this.torusMaterialBoard = new TorusMaterialBoard(
       this.camera.matrixWorld,
       this.givenSetup.boardSizeX,
@@ -124,12 +127,12 @@ class TorusAnimation {
     // End of animation code
 
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
-    this.camera.position.x = 5.0 * Math.cos( this.angle );
-    this.camera.position.z = 5.0 * Math.sin( this.angle );
-    this.camera.position.y = 0.0;
+    this.camera.position.x = 10.0 * Math.cos( this.angle );
+    this.camera.position.y = 10.0 * Math.sin( this.angle );
+    this.camera.position.z = 0.0;
     this.camera.lookAt(0.0,0.0,0.0);
-    this.angle += 0.001;
-    this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
+    this.angle += 0.005;
+    // this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
 
     this.renderer.render(this.scene, this.camera);
   }

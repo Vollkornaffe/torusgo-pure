@@ -145,12 +145,18 @@ void main() {
   vec2 torus = vec2(radius, thickness);
   float t = iTorus( camera_wc.xyz, ray_wc.xyz, torus );
 
-  if (t < 0.0 || t > 100.0) {discard;}
+  if (t < 0.0 || t > 100.0) {
+  //gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+    gl_FragColor = ray_wc;
+    return;
+  }
 
   // shading/lighting
   vec3 pos = camera_wc.xyz + t*ray_wc.xyz;
 
   vec3 nor = nTorus( pos, torus );
+
+
   float dif = clamp( dot(nor,-ray_wc.xyz), 0.0, 1.0 );
   float amb = clamp( 0.5 + 0.5*dot(nor,vec3(0.0,1.0,0.0)), 0.0, 1.0 );
 
