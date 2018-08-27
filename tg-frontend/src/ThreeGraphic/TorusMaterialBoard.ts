@@ -19,6 +19,7 @@ uniform float thickness;
 uniform float twist;
 uniform vec3  torusColor;
 
+#extension GL_EXT_frag_depth : enable
 #define PI 3.1415926535897932384626433832795
 
 float iTorus( in vec3 ro, in vec3 rd, in vec2 torus )
@@ -133,10 +134,10 @@ void main() {
   vec4 imgplane_wc = inverseViewMatrix
     * vec4((2.0*gl_FragCoord.x - 1000.0)*0.001,(2.0*gl_FragCoord.y - 1000.0)*0.001,-1.0,1.0);
   vec4 ray_wc = normalize(imgplane_wc - camera_wc);
-
+  
   // raytrace-plane
   vec2 torus = vec2(radius, thickness);
-  float t = iTorus( camera_wc.xyz, ray_wc.xyz, torus );
+  float t = iTorus(camera_wc.xyz, ray_wc.xyz, torus);
 
   if (t < 0.0 || t > 100.0) {discard;}
 
@@ -155,15 +156,17 @@ void main() {
   mat3 rotMat = rotationMatrix(vec3(0.0,0.0,1.0), theta_0);
   vec3 pos_rotated =  rotMat * pos - vec3(torus.x,0.0,0.0);
 
-  float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
-  float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
+  float mod_x_pos = mod(+atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
+  float mod_x_neg = mod(-atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
   float mod_y_pos = mod(+twist+atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/boardSizeY);
   float mod_y_neg = mod(-twist-atan2(pos_rotated.x, pos_rotated.z), 2.0*PI/boardSizeY);
-  col *= pow(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg, 0.2);
+  col *= pow(abs(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg), 0.2);
 
   col = sqrt( col );
   
   gl_FragColor = vec4( col, 1.0 );
+  //gl_FragDepth = t;
+  gl_FragDepthEXT = t;
 }
   
 `;

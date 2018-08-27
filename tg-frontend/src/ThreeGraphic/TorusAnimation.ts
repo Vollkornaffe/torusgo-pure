@@ -70,6 +70,17 @@ class TorusAnimation {
     this.givenSetup = givenSetup;
     this.canvas = canvas;
     this.renderer = new WebGLRenderer({canvas: this.canvas});
+
+    this.renderer.getContext().getExtension('EXT_frag_depth');
+    let supportedExtensions = this.renderer.getContext().getSupportedExtensions();
+    if (supportedExtensions == null) {
+      supportedExtensions = [];
+    }
+
+    if (-1 === supportedExtensions.indexOf('EXT_frag_depth')) {
+      alert('EXT_frag_depth extension not supported! 3D view not available!');
+    }
+
     this.renderer.setClearColor(new Color(CLEAR_COLOR), 1);
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(
@@ -92,6 +103,7 @@ class TorusAnimation {
       this.givenSetup.twist,
       new Color(TORUS_COLOR),
     );
+    console.log("TWIST", this.givenSetup.twist);
 
     this.torusGeometryBoard = new BoxGeometry(
       2.0*this.givenSetup.thickness,
@@ -113,6 +125,10 @@ class TorusAnimation {
     this.torusGeometryBoard.dispose();
   }
 
+  public updateTwist(newTwist: number) {
+    this.torusMaterialBoard.uniforms.twist.value += newTwist;
+  }
+
   public animate() {
     requestAnimationFrame(this.animate.bind(this));
 
@@ -132,7 +148,7 @@ class TorusAnimation {
     this.camera.position.y = 0.0;
     this.camera.lookAt(0.0,0.0,0.0);
     this.angle += 0.001;
-    this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
+    // this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
 
     this.renderer.render(this.scene, this.camera);
   }
