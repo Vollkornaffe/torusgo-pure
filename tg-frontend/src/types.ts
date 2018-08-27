@@ -1,7 +1,3 @@
-import {Action, Dispatch} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
-
-
 //
 // state/action types
 //
