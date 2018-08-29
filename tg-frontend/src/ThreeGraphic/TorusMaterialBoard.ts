@@ -29,7 +29,7 @@ uniform vec3  torusColor;
 #extension GL_EXT_frag_depth : enable
 #define PI 3.1415926535897932384626433832795
 
-float test_epsilon (in vec3 ro, in vec3 rd, in vec2 torus)
+float test_smt (in vec3 ro, in vec3 rd, in vec2 torus)
 {
     float a = ro.x;
     float b = ro.y;
@@ -45,9 +45,18 @@ float test_epsilon (in vec3 ro, in vec3 rd, in vec2 torus)
     float delta = 4.0*pow(alpha,2.0)+12.0*beta;
     float epsilon_sqr = pow(gamma,2.0)-4.0*pow(delta,3.0);
     
-    return epsilon_sqr;
-
+    if (epsilon_sqr < -1.0) { discard; }
+    if (epsilon_sqr < 0.0)  { epsilon_sqr = 0.0; }
+    
+    float fake_epsilon = pow(epsilon_sqr, 0.5);
+    float zeta = pow((gamma + fake_epsilon) * 0.5, 1.0/3.0);
+    
+    float first_sqr = zeta/3.0 - 4.0/3.0 * alpha + delta/(3.0 * zeta);
+    
+    return first_sqr;
 }
+
+
 
 float iTorus( in vec3 ro, in vec3 rd, in vec2 torus )
 {
@@ -167,13 +176,13 @@ void main() {
   // raytrace-plane
   vec2 torus = vec2(radius, thickness);
   //float t = iTorus(camera_wc.xyz, ray_wc.xyz, torus);
-  float t = test_epsilon(newStart.xyz, ray_wc.xyz, torus);
+  float t = test_smt(newStart.xyz, ray_wc.xyz, torus);
   
 
   if (t <= 0.0) {
-    gl_FragColor = vec4(-t * 0.00001,0.0,0.0,1.0);
+    gl_FragColor = vec4(-t * 0.0001,0.0,0.0,1.0);
   } else {
-    gl_FragColor = vec4(0.0,1.0,0.0,1.0);
+    gl_FragColor = vec4(0.0,t,0.0,1.0);
   }
   
   return;
