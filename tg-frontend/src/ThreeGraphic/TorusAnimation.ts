@@ -10,8 +10,6 @@ import {
 
 import TorusMaterialBoard from './TorusMaterialBoard';
 
-import {fmod} from '../utils/custom_math';
-
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
 const DELTA_Z = 0.05;
@@ -106,9 +104,12 @@ class TorusAnimation {
     console.log("TWIST", this.givenSetup.twist);
 
     this.torusGeometryBoard = new BoxGeometry(
-      2.0*this.givenSetup.thickness,
-      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
-      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      10.0,
+      10.0,
+      10.0,
+      // 2.0*this.givenSetup.thickness,
+      // 2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      // 2.0*(this.givenSetup.radius + this.givenSetup.thickness),
     );
 
     this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
@@ -143,8 +144,8 @@ class TorusAnimation {
     // End of animation code
 
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
-    this.camera.position.x = 10.0 * Math.cos( this.angle );
-    this.camera.position.y = 10.0 * Math.sin( this.angle );
+    this.camera.position.x = 3.0 * Math.cos( this.angle );
+    this.camera.position.y = 3.0 * Math.sin( this.angle );
     this.camera.position.z = 0.0;
     this.camera.lookAt(0.0,0.0,0.0);
     this.angle += 0.005;

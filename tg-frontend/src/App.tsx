@@ -43,8 +43,8 @@ export default class App extends React.Component<{},IState> {
               height={1000}
               boardSizeX={19}
               boardSizeY={19}
-              radius={1.5}
-              thickness={1}
+              radius={1}
+              thickness={0.5}
               twist={this.state.twist}
               lineOff={0.0}
               />

@@ -1,11 +1,10 @@
-\documentclass[12pt,a4paper]{amsart}
+\documentclass[12pt,a4paper,landscape]{amsart}
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amscd}
 \usepackage[latin2]{inputenc}
-\usepackage{t1enc}
-\usepackage[mathscr]{eucal}
+\usepackage{t1enc} \usepackage[mathscr]{eucal}
 \usepackage{indentfirst}
 \usepackage{graphicx}
 \usepackage{graphics}
@@ -99,20 +98,40 @@ This can be a little bit simplified:
   +t^4 \cdot &(x^2+y^2+z^2)^2
 \end{align*}
 
-And assuming that $X_d$ is normalized:
+And assuming that $X_d$ is normalized, $X_d \bot X_o$ and $r = 1$:
 \begin{align*}
-   t^0 \cdot &( a^4+2 a^2 b^2+b^4+2 a^2 c^2+2 b^2 c^2+c^4-2 a^2 r^2-2 b^2 r^2 \\
-             &+ 2 c^2 r^2+r^4-2 a^2 w^2-2 b^2 w^2-2 c^2 w^2-2 r^2 w^2+w^4) \\
-  +t^1 \cdot &4((a^2+b^2+c^2-r^2-w^2) (a x+b y)+c (a^2+b^2+c^2+r^2-w^2) z) \\
-  +t^2 \cdot &2((c^2-r^2-w^2) (x^2+y^2)+4 b c y z+(3 c^2+r^2-w^2) z^2 \\
-             &+4 a x (b y+c z)+a^2 (3 x^2+y^2+z^2)+b^2 (x^2+3 y^2+z^2)) \\
-  +t^3 \cdot &4(a x+b y+c z) \\
+   t^0 \cdot &\left(a^4+2 a^2 \left(b^2+c^2-w^2-1\right)+b^4+2 b^2 \left(c^2-w^2-1\right)+\left(c^2-w^2+1\right)^2\right) \\
+  +t^1 \cdot &8 c z \\
+  +t^2 \cdot &2 \left(a^2+b^2+c^2-w^2+2 z^2-1\right)\\
   +t^4  &
 \end{align*}
-   t^0 ( a^4+2 a^2 b^2+b^4+2 a^2 c^2+2 b^2 c^2+c^4-2 a^2 r^2-2 b^2 r^2 + 2 c^2 r^2+r^4-2 a^2 w^2-2 b^2 w^2-2 c^2 w^2-2 r^2 w^2+w^4)
-  +t^1 4((a^2+b^2+c^2-r^2-w^2) (a x+b y)+c (a^2+b^2+c^2+r^2-w^2) z)
-  +t^2 2((c^2-r^2-w^2) (x^2+y^2)+4 b c y z+(3 c^2+r^2-w^2) z^2 +4 a x (b y+c z)+a^2 (3 x^2+y^2+z^2)+b^2 (x^2+3 y^2+z^2))
-  +t^3 4(a x+b y+c z)
-  +t^4 
+
+\newpage
+Now if we solve for $t$ we get a pretty big formula, but a lot of the expressions are equal. So we substitute some of them for readability:
+
+\[\alpha = a^2+b^2+c^2-w^2+2 z^2-1\]
+\[\beta = a^4+2 b^2 a^2+2 c^2 a^2-2 w^2 a^2-2 a^2+b^4+c^4+w^4-2 b^2+2 b^2 c^2+2 c^2-2 b^2 w^2-2 c^2 w^2-2 w^2+1\]
+\[\gamma = 16 \left(\alpha\right)^3-144 \left(\beta\right) \left(\alpha\right)+1728 c^2 z^2\]
+\[\delta = 4 \left(\alpha\right)^2+12 \left(\beta\right)\]
+\[\epsilon = \sqrt{\left(\gamma\right)^2-4 \left(\delta\right)^3} \]
+\[\zeta = \sqrt[3]{\gamma+\epsilon} \]
+
+The 4 solutions:\\
+
+$
+t\to \frac{1}{2} \sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}-\frac{1}{2} \sqrt{-\frac{\zeta}{3 \sqrt[3]{2}}-\frac{8}{3} \left(\alpha\right)-\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)-\frac{16 c z}{\sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}}}
+$\\
+
+$
+t\to \frac{1}{2} \sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}+\frac{1}{2} \sqrt{-\frac{\zeta}{3 \sqrt[3]{2}}-\frac{8}{3} \left(\alpha\right)-\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)-\frac{16 c z}{\sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}}}
+$\\
+
+$
+t\to -\frac{1}{2} \sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}-\frac{1}{2} \sqrt{-\frac{\zeta}{3 \sqrt[3]{2}}-\frac{8}{3} \left(\alpha\right)-\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)+\frac{16 c z}{\sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}}}
+$\\
+
+$
+t\to -\frac{1}{2} \sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}+\frac{1}{2} \sqrt{-\frac{\zeta}{3 \sqrt[3]{2}}-\frac{8}{3} \left(\alpha\right)-\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)+\frac{16 c z}{\sqrt{\frac{\zeta}{3 \sqrt[3]{2}}-\frac{4}{3} \left(\alpha\right)+\frac{\sqrt[3]{2}}{3 \zeta}\left(\delta\right)}}}
+$
 
 \end{document}
