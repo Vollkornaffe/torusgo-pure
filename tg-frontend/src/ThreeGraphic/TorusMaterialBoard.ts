@@ -144,6 +144,22 @@ float with_polish(in vec3 ro, in vec3 rd, in vec2 torus)
   return t;
 }
 
+mat3 rotationMatrix(vec3 axis, float angle) {
+  axis = normalize(axis);
+  float s = sin(angle);
+  float c = cos(angle);
+  float oc = 1.0 - c;
+
+  return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+              oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+              oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c         );
+}
+
+float atan2(in float y, in float x)
+{
+ return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);
+}
+
 void main() {
   // set up ray in world coords
   vec4 camera_wc = inverseViewMatrix * vec4(0.0,0.0,0.0,1.0);
@@ -151,16 +167,29 @@ void main() {
     * vec4((2.0*gl_FragCoord.x - 1000.0)*0.001,(2.0*gl_FragCoord.y - 1000.0)*0.001,-1.0,1.0);
   vec4 ray_wc = normalize(imgplane_wc - camera_wc);
 
+	// getting correct distance (and discarding non-intersects)
 	vec2 torus = vec2(radius, thickness);
   float t = with_polish(camera_wc.xyz, ray_wc.xyz, torus);
 
-	vec3 col = vec3(1.0,0.0,0.0);
+	// lighting
+	vec3 col = torusColor;
+	vec3 pos = camera_wc.xyz + t*ray_wc.xyz;
+	vec3 nor = nTorus( pos, torus );
+	float dif = clamp( dot(-nor,ray_wc.xyz), 0.0, 1.0 );
+	float amb = 0.5;
+	col *= amb + dif;
 
-  if (t < 0.6 && t > 0.59) {col *= 0.0;}
-  if (t < 0.7 && t > 0.69) {col *= 0.0;}
-  if (t < 0.8 && t > 0.79) {col *= 0.0;}
-  if (t < 0.9 && t > 0.89) {col *= 0.0;}
+	// lines
+	float theta = atan2(pos.y, pos.x);
+	mat3 rotMat = rotationMatrix(vec3(0.0,0.0,1.0), theta);
+	vec3 pos_rot = rotMat * pos - vec3(torus.x,0.0,0.0);
 	
+	float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/20.0);
+	float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/20.0);
+	float mod_y_pos = mod(+twist+atan2(pos_rot.x, pos_rot.z), 2.0*PI/20.0);
+	float mod_y_neg = mod(-twist-atan2(pos_rot.x, pos_rot.z), 2.0*PI/20.0);
+	col *= pow(abs(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg), 0.1);	
+
 	gl_FragColor = vec4( col, 1.0 );
 
   gl_FragDepthEXT = t;

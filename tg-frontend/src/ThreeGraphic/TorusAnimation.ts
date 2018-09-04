@@ -144,12 +144,12 @@ class TorusAnimation {
     // End of animation code
 
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
-    this.camera.position.x = 2.0 * Math.cos( this.angle );
+    this.camera.position.x = 3.0 * Math.cos( this.angle );
     this.camera.position.y = 0.0;
-    this.camera.position.z = 2.0 * Math.sin( this.angle );
+    this.camera.position.z = 3.0 * Math.sin( this.angle );
     this.camera.lookAt(0.0,0.0,0.0);
     this.angle += 0.005;
-    this.torusMaterialBoard.uniforms.twist.value = this.angle*2.0;
+    this.torusMaterialBoard.uniforms.twist.value = this.angle;
 
     this.renderer.render(this.scene, this.camera);
   }
