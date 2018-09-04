@@ -1,7 +1,7 @@
 import {
   BoxGeometry,
-  Color,
-  Mesh,
+  Color, Matrix4,
+  Mesh, MeshBasicMaterial,
   PerspectiveCamera,
   Scene,
   Vector3,
@@ -9,6 +9,7 @@ import {
 } from 'three';
 
 import TorusMaterialBoard from './TorusMaterialBoard';
+import TorusMaterialStone from "./TorusMaterialStone";
 
 const DELTA_X = 0.1;
 const DELTA_Y = 0.1;
@@ -60,6 +61,10 @@ class TorusAnimation {
   private torusGeometryBoard: BoxGeometry;
   private torusMeshBoard: Mesh;
 
+  private torusMaterialTestStone: TorusMaterialStone;
+  private torusGeometryTestStone: BoxGeometry;
+  private torusMeshTestStone: Mesh;
+
   public constructor(
     givenSetup: ITorusAnimationSetup,
     canvas: HTMLCanvasElement,
@@ -92,6 +97,7 @@ class TorusAnimation {
     this.camera.lookAt(ORIGIN.clone());
 
     this.angle = Math.PI;
+
     this.torusMaterialBoard = new TorusMaterialBoard(
       this.camera.matrixWorld,
       this.givenSetup.boardSizeX,
@@ -101,21 +107,29 @@ class TorusAnimation {
       this.givenSetup.twist,
       new Color(TORUS_COLOR),
     );
-    console.log("TWIST", this.givenSetup.twist);
+    this.torusMaterialTestStone = new TorusMaterialStone(
+      this.camera.matrixWorld,
+      new Matrix4(), // identity
+      0.1,
+      0.3,
+      0.3,
+      new Color(STONE_COLOR_WHITE),
+    );
 
     this.torusGeometryBoard = new BoxGeometry(
-      10.0,
-      10.0,
-      10.0,
-      // 2.0*this.givenSetup.thickness,
-      // 2.0*(this.givenSetup.radius + this.givenSetup.thickness),
-      // 2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*this.givenSetup.thickness,
+    );
+    this.torusGeometryTestStone = new BoxGeometry(
+      2.0,2.0,2.0,
     );
 
     this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
-    this.torusMeshBoard.rotateY(0.5*Math.PI);
+    this.torusMeshTestStone = new Mesh(this.torusGeometryTestStone, this.torusMaterialTestStone);
 
     this.scene.add(this.torusMeshBoard);
+    this.scene.add(this.torusMeshTestStone);
 
     this.animate();
   }

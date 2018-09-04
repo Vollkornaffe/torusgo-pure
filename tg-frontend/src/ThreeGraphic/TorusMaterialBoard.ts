@@ -184,10 +184,10 @@ void main() {
 	mat3 rotMat = rotationMatrix(vec3(0.0,0.0,1.0), theta);
 	vec3 pos_rot = rotMat * pos - vec3(torus.x,0.0,0.0);
 	
-	float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/20.0);
-	float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/20.0);
-	float mod_y_pos = mod(+twist+atan2(pos_rot.x, pos_rot.z), 2.0*PI/20.0);
-	float mod_y_neg = mod(-twist-atan2(pos_rot.x, pos_rot.z), 2.0*PI/20.0);
+	float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
+	float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
+	float mod_y_pos = mod(+twist+atan2(pos_rot.x, pos_rot.z), 2.0*PI/boardSizeY);
+	float mod_y_neg = mod(-twist-atan2(pos_rot.x, pos_rot.z), 2.0*PI/boardSizeY);
 	col *= pow(abs(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg), 0.1);	
 
 	gl_FragColor = vec4( col, 1.0 );
@@ -205,7 +205,7 @@ export default class TorusMaterialBoard extends ShaderMaterial {
     radius:      number,
     thickness:   number,
     twist:       number,
-    torusColor: Color,
+    torusColor:  Color,
     ) {
     const parameters =
     {
