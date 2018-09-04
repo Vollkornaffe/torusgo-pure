@@ -83,6 +83,7 @@ class TorusAnimation {
       alert('EXT_frag_depth extension not supported! 3D view not available!');
     }
 
+
     this.renderer.setClearColor(new Color(CLEAR_COLOR), 1);
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(
@@ -158,9 +159,9 @@ class TorusAnimation {
     // End of animation code
 
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
-    this.camera.position.x = 3.0 * Math.cos( this.angle );
+    this.camera.position.x = 5.0 * Math.cos( this.angle );
     this.camera.position.y = 0.0;
-    this.camera.position.z = 3.0 * Math.sin( this.angle );
+    this.camera.position.z = 5.0 * Math.sin( this.angle );
     this.camera.lookAt(0.0,0.0,0.0);
     this.angle += 0.005;
     this.torusMaterialBoard.uniforms.twist.value = this.angle;

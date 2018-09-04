@@ -192,7 +192,7 @@ void main() {
 
 	gl_FragColor = vec4( col, 1.0 );
 
-  gl_FragDepthEXT = t;
+  gl_FragDepthEXT = t/10.0;
 }
 
 `;
