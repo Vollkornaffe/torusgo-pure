@@ -18,8 +18,15 @@ void main()
 
 const fragmentShader = `
 
+// these are supplied by three js
 uniform mat4 projectionMatrix;
+uniform mat4 modelMatrix;
+
+// these are custom
 uniform mat4 inverseViewMatrix;
+uniform mat4 inverseProjectionMatrix;
+uniform mat4 inverseModelMatrix;
+uniform mat4 transposedInverseModelMatrix;
 uniform float boardSizeX;
 uniform float boardSizeY;
 uniform float radius;
@@ -113,7 +120,6 @@ float iTorus( in vec3 ro, in vec3 rd, in vec2 torus )
 	}
 
   
-
 	return result;
 }
 
@@ -145,47 +151,6 @@ float with_polish(in vec3 ro, in vec3 rd, in vec2 torus)
   return t;
 }
 
-mat4 inverse(mat4 m) {
-  float
-      a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
-      a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
-      a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
-      a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],
-
-      b00 = a00 * a11 - a01 * a10,
-      b01 = a00 * a12 - a02 * a10,
-      b02 = a00 * a13 - a03 * a10,
-      b03 = a01 * a12 - a02 * a11,
-      b04 = a01 * a13 - a03 * a11,
-      b05 = a02 * a13 - a03 * a12,
-      b06 = a20 * a31 - a21 * a30,
-      b07 = a20 * a32 - a22 * a30,
-      b08 = a20 * a33 - a23 * a30,
-      b09 = a21 * a32 - a22 * a31,
-      b10 = a21 * a33 - a23 * a31,
-      b11 = a22 * a33 - a23 * a32,
-
-      det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-  return mat4(
-      a11 * b11 - a12 * b10 + a13 * b09,
-      a02 * b10 - a01 * b11 - a03 * b09,
-      a31 * b05 - a32 * b04 + a33 * b03,
-      a22 * b04 - a21 * b05 - a23 * b03,
-      a12 * b08 - a10 * b11 - a13 * b07,
-      a00 * b11 - a02 * b08 + a03 * b07,
-      a32 * b02 - a30 * b05 - a33 * b01,
-      a20 * b05 - a22 * b02 + a23 * b01,
-      a10 * b10 - a11 * b08 + a13 * b06,
-      a01 * b08 - a00 * b10 - a03 * b06,
-      a30 * b04 - a31 * b02 + a33 * b00,
-      a21 * b02 - a20 * b04 - a23 * b00,
-      a11 * b07 - a10 * b09 - a12 * b06,
-      a00 * b09 - a01 * b07 + a02 * b06,
-      a31 * b01 - a30 * b03 - a32 * b00,
-      a20 * b03 - a21 * b01 + a22 * b00) / det;
-}
-
 mat3 rotationMatrix(vec3 axis, float angle) {
   axis = normalize(axis);
   float s = sin(angle);
@@ -203,47 +168,58 @@ float atan2(in float y, in float x)
 }
 
 void main() {
-  // set up ray in world coords
-  vec4 camera_wc = inverseViewMatrix * vec4(0.0,0.0,0.0,1.0);
-  vec4 imgplane_wc = inverseViewMatrix * inverse(projectionMatrix) 
+  // set up in world coords
+  vec4 camera_wc   = inverseViewMatrix * vec4(0.0,0.0,0.0,1.0);
+  vec4 imgplane_wc = inverseViewMatrix * inverseProjectionMatrix
     * vec4((2.0*gl_FragCoord.x - 1000.0)*0.001,(2.0*gl_FragCoord.y - 1000.0)*0.001,1.0,1.0);
   imgplane_wc /= imgplane_wc.w;
-
   vec4 ray_wc = normalize(imgplane_wc - camera_wc);
+    
+  // set up in object coords
+  vec4 camera_oc   = inverseModelMatrix * camera_wc;
+  vec4 imgplane_oc = inverseModelMatrix * imgplane_wc;
+  vec4 ray_oc = normalize(imgplane_oc - camera_oc);
 
-	// getting correct distance (and discarding non-intersects)
+	// getting correct distance (and discard non-intersects)
 	vec2 torus = vec2(radius, thickness);
-  float t = with_polish(camera_wc.xyz, ray_wc.xyz, torus);
+  float t_oc = with_polish(camera_oc.xyz, ray_oc.xyz, torus);
+  float t_wc = t_oc*length(modelMatrix*ray_oc);
 
 	// lighting
 	vec3 col = torusColor;
-	vec3 pos = camera_wc.xyz + t*ray_wc.xyz;
-	vec3 nor = nTorus( pos, torus );
-	float dif = clamp( dot(-nor,ray_wc.xyz), 0.0, 1.0 );
+	vec3 pos_oc = camera_oc.xyz + t_oc*ray_oc.xyz;
+	vec4 nor_oc = vec4(nTorus( pos_oc, torus ), 0.0);
+	vec4 nor_wc = normalize(transposedInverseModelMatrix * nor_oc);
+	float dif = clamp( dot(-nor_wc,ray_wc), 0.0, 1.0 );
 	float amb = 0.5;
 	col *= amb + dif;
 
 	// lines
-	float theta = atan2(pos.y, pos.x);
+	float theta = atan2(pos_oc.y, pos_oc.x);
 	mat3 rotMat = rotationMatrix(vec3(0.0,0.0,1.0), theta);
-	vec3 pos_rot = rotMat * pos - vec3(torus.x,0.0,0.0);
+	vec3 pos_oc_rot = rotMat * pos_oc - vec3(torus.x,0.0,0.0);
 	
-	float mod_x_pos = mod(+twist+atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
-	float mod_x_neg = mod(-twist-atan2(pos.y, pos.x), 2.0*PI/boardSizeX);
-	float mod_y_pos = mod(+twist+atan2(pos_rot.x, pos_rot.z), 2.0*PI/boardSizeY);
-	float mod_y_neg = mod(-twist-atan2(pos_rot.x, pos_rot.z), 2.0*PI/boardSizeY);
+	float mod_x_pos = mod(+twist+atan2(pos_oc.y, pos_oc.x), 2.0*PI/boardSizeX);
+	float mod_x_neg = mod(-twist-atan2(pos_oc.y, pos_oc.x), 2.0*PI/boardSizeX);
+	float mod_y_pos = mod(+twist+atan2(pos_oc_rot.x, pos_oc_rot.z), 2.0*PI/boardSizeY);
+	float mod_y_neg = mod(-twist-atan2(pos_oc_rot.x, pos_oc_rot.z), 2.0*PI/boardSizeY);
 	col *= pow(abs(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg), 0.1);	
 
 	gl_FragColor = vec4( col, 1.0 );
 
-  gl_FragDepthEXT = t/10.0;
+  gl_FragDepthEXT = t_wc/10.0;
 }
 
 `;
 
 export default class TorusMaterialBoard extends ShaderMaterial {
   constructor(
-    matrixWorld: Matrix4,
+    // all of these must be updated anyway...
+    // no point in passing them in constructor
+    // inverseViewMatrix:             Matrix4,
+    // inverseProjectionMatrix:       Matrix4,
+    // inverseModelMatrix:            Matrix4,
+    // transposedInverseModelMatrix:  Matrix4,
     boardSizeX:  number,
     boardSizeY:  number,
     radius:      number,
@@ -255,13 +231,16 @@ export default class TorusMaterialBoard extends ShaderMaterial {
     {
       side: DoubleSide,
       uniforms: {
-        inverseViewMatrix: new Uniform(matrixWorld),
-        boardSizeX:        new Uniform(boardSizeX ),
-        boardSizeY:        new Uniform(boardSizeY ),
-        radius:            new Uniform(radius     ),
-        thickness:         new Uniform(thickness  ),
-        twist:             new Uniform(twist      ),
-        torusColor:        new Uniform(new Vector3(
+        inverseViewMatrix:            new Uniform(new Matrix4()),
+        inverseProjectionMatrix:      new Uniform(new Matrix4()),
+        inverseModelMatrix:           new Uniform(new Matrix4()),
+        transposedInverseModelMatrix: new Uniform(new Matrix4()),
+        boardSizeX:                   new Uniform(boardSizeX ),
+        boardSizeY:                   new Uniform(boardSizeY ),
+        radius:                       new Uniform(radius     ),
+        thickness:                    new Uniform(thickness  ),
+        twist:                        new Uniform(twist      ),
+        torusColor:                   new Uniform(new Vector3(
           torusColor.r,
           torusColor.g,
           torusColor.b)),

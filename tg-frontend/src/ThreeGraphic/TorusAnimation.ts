@@ -111,7 +111,6 @@ class TorusAnimation {
       2.0*this.givenSetup.thickness,
     );
     this.torusMaterialBoard = new TorusMaterialBoard(
-      this.camera.matrixWorld,
       this.givenSetup.boardSizeX,
       this.givenSetup.boardSizeY,
       this.givenSetup.radius,
@@ -122,16 +121,8 @@ class TorusAnimation {
     this.torusGeometryStone = new BoxGeometry(
       2.0,2.0,2.0,
     );
-    this.torusMaterialWhiteStone = new TorusMaterialStone(
-      this.camera.matrixWorld,
-      new Matrix4(), // identity
-      new Color(STONE_COLOR_WHITE),
-    );
-    this.torusMaterialBlackStone = new TorusMaterialStone(
-      this.camera.matrixWorld,
-      new Matrix4(), // identity
-      new Color(STONE_COLOR_BLACK),
-    );
+    this.torusMaterialWhiteStone = new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
+    this.torusMaterialBlackStone = new TorusMaterialStone( new Color(STONE_COLOR_BLACK) );
 
     this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
 
@@ -141,11 +132,7 @@ class TorusAnimation {
     this.torusMaterialStoneArray = [];
 
     for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone(
-        this.camera.matrixWorld,
-        new Matrix4(), // identity
-        new Color(STONE_COLOR_WHITE),
-      );
+      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
       const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
       tempMesh.scale.set(0.1,0.1,0.05);
       tempMesh.position.add(new Vector3( -0.1,-0.1, i * 0.1));
@@ -155,11 +142,7 @@ class TorusAnimation {
     }
     this.scene.add(this.torusMeshBoard);
     for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone(
-        this.camera.matrixWorld,
-        new Matrix4(), // identity
-        new Color(STONE_COLOR_WHITE),
-      );
+      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
       const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
       tempMesh.scale.set(0.1,0.1,0.05);
       tempMesh.position.add(new Vector3( -0.1,0.1, i * 0.1));
@@ -168,11 +151,7 @@ class TorusAnimation {
       this.scene.add(tempMesh);
     }
     for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone(
-        this.camera.matrixWorld,
-        new Matrix4(), // identity
-        new Color(STONE_COLOR_WHITE),
-      );
+      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
       const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
       tempMesh.scale.set(0.1,0.1,0.05);
       tempMesh.position.add(new Vector3( 0.1,0.1, i * 0.1));
@@ -181,11 +160,7 @@ class TorusAnimation {
       this.scene.add(tempMesh);
     }
     for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone(
-        this.camera.matrixWorld,
-        new Matrix4(), // identity
-        new Color(STONE_COLOR_WHITE),
-      );
+      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
       const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
       tempMesh.scale.set(0.1,0.1,0.05);
       tempMesh.position.add(new Vector3( 0.1,-0.1, i * 0.1));
@@ -220,19 +195,45 @@ class TorusAnimation {
     }
     */
 
+    this.camera.updateMatrixWorld(true);
+    this.camera.updateProjectionMatrix();
+    this.torusMeshBoard.updateMatrixWorld(true);
+
+    // View and Projection matrix is the same for all objects
+    const inverseViewMatrix       = this.camera.matrixWorld;
+    const inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
+
+    // now just for the board
+    const inverseModelMatrixBoard           = new Matrix4().getInverse(this.torusMeshBoard.matrixWorld);
+    const transposedInverseModelMatrixBoard = inverseModelMatrixBoard.clone().transpose();
+
+    this.torusMaterialBoard.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
+    this.torusMaterialBoard.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
+    this.torusMaterialBoard.uniforms.inverseModelMatrix.value           = inverseModelMatrixBoard;
+    this.torusMaterialBoard.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrixBoard;
+
+    // now for all the stones
     for (let i = 0; i < this.torusMeshStoneArray.length; i++ ) {
       const mesh = this.torusMeshStoneArray[i];
       const material = this.torusMaterialStoneArray[i];
 
-      mesh.updateMatrixWorld(true); // OMFG
+      mesh.updateMatrixWorld(true);
 
-      material.uniforms.inverseModelMatrix.value = new Matrix4().getInverse(mesh.matrixWorld);
+      const inverseModelMatrix           = new Matrix4().getInverse(mesh.matrixWorld);
+      const transposedInverseModelMatrix = inverseModelMatrix.clone().transpose();
+
+      material.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
+      material.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
+      material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
+      material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
     }
 
   }
 
   public animate() {
     requestAnimationFrame(this.animate.bind(this));
+
+    this.updateUniforms();
 
     // Start of animation code
 
