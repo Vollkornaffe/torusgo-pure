@@ -61,11 +61,9 @@ class TorusAnimation {
   private torusGeometryBoard: BoxGeometry;
   private torusMeshBoard: Mesh;
 
-  // the two materials hold the vertex&fragment shader src
-  // which is copied by reference
-  // uniforms should be copied by value (I hope)
-  private torusMaterialWhiteStone: TorusMaterialStone;
-  private torusMaterialBlackStone: TorusMaterialStone;
+  // todo make shallow copies of these two materials
+  // private torusMaterialWhiteStone: TorusMaterialStone;
+  // private torusMaterialBlackStone: TorusMaterialStone;
   private torusGeometryStone: BoxGeometry;
   private torusMeshStoneArray: Mesh[];
   private torusMaterialStoneArray: TorusMaterialStone[];
@@ -121,8 +119,6 @@ class TorusAnimation {
     this.torusGeometryStone = new BoxGeometry(
       2.0,2.0,2.0,
     );
-    this.torusMaterialWhiteStone = new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
-    this.torusMaterialBlackStone = new TorusMaterialStone( new Color(STONE_COLOR_BLACK) );
 
     this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
 
@@ -177,10 +173,11 @@ class TorusAnimation {
   public cleanup() {
     this.renderer.dispose();
     this.torusMaterialBoard.dispose();
-    this.torusMaterialWhiteStone.dispose();
-    this.torusMaterialBlackStone.dispose();
     this.torusGeometryBoard.dispose();
     this.torusGeometryStone.dispose();
+    for (const material of this.torusMaterialStoneArray) {
+      material.dispose();
+    }
   }
 
   public updateTwist(newTwist: number) {
