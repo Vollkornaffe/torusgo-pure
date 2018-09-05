@@ -18,7 +18,7 @@ const DELTA_Z = 0.05;
 const DELTA_TWIST = 0.1;
 
 const CAMERA_RADIUS = 5;
-const CAMERA_FOV = 75;
+const CAMERA_FOV = 45;
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 1000;
 
@@ -61,9 +61,10 @@ class TorusAnimation {
   private torusGeometryBoard: BoxGeometry;
   private torusMeshBoard: Mesh;
 
-  private torusMaterialTestStone: TorusMaterialStone;
-  private torusGeometryTestStone: BoxGeometry;
-  private torusMeshTestStone: Mesh;
+  private torusMaterialWhiteStone: TorusMaterialStone;
+  private torusMaterialBlackStone: TorusMaterialStone;
+  private torusGeometryStone: BoxGeometry;
+  private torusMeshStoneArray: Mesh[];
 
   public constructor(
     givenSetup: ITorusAnimationSetup,
@@ -99,6 +100,12 @@ class TorusAnimation {
 
     this.angle = Math.PI;
 
+
+    this.torusGeometryBoard = new BoxGeometry(
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
+      2.0*this.givenSetup.thickness,
+    );
     this.torusMaterialBoard = new TorusMaterialBoard(
       this.camera.matrixWorld,
       this.givenSetup.boardSizeX,
@@ -108,29 +115,48 @@ class TorusAnimation {
       this.givenSetup.twist,
       new Color(TORUS_COLOR),
     );
-    this.torusMaterialTestStone = new TorusMaterialStone(
+    this.torusGeometryStone = new BoxGeometry(
+      2.0,2.0,2.0,
+    );
+    this.torusMaterialWhiteStone = new TorusMaterialStone(
       this.camera.matrixWorld,
       new Matrix4(), // identity
-      0.1,
-      0.3,
-      0.3,
       new Color(STONE_COLOR_WHITE),
     );
-
-    this.torusGeometryBoard = new BoxGeometry(
-      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
-      2.0*(this.givenSetup.radius + this.givenSetup.thickness),
-      2.0*this.givenSetup.thickness,
-    );
-    this.torusGeometryTestStone = new BoxGeometry(
-      2.0,2.0,2.0,
+    this.torusMaterialBlackStone = new TorusMaterialStone(
+      this.camera.matrixWorld,
+      new Matrix4(), // identity
+      new Color(STONE_COLOR_BLACK),
     );
 
     this.torusMeshBoard = new Mesh(this.torusGeometryBoard, this.torusMaterialBoard);
-    this.torusMeshTestStone = new Mesh(this.torusGeometryTestStone, this.torusMaterialTestStone);
 
     this.scene.add(this.torusMeshBoard);
-    this.scene.add(this.torusMeshTestStone);
+    for (let i = -50; i <= 50; i ++ ) {
+      const tempMesh = new Mesh(this.torusGeometryStone, this.torusMaterialWhiteStone);
+      tempMesh.scale.set(0.1,0.1,0.05);
+      tempMesh.position.add(new Vector3( -0.1,-0.1, i * 0.1));
+      this.scene.add(tempMesh);
+    }
+    this.scene.add(this.torusMeshBoard);
+    for (let i = -50; i <= 50; i ++ ) {
+      const tempMesh = new Mesh(this.torusGeometryStone, this.torusMaterialBlackStone);
+      tempMesh.scale.set(0.1,0.1,0.05);
+      tempMesh.position.add(new Vector3( -0.1,0.1, i * 0.1));
+      this.scene.add(tempMesh);
+    }
+    for (let i = -50; i <= 50; i ++ ) {
+      const tempMesh = new Mesh(this.torusGeometryStone, this.torusMaterialWhiteStone);
+      tempMesh.scale.set(0.1,0.1,0.05);
+      tempMesh.position.add(new Vector3( 0.1,0.1, i * 0.1));
+      this.scene.add(tempMesh);
+    }
+    for (let i = -50; i <= 50; i ++ ) {
+      const tempMesh = new Mesh(this.torusGeometryStone, this.torusMaterialBlackStone);
+      tempMesh.scale.set(0.1,0.1,0.05);
+      tempMesh.position.add(new Vector3( 0.1,-0.1, i * 0.1));
+      this.scene.add(tempMesh);
+    }
 
     this.animate();
   }
@@ -138,11 +164,27 @@ class TorusAnimation {
   public cleanup() {
     this.renderer.dispose();
     this.torusMaterialBoard.dispose();
+    this.torusMaterialWhiteStone.dispose();
+    this.torusMaterialBlackStone.dispose();
     this.torusGeometryBoard.dispose();
+    this.torusGeometryStone.dispose();
   }
 
   public updateTwist(newTwist: number) {
     this.torusMaterialBoard.uniforms.twist.value += newTwist;
+  }
+
+  public updateUniforms() {
+
+    // const modelMatrix = this.torusMeshTestStone.matrixWorld.clone();
+    // console.log(this.torusMeshTestStone.matrixWorld.elements);
+    // const elems : number[] = Array.prototype.slice.call(this.torusMeshTestStone.matrixWorld.elements);
+    // console.log(elems);
+    // const inverseModelMatrix = new Matrix4();
+    // inverseModelMatrix.getInverse(this.torusMeshTestStone.matrixWorld, true);
+    // console.log(inverseModelMatrix.elements);
+    // this.torusMaterialTestStone.uniforms.inverseModelMatrix.value = this.torusMeshTestStone.matrixWorld;
+    // this.torusMaterialTestStone.uniforms.inverseModelMatrix.value = inverseModelMatrix;
   }
 
   public animate() {
@@ -160,11 +202,11 @@ class TorusAnimation {
 
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
     this.camera.position.x = 5.0 * Math.cos( this.angle );
-    this.camera.position.y = 0.0;
+    this.camera.position.y = 1.0;
     this.camera.position.z = 5.0 * Math.sin( this.angle );
     this.camera.lookAt(0.0,0.0,0.0);
     this.angle += 0.005;
-    this.torusMaterialBoard.uniforms.twist.value = this.angle;
+    // this.torusMaterialBoard.uniforms.twist.value = this.angle;
 
     this.renderer.render(this.scene, this.camera);
   }
