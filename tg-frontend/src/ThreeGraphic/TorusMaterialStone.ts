@@ -98,7 +98,7 @@ void main() {
   // SHOULD BE INVERTED ONCE, ON CPU SIDE
   // vec4 camera_oc   = inverseModelMatrix * camera_wc;
   // vec4 imgplane_oc = inverseModelMatrix * imgplane_wc;
-  mat4 real_inverseModelMatrix = inverse(modelMatrix);
+  mat4 real_inverseModelMatrix = inverseModelMatrix;
   
   vec4 camera_oc   = real_inverseModelMatrix * camera_wc;
   vec4 imgplane_oc = real_inverseModelMatrix * imgplane_wc;
