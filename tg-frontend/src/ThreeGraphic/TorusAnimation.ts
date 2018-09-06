@@ -1,4 +1,5 @@
 import {
+  AxesHelper,
   BoxGeometry,
   Color, Matrix4,
   Mesh, MeshBasicMaterial,
@@ -137,13 +138,14 @@ class TorusAnimation {
         const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
         this.torusMaterialStoneArray.push(tempMaterial);
         this.torusMeshStoneArray.push(tempMesh);
-        this.torusStoneStates.push(i*j % 3);
+        this.torusStoneStates.push(2);
 
         tempMesh.visible = false;
         this.scene.add(tempMesh);
       }
     }
 
+    this.scene.add(new AxesHelper());
     this.animate();
   }
 
@@ -170,16 +172,21 @@ class TorusAnimation {
     for (let i = 0; i < this.givenSetup.boardSizeX; i++) {
       const iRad = i / this.givenSetup.boardSizeX * 2 * Math.PI + this.givenSetup.twist;
       const offset = new Vector3(
-      this.givenSetup.thickness * Math.sin(iRad),
+        (this.givenSetup.thickness + 0.05) * Math.sin(iRad),
       0,
-      this.givenSetup.thickness * Math.cos(iRad),
+        (this.givenSetup.thickness + 0.05) * Math.cos(iRad),
       );
       for (let j = 0; j < this.givenSetup.boardSizeY; j++) {
         const jRad = j / this.givenSetup.boardSizeY * 2 * Math.PI;
 
         const mesh     = this.torusMeshStoneArray[stoneId];
         const material = this.torusMaterialStoneArray[stoneId];
-        mesh.scale.set(0.05,0.1,0.1);
+
+        mesh.setRotationFromMatrix(
+          new Matrix4().makeRotationZ(jRad)
+          .multiply(new Matrix4().makeRotationY(iRad)));
+
+        mesh.scale.set(0.1,0.1,0.05);
         mesh.position.copy(offset);
         mesh.position.addScaledVector(xAxis, this.givenSetup.radius);
         mesh.position.applyAxisAngle(zAxis, jRad);
