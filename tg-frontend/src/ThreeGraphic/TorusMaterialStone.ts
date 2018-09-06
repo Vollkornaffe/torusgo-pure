@@ -62,6 +62,9 @@ void main() {
 	float dif = clamp( dot(-ray_wc, nor_wc), 0.0, 1.0 );
 	float amb = 0.1;
 	col *= amb + dif;
+	
+	// specular highlights
+	col += vec3(1.0,1.0,1.0) * pow(dot(-ray_wc, nor_wc),5.0);
 
 	gl_FragColor = vec4( col, 1.0 );
 
