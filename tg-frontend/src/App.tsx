@@ -46,7 +46,6 @@ export default class App extends React.Component<{},IState> {
               radius={1}
               thickness={0.5}
               twist={this.state.twist}
-              lineOff={0.0}
               />
           </div>
         </Router>

@@ -45,7 +45,6 @@ export interface ITorusAnimationSetup {
   radius:     number;
   thickness:  number;
   twist:      number;
-  lineOff:    number;
 }
 
 class TorusAnimation {
@@ -64,9 +63,13 @@ class TorusAnimation {
   // todo make shallow copies of these two materials
   // private torusMaterialWhiteStone: TorusMaterialStone;
   // private torusMaterialBlackStone: TorusMaterialStone;
+  private torusStoneColorWhite = new Color(STONE_COLOR_WHITE);
+  private torusStoneColorBlack = new Color(STONE_COLOR_BLACK);
   private torusGeometryStone: BoxGeometry;
   private torusMeshStoneArray: Mesh[];
   private torusMaterialStoneArray: TorusMaterialStone[];
+
+  private torusStoneStates: number[];
 
   public constructor(
     givenSetup: ITorusAnimationSetup,
@@ -124,48 +127,22 @@ class TorusAnimation {
 
     this.scene.add(this.torusMeshBoard);
 
+    // create a 'potential' stone for each field
     this.torusMeshStoneArray = [];
     this.torusMaterialStoneArray = [];
+    this.torusStoneStates = [];
+    for (let i = 0; i < this.givenSetup.boardSizeX; i++) {
+      for (let j = 0; j < this.givenSetup.boardSizeY; j++) {
+        const tempMaterial =  new TorusMaterialStone( this.torusStoneColorWhite );
+        const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
+        this.torusMaterialStoneArray.push(tempMaterial);
+        this.torusMeshStoneArray.push(tempMesh);
+        this.torusStoneStates.push(i*j % 3);
 
-    for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
-      const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
-      tempMesh.scale.set(0.1,0.1,0.05);
-      tempMesh.position.add(new Vector3( -0.1,-0.1, i * 0.1));
-      this.torusMaterialStoneArray.push(tempMaterial);
-      this.torusMeshStoneArray.push(tempMesh);
-      this.scene.add(tempMesh);
+        tempMesh.visible = false;
+        this.scene.add(tempMesh);
+      }
     }
-    this.scene.add(this.torusMeshBoard);
-    for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
-      const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
-      tempMesh.scale.set(0.1,0.1,0.05);
-      tempMesh.position.add(new Vector3( -0.1,0.1, i * 0.1));
-      this.torusMaterialStoneArray.push(tempMaterial);
-      this.torusMeshStoneArray.push(tempMesh);
-      this.scene.add(tempMesh);
-    }
-    for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
-      const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
-      tempMesh.scale.set(0.1,0.1,0.05);
-      tempMesh.position.add(new Vector3( 0.1,0.1, i * 0.1));
-      this.torusMaterialStoneArray.push(tempMaterial);
-      this.torusMeshStoneArray.push(tempMesh);
-      this.scene.add(tempMesh);
-    }
-    for (let i = -50; i <= 50; i ++ ) {
-      const tempMaterial =  new TorusMaterialStone( new Color(STONE_COLOR_WHITE) );
-      const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
-      tempMesh.scale.set(0.1,0.1,0.05);
-      tempMesh.position.add(new Vector3( 0.1,-0.1, i * 0.1));
-      this.torusMaterialStoneArray.push(tempMaterial);
-      this.torusMeshStoneArray.push(tempMesh);
-      this.scene.add(tempMesh);
-    }
-
-    this.updateUniforms();
 
     this.animate();
   }
@@ -184,7 +161,37 @@ class TorusAnimation {
     this.torusMaterialBoard.uniforms.twist.value += newTwist;
   }
 
-  public updateUniforms() {
+  // updates stone transformation
+  private updateStones() {
+    let stoneId = 0;
+    const xAxis = new Vector3(1,0,0);
+    const yAxis = new Vector3(0,1,0);
+    const zAxis = new Vector3(0,0,1);
+    for (let i = 0; i < this.givenSetup.boardSizeX; i++) {
+      const iRad = i / this.givenSetup.boardSizeX * 2 * Math.PI + this.givenSetup.twist;
+      const offset = new Vector3(
+      this.givenSetup.thickness * Math.sin(iRad),
+      0,
+      this.givenSetup.thickness * Math.cos(iRad),
+      );
+      for (let j = 0; j < this.givenSetup.boardSizeY; j++) {
+        const jRad = j / this.givenSetup.boardSizeY * 2 * Math.PI;
+
+        const mesh     = this.torusMeshStoneArray[stoneId];
+        const material = this.torusMaterialStoneArray[stoneId];
+        mesh.scale.set(0.05,0.1,0.1);
+        mesh.position.copy(offset);
+        mesh.position.addScaledVector(xAxis, this.givenSetup.radius);
+        mesh.position.applyAxisAngle(zAxis, jRad);
+
+        stoneId++;
+      }
+    }
+  }
+
+  // updates Matrices passed to shader
+  // also updates visibility and color of stones
+  private updateUniforms() {
 
     /* Somehow this doesn't work.
     for (const stoneMesh of this.torusMeshStoneArray) {
@@ -211,8 +218,9 @@ class TorusAnimation {
 
     // now for all the stones
     for (let i = 0; i < this.torusMeshStoneArray.length; i++ ) {
-      const mesh = this.torusMeshStoneArray[i];
+      const mesh     = this.torusMeshStoneArray[i];
       const material = this.torusMaterialStoneArray[i];
+      const state    = this.torusStoneStates[i];
 
       mesh.updateMatrixWorld(true);
 
@@ -223,13 +231,28 @@ class TorusAnimation {
       material.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
       material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
       material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
+
+      switch(state) {
+        case 0: mesh.visible = false; break;
+        case 1: {
+          mesh.visible = true;
+          material.uniforms.stoneColor.value = this.torusStoneColorBlack;
+          break;
+        }
+        case 2: {
+          mesh.visible = true;
+          material.uniforms.stoneColor.value = this.torusStoneColorWhite;
+          break;
+        }
+      }
     }
 
   }
 
-  public animate() {
+  private animate() {
     requestAnimationFrame(this.animate.bind(this));
 
+    this.updateStones();
     this.updateUniforms();
 
     // Start of animation code
