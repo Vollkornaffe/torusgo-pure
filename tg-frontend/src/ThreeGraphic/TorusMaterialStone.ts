@@ -59,15 +59,18 @@ void main() {
 	vec3 col = stoneColor;
 	vec4 nor_oc = normalize(vec4(camera_oc.xyz + t_oc*ray_oc.xyz, 0.0));
 	vec4 nor_wc = normalize(transposedInverseModelMatrix * nor_oc);
-	float dif = clamp( dot(-ray_wc, nor_wc), 0.0, 1.0 );
+	
+	float clamped_nor_dot_ray = clamp( dot(-ray_wc, nor_wc), 0.0, 1.0 );
+	
+	float dif = clamped_nor_dot_ray;
 	float amb = 0.1;
 	col *= amb + dif;
 	
 	// specular highlights
-	col += vec3(1.0,1.0,1.0) * pow(dot(-ray_wc, nor_wc),5.0);
+	col += vec3(1.0,1.0,1.0) * pow(clamped_nor_dot_ray, 10.0);
+	col += vec3(1.0,1.0,1.0) * pow(clamped_nor_dot_ray, 100.0);
 
-	//gl_FragColor = vec4( col, 1.0 );
-	gl_FragColor = vec4(nor_wc.xyz, 1.0);
+	gl_FragColor = vec4( col, 1.0 );
 
   gl_FragDepthEXT = t_wc/10.0;
 }
