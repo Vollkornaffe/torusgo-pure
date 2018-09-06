@@ -45,6 +45,7 @@ export interface ITorusAnimationSetup {
   boardSizeY: number;
   radius:     number;
   thickness:  number;
+  stoneSize:  number;
   twist:      number;
 }
 
@@ -165,6 +166,11 @@ class TorusAnimation {
 
   // updates stone transformation
   private updateStones() {
+    const scaleX = (this.givenSetup.thickness + this.givenSetup.stoneSize)
+      * Math.PI / this.givenSetup.boardSizeX * 0.9; // the 0.9 enables a small gap
+    let   scaleY; // to be determined for each iRad
+    const scaleZ = this.givenSetup.stoneSize;
+
     let stoneId = 0;
     const xAxis = new Vector3(1,0,0);
     const yAxis = new Vector3(0,1,0);
@@ -172,10 +178,15 @@ class TorusAnimation {
     for (let i = 0; i < this.givenSetup.boardSizeX; i++) {
       const iRad = i / this.givenSetup.boardSizeX * 2 * Math.PI + this.givenSetup.twist;
       const offset = new Vector3(
-        (this.givenSetup.thickness + 0.05) * Math.sin(iRad),
-      0,
-        (this.givenSetup.thickness + 0.05) * Math.cos(iRad),
+        (this.givenSetup.thickness + scaleZ) * Math.sin(iRad),
+        0,
+        (this.givenSetup.thickness + scaleZ) * Math.cos(iRad),
       );
+
+      const innerRingRadius = this.givenSetup.radius
+        + (this.givenSetup.thickness + scaleZ) * Math.cos(iRad - Math.PI/2.0);
+      scaleY = innerRingRadius * Math.PI / this.givenSetup.boardSizeY * 0.9; // the 0.9 enables a small gap
+
       for (let j = 0; j < this.givenSetup.boardSizeY; j++) {
         const jRad = j / this.givenSetup.boardSizeY * 2 * Math.PI;
 
@@ -186,7 +197,8 @@ class TorusAnimation {
           new Matrix4().makeRotationZ(jRad)
           .multiply(new Matrix4().makeRotationY(iRad)));
 
-        mesh.scale.set(0.1,0.1,0.05);
+        // const widthFactor = (iRad - Math.PI * 0.5)
+        mesh.scale.set(scaleX, scaleY, scaleZ);
         mesh.position.copy(offset);
         mesh.position.addScaledVector(xAxis, this.givenSetup.radius);
         mesh.position.applyAxisAngle(zAxis, jRad);

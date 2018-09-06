@@ -10,6 +10,7 @@ export interface IProps {
   boardSizeY: number,
   radius:     number,
   thickness:  number,
+  stoneSize:  number,
   twist:      number,
 }
 
