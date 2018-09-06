@@ -139,7 +139,7 @@ class TorusAnimation {
         const tempMesh = new Mesh(this.torusGeometryStone, tempMaterial);
         this.torusMaterialStoneArray.push(tempMaterial);
         this.torusMeshStoneArray.push(tempMesh);
-        this.torusStoneStates.push(2);
+        this.torusStoneStates.push(i*j % 3);
 
         tempMesh.visible = false;
         this.scene.add(tempMesh);
