@@ -66,7 +66,8 @@ void main() {
 	// specular highlights
 	col += vec3(1.0,1.0,1.0) * pow(dot(-ray_wc, nor_wc),5.0);
 
-	gl_FragColor = vec4( col, 1.0 );
+	//gl_FragColor = vec4( col, 1.0 );
+	gl_FragColor = vec4(nor_wc.xyz, 1.0);
 
   gl_FragDepthEXT = t_wc/10.0;
 }
