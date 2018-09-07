@@ -21,7 +21,7 @@ const DELTA_TWIST = 0.1;
 const CAMERA_RADIUS = 5;
 const CAMERA_FOV = 45;
 const CAMERA_NEAR = 0.1;
-const CAMERA_FAR = 1000;
+const CAMERA_FAR = 100;
 
 const CLEAR_COLOR = 0x4286f4;
 const LIGHT_COLOR_AMBIENT = 0x333333;
@@ -57,6 +57,7 @@ class TorusAnimation {
   private camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
 
+  // TODO: won't need angle soon
   private angle: number;
   private torusMaterialBoard: TorusMaterialBoard;
   private torusGeometryBoard: BoxGeometry;
@@ -86,11 +87,9 @@ class TorusAnimation {
     if (supportedExtensions == null) {
       supportedExtensions = [];
     }
-
     if (-1 === supportedExtensions.indexOf('EXT_frag_depth')) {
       alert('EXT_frag_depth extension not supported! 3D view not available!');
     }
-
 
     this.renderer.setClearColor(new Color(CLEAR_COLOR), 1);
     this.scene = new Scene();
@@ -105,6 +104,7 @@ class TorusAnimation {
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(ORIGIN.clone());
 
+    // TODO: this won't be needed soon
     this.angle = Math.PI;
 
 
@@ -160,10 +160,6 @@ class TorusAnimation {
     }
   }
 
-  public updateTwist(newTwist: number) {
-    this.torusMaterialBoard.uniforms.twist.value += newTwist;
-  }
-
   // updates stone transformation
   private updateStones() {
     const scaleX = (this.givenSetup.thickness + this.givenSetup.stoneSize)
@@ -197,7 +193,6 @@ class TorusAnimation {
           new Matrix4().makeRotationZ(jRad)
           .multiply(new Matrix4().makeRotationY(iRad)));
 
-        // const widthFactor = (iRad - Math.PI * 0.5)
         mesh.scale.set(scaleX, scaleY, scaleZ);
         mesh.position.copy(offset);
         mesh.position.addScaledVector(xAxis, this.givenSetup.radius);
@@ -211,12 +206,6 @@ class TorusAnimation {
   // updates Matrices passed to shader
   // also updates visibility and color of stones
   private updateUniforms() {
-
-    /* Somehow this doesn't work.
-    for (const stoneMesh of this.torusMeshStoneArray) {
-      stoneMesh.material.uniforms.inverseModelMatrix.value = customInverse(stoneMesh.matrixWorld);
-    }
-    */
 
     this.camera.updateMatrixWorld(true);
     this.camera.updateProjectionMatrix();
@@ -277,16 +266,7 @@ class TorusAnimation {
     this.updateStones();
     this.updateUniforms();
 
-    // Start of animation code
-
-    // this.updateRotation();
-    // this.updateTwist();
-    // this.updateStones();
-    // this.updateScoring();
-    // this.updateRaycast();
-
-    // End of animation code
-
+    // TODO Camera movement should be controlled from elsewhere
     // Use Math.cos and Math.sin to set camera X and Z values based on angle.
     this.camera.position.x = 5.0 * Math.cos( this.angle );
     this.camera.position.y = 0.0;

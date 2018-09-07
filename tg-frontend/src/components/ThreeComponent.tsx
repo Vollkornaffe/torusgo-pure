@@ -24,10 +24,6 @@ class ThreeComponent extends React.Component<IProps> {
     autoBind(this);
   }
 
-  public componentDidUpdate() {
-    this.torusAnimation.updateTwist(this.props.twist);
-  }
-
   public componentDidMount() {
     this.torusAnimation = new TorusAnimation(
       this.props,
