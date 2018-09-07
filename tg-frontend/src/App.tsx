@@ -42,10 +42,10 @@ export default class App extends React.Component<{},IState> {
               width={1000}
               height={1000}
               boardSizeX={20}
-              boardSizeY={40}
+              boardSizeY={20}
               radius={1}
-              thickness={0.25}
-              stoneSize={0.02}
+              thickness={0.5}
+              stoneSize={0.05}
               twist={this.state.twist}
               />
           </div>

@@ -189,7 +189,7 @@ void main() {
 	vec3 col = torusColor;
 	vec3 pos_oc = camera_oc.xyz + t_oc*ray_oc.xyz;
 	vec4 nor_oc = vec4(nTorus( pos_oc, torus ), 0.0);
-	vec4 nor_wc = normalize(transposedInverseModelMatrix * nor_oc);
+	vec4 nor_wc = vec4(normalize((transposedInverseModelMatrix * nor_oc).xyz),0.0);
 	float dif = clamp( dot(-nor_wc,ray_wc), 0.0, 1.0 );
 	float amb = 0.5;
 	col *= amb + dif;
@@ -204,7 +204,7 @@ void main() {
 	float mod_y_pos = mod(+twist+atan2(pos_oc_rot.x, pos_oc_rot.z), 2.0*PI/boardSizeX);
 	float mod_y_neg = mod(-twist-atan2(pos_oc_rot.x, pos_oc_rot.z), 2.0*PI/boardSizeX);
 	col *= pow(abs(mod_x_pos * mod_x_neg * mod_y_pos * mod_y_neg), 0.1);	
-
+	
 	gl_FragColor = vec4( col, 1.0 );
 
   gl_FragDepthEXT = t_wc/10.0;
