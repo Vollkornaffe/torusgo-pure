@@ -46,7 +46,7 @@ export default class App extends React.Component<{},IState> {
               radius={1}
               thickness={0.5}
               stoneSize={0.05}
-              twist={0}
+              twist={0.1}
               />
           </div>
         </Router>
