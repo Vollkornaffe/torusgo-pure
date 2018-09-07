@@ -39,14 +39,14 @@ export default class App extends React.Component<{},IState> {
         <Router>
           <div>
             <ThreeComponent
-              width={1000}
-              height={1000}
+              width={1920}
+              height={1080}
               boardSizeX={20}
               boardSizeY={20}
               radius={1}
               thickness={0.5}
               stoneSize={0.05}
-              twist={this.state.twist}
+              twist={0}
               />
           </div>
         </Router>

@@ -3,7 +3,7 @@ import {
   DoubleSide,
   Matrix4,
   ShaderMaterial,
-  Uniform,
+  Uniform, Vector2,
   Vector3
 } from "three";
 
@@ -22,6 +22,7 @@ uniform mat4 projectionMatrix;
 uniform mat4 modelMatrix;
 
 // these are custom
+uniform vec2 viewPort;
 uniform mat4 inverseViewMatrix;
 uniform mat4 inverseProjectionMatrix;
 uniform mat4 inverseModelMatrix;
@@ -42,7 +43,7 @@ void main() {
   // set up in world coords
   vec4 camera_wc   = inverseViewMatrix * vec4(0.0,0.0,0.0,1.0);
   vec4 imgplane_wc = inverseViewMatrix * inverseProjectionMatrix
-    * vec4((2.0*gl_FragCoord.x - 1000.0)*0.001,(2.0*gl_FragCoord.y - 1000.0)*0.001,1.0,1.0);
+    * vec4((2.0*gl_FragCoord.xy - viewPort)/viewPort,1.0,1.0);
   imgplane_wc /= imgplane_wc.w;
   vec4 ray_wc = normalize(imgplane_wc - camera_wc);
     
@@ -91,6 +92,7 @@ export default class TorusMaterialStone extends ShaderMaterial {
     {
       side: DoubleSide,
       uniforms: {
+        viewPort:                     new Uniform(new Vector2()),
         inverseViewMatrix:            new Uniform(new Matrix4()),
         inverseProjectionMatrix:      new Uniform(new Matrix4()),
         inverseModelMatrix:           new Uniform(new Matrix4()),

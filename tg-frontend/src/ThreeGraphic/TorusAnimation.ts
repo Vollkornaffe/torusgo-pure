@@ -4,7 +4,7 @@ import {
   Color, Matrix4,
   Mesh, MeshBasicMaterial,
   PerspectiveCamera,
-  Scene,
+  Scene, Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
@@ -222,7 +222,8 @@ class TorusAnimation {
     this.camera.updateProjectionMatrix();
     this.torusMeshBoard.updateMatrixWorld(true);
 
-    // View and Projection matrix is the same for all objects
+    // Viewport, View and Projection matrix is the same for all objects
+    const viewPort                = new Vector2(this.givenSetup.width, this.givenSetup.height);
     const inverseViewMatrix       = this.camera.matrixWorld;
     const inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
 
@@ -230,6 +231,7 @@ class TorusAnimation {
     const inverseModelMatrixBoard           = new Matrix4().getInverse(this.torusMeshBoard.matrixWorld);
     const transposedInverseModelMatrixBoard = inverseModelMatrixBoard.clone().transpose();
 
+    this.torusMaterialBoard.uniforms.viewPort.value                     = viewPort;
     this.torusMaterialBoard.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
     this.torusMaterialBoard.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
     this.torusMaterialBoard.uniforms.inverseModelMatrix.value           = inverseModelMatrixBoard;
@@ -246,6 +248,7 @@ class TorusAnimation {
       const inverseModelMatrix           = new Matrix4().getInverse(mesh.matrixWorld);
       const transposedInverseModelMatrix = inverseModelMatrix.clone().transpose();
 
+      material.uniforms.viewPort.value                     = viewPort;
       material.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
       material.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
       material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
