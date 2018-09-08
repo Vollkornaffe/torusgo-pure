@@ -2,3 +2,5 @@ node_modules/
 build/
 .psci_modules/
 *.swp
+/latex/*.aux
+/latex/*.log
