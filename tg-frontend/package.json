@@ -30,14 +30,14 @@
     "@types/classnames": "^2.2.6",
     "@types/jest": "^23.0.0",
     "@types/node": "^10.3.2",
-    "@types/react": "^16.3.17",
+    "@types/react": "^16.4.8",
     "@types/react-dom": "^16.0.6",
     "@types/react-redux": "^6.0.2",
     "@types/react-resize-detector": "^2.2.0",
     "@types/react-router-dom": "^4.2.7",
     "@types/redux-logger": "^3.0.6",
     "@types/socket.io-client": "^1.4.32",
-    "@types/three": "^0.92.4",
+    "@types/three": "^0.92.15",
     "typescript": "^2.9.1"
   }
 }
