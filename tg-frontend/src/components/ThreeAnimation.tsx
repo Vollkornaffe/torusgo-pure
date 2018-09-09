@@ -1,5 +1,6 @@
 import * as React from 'react';
 import autoBind from 'react-autobind';
+import * as ReactDOM from 'react-dom';
 
 import {BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer} from "three";
 import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
@@ -107,6 +108,7 @@ class ThreeAnimation extends React.Component<IProps> {
       height,
     }}>
       <canvas
+        tabIndex={1}
         width={width}
         height={height}
         ref={(canvas) => this.canvas = canvas!}
@@ -121,7 +123,11 @@ class ThreeAnimation extends React.Component<IProps> {
     this.camera.position.y = 0.0;
     this.camera.position.z = 5.0 * Math.sin( this.angle );
     this.camera.lookAt(0.0,0.0,0.0);
-    this.angle += 0.005;
+
+    if (document.activeElement === ReactDOM.findDOMNode(this.canvas)) {
+      this.angle += 0.005;
+      this.twist += 0.01;
+    }
 
     this.updateStoneTransforms();
     this.updateUniforms();
@@ -294,7 +300,10 @@ class ThreeAnimation extends React.Component<IProps> {
       material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
 
       switch(state) {
-        case 0: mesh.visible = false; break;
+        case 0: {
+          mesh.visible = false;
+          break;
+        }
         case 1: {
           mesh.visible = true;
           material.uniforms.stoneColor.value = colorStoneBlack;
