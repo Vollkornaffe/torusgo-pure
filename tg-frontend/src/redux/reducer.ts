@@ -166,6 +166,35 @@ const updateResource = (state: IState, action: TAction<{ resource: any, resource
   };
 };
 
+const updateKeyPress = (state: IState, action: TAction<{keyCode: string, pressed: boolean}>): IState => {
+  if (action.pressed) {
+    // keydown
+    const idx = state.pressedKeys.indexOf(action.keyCode);
+    if (idx > -1) {
+      // is already down
+      return state;
+    } else {
+      // add to pressed keys
+      return {
+        ...state,
+        pressedKeys: [...state.pressedKeys, action.keyCode],
+      };
+    }
+  } else {
+    // keyup
+    // just run a filter on the pressed keys
+    return {
+      ...state,
+      pressedKeys: state.pressedKeys.filter(keyCode => keyCode !== action.keyCode),
+    };
+  }
+};
+
+
+// TODO
+// I don't know about this construct.
+// kinda need to type out the type string multiple times, maybe we can avoid this with a map or smt?
+
 function createReducer<S>(initialState: S, reducerObject: ReducersMapObject): Reducer<S> {
   return (state = initialState, action: Action) => {
     if (reducerObject.hasOwnProperty(action.type)) {
@@ -194,4 +223,5 @@ export default <S>(initialState: S) => createReducer(initialState, {
   'SUBSCRIBE_RESPONSE': subscribeResponse,
   'SUBSCRIBE_ERROR': subscribeError,
 
+  'KEY_PRESS_UPDATE': updateKeyPress,
 });

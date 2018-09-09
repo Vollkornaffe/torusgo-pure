@@ -30,6 +30,17 @@ const initialState: IState = {
   loginState: ELoginState.Undefined,
   connectionStatus: EConnectionStatus.Disconnected,
   activeGameId: undefined,
+
+  pressedKeys: [],
+  controlKeys: {
+    up:           "KeyW",
+    down:         "KeyS",
+    left:         "KeyA",
+    right:        "KeyD",
+    twistIn:      "KeyQ",
+    twistOut:     "KeyE",
+    mouseControl: "ControlLeft",
+  },
 };
 
 export default createStore(reducer(initialState), applyMiddleware(logger));

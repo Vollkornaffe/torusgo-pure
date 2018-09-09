@@ -27,4 +27,16 @@ export interface IState {
   loginState: ELoginState,
   connectionStatus: EConnectionStatus,
   activeGameId?: string,
+
+  // control section
+  pressedKeys: string[],
+  controlKeys: {
+    up:           string,
+    down:         string,
+    left:         string,
+    right:        string,
+    twistIn:      string,
+    twistOut:     string,
+    mouseControl: string,
+  },
 }
