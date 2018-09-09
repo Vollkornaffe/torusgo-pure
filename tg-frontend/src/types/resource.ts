@@ -15,8 +15,8 @@ export enum EResourceStatus {
 export enum EResourceType {
   Game = 'game',
   User = 'user',
-  UserList = 'gameList',
-  GameList = 'userList',
+  GameList = 'gameList',
+  UserList = 'userList',
 }
 
 export interface IResourceWrapper<T> {
