@@ -8,7 +8,7 @@ import {
   withStyles,
   WithStyles
 } from '@material-ui/core';
-import {BugReport, Dashboard, Settings} from '@material-ui/icons';
+import {BugReport, Dashboard, PlayArrow, Settings} from '@material-ui/icons';
 import * as React from 'react';
 import {Link} from 'react-router-dom';
 
@@ -19,6 +19,14 @@ const styles = () => createStyles({
 const MySidebar: React.SFC<WithStyles<typeof styles>> = ({classes}) => (
   <div className={classes.root}>
     <List>
+      <Link to={'/canvas'}>
+        <ListItem button={true}>
+          <ListItemIcon>
+            <PlayArrow />
+          </ListItemIcon>
+          <ListItemText primary={'Play!'} />
+        </ListItem>
+      </Link>
       <Link to={'/debug'}>
         <ListItem button={true}>
           <ListItemIcon>

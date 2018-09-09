@@ -214,20 +214,7 @@ void main() {
 `;
 
 export default class TorusMaterialBoard extends ShaderMaterial {
-  constructor(
-    // all of these must be updated anyway...
-    // no point in passing them in constructor
-    // inverseViewMatrix:             Matrix4,
-    // inverseProjectionMatrix:       Matrix4,
-    // inverseModelMatrix:            Matrix4,
-    // transposedInverseModelMatrix:  Matrix4,
-    boardSizeX:  number,
-    boardSizeY:  number,
-    radius:      number,
-    thickness:   number,
-    twist:       number,
-    torusColor:  Color,
-    ) {
+  constructor() {
     const parameters =
     {
       side: DoubleSide,
@@ -237,15 +224,12 @@ export default class TorusMaterialBoard extends ShaderMaterial {
         inverseProjectionMatrix:      new Uniform(new Matrix4()),
         inverseModelMatrix:           new Uniform(new Matrix4()),
         transposedInverseModelMatrix: new Uniform(new Matrix4()),
-        boardSizeX:                   new Uniform(boardSizeX ),
-        boardSizeY:                   new Uniform(boardSizeY ),
-        radius:                       new Uniform(radius     ),
-        thickness:                    new Uniform(thickness  ),
-        twist:                        new Uniform(twist      ),
-        torusColor:                   new Uniform(new Vector3(
-          torusColor.r,
-          torusColor.g,
-          torusColor.b)),
+        boardSizeX:                   new Uniform(9),
+        boardSizeY:                   new Uniform(9),
+        radius:                       new Uniform(1),
+        thickness:                    new Uniform(0.5),
+        twist:                        new Uniform(0),
+        torusColor:                   new Uniform(new Vector3(1,1,1)),
       },
       vertexShader: vertexShader.concat(),
       fragmentShader: fragmentShader.concat(),

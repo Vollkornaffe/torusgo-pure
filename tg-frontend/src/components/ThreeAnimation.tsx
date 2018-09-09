@@ -1,0 +1,314 @@
+import * as React from 'react';
+import autoBind from 'react-autobind';
+
+import {BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer} from "three";
+import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
+import TorusMaterialStone from "../ThreeGraphic/TorusMaterialStone";
+
+export interface IProps {
+  // size and offset of viewPort
+  width:      number,
+  height:     number,
+  offsetX:    number,
+  offsetY:    number,
+
+  // number of fields
+  boardSizeX: number,
+  boardSizeY: number,
+
+  // torus and stone dimensions
+  radius:     number,
+  thickness:  number,
+  stoneSize:  number,
+
+  // key states
+  // ?
+
+  // 0: empty, 1: white, 2: black, 3: aiming mouse here ?
+  boardState: number[],
+}
+
+// colors are const
+const colorClear = new Color(0x4286f4);
+const colorBoard = new Color(0xFF6B00);
+const colorStoneWhite = new Color(0xe6ffff);
+const colorStoneBlack = new Color(0x1a0008);
+const colorStoneHover = new Color(0xFFD700);
+const box222 = new BoxGeometry(2,2,2) ;
+
+class ThreeAnimation extends React.Component<IProps> {
+  private canvas: HTMLCanvasElement;
+  private renderer: WebGLRenderer;
+  private scene: Scene;
+  private requestId: number; // given by requestAnimationFrame
+
+  private camera: PerspectiveCamera;
+  private twist: number;
+
+  private boardGeometry: BoxGeometry; // torus cannot be scaled to box222?
+  private boardMaterial: TorusMaterialBoard;
+  private boardMesh: Mesh;
+  private stoneMaterialArray: TorusMaterialStone[];
+  private stoneMeshArray: Mesh[];
+
+  private angle: number;
+  private testMesh: Mesh;
+  private testMaterial: TorusMaterialStone;
+
+  // nothing much happening in constructor
+  // first canvas needs to be created
+  public constructor(props: IProps) {
+    super(props);
+    autoBind(this);
+  }
+
+  public componentDidMount() {
+    this.scene = new Scene();
+    this.initRenderer();
+    this.initCamera();
+    this.setupStoneArrays();
+    this.updateBoardTransform();
+    this.twist = 0;
+    this.angle = 0;
+
+    this.animate();
+  }
+
+  public componentDidUpdate(prevProps: IProps) {
+    if (this.props.width !== prevProps.width
+    ||  this.props.height !== prevProps.height) {
+      this.updateViewport();
+    }
+
+    if (this.props.boardSizeX !== prevProps.boardSizeX
+    ||  this.props.boardSizeY !== prevProps.boardSizeY) {
+      this.cleanUpStones();
+      this.setupStoneArrays();
+    }
+
+    if (this.props.radius !== prevProps.radius
+    ||  this.props.thickness !== prevProps.thickness) {
+      this.cleanUpBoard();
+      this.updateBoardTransform();
+    }
+  }
+
+  public componentWillUnmount() {
+    this.cleanUp();
+  }
+
+  public render() {
+    const {width, height, offsetX, offsetY} = this.props;
+    return <div style={{
+      position: 'absolute',
+      left: offsetX,
+      top: offsetY,
+      width,
+      height,
+    }}>
+      <canvas
+        width={width}
+        height={height}
+        ref={(canvas) => this.canvas = canvas!}
+      />
+    </div>;
+  }
+
+  private animate() {
+    this.requestId = requestAnimationFrame(this.animate.bind(this));
+
+    this.camera.position.x = 5.0 * Math.cos( this.angle );
+    this.camera.position.y = 0.0;
+    this.camera.position.z = 5.0 * Math.sin( this.angle );
+    this.camera.lookAt(0.0,0.0,0.0);
+    this.angle += 0.005;
+
+    this.updateStoneTransforms();
+    this.updateUniforms();
+
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  private initRenderer() {
+    this.renderer = new WebGLRenderer({canvas: this.canvas});
+    this.renderer.getContext().getExtension('EXT_frag_depth');
+    let supportedExtensions = this.renderer.getContext().getSupportedExtensions();
+    if (supportedExtensions == null) {
+      supportedExtensions = [];
+    }
+    if (-1 === supportedExtensions.indexOf('EXT_frag_depth')) {
+      alert('EXT_frag_depth extension not supported! 3D view not available!');
+    }
+    this.renderer.setClearColor(colorClear, 1);
+  }
+
+  private initCamera() {
+    this.camera = new PerspectiveCamera(
+      45, this.props.width/this.props.height, 0.1, 100
+    );
+    this.camera.up.set(0,1,0);
+    this.camera.position.set(0,0,this.props.radius * 5.0);
+    this.camera.lookAt(0,0,0);
+    this.scene.add(this.camera);
+  }
+
+  private cleanUp() {
+    this.renderer.dispose();
+    this.cleanUpStones();
+    box222.dispose(); // this one kinda special
+    this.cleanUpBoard();
+
+    cancelAnimationFrame(this.requestId);
+  }
+
+  private cleanUpBoard() {
+    this.scene.remove(this.boardMesh);
+    this.boardGeometry.dispose();
+    this.boardMaterial.dispose();
+  }
+
+  private cleanUpStones() {
+    for (const mesh of this.stoneMeshArray) { this.scene.remove(mesh); }
+    for (const material of this.stoneMaterialArray) { material.dispose(); }
+    this.stoneMeshArray = [];
+    this.stoneMaterialArray = [];
+  }
+
+  private updateViewport() {
+    this.camera.aspect = this.props.width / this.props.height;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize( this.props.width, this.props.height );
+  }
+
+  private setupStoneArrays() {
+    this.stoneMaterialArray = [];
+    this.stoneMeshArray = [];
+    for (let i=0; i < this.props.boardSizeX; i++) {
+      for (let j=0; j < this.props.boardSizeY; j++) {
+        const material = new TorusMaterialStone();
+        const mesh = new Mesh(box222, material);
+        this.stoneMaterialArray.push(material);
+        this.stoneMeshArray.push(mesh);
+        this.scene.add(mesh);
+      }
+    }
+  }
+
+  private updateBoardTransform() {
+    this.boardGeometry = new BoxGeometry(
+      2.0*(this.props.radius + this.props.thickness),
+      2.0*(this.props.radius + this.props.thickness),
+      2.0*this.props.thickness
+    );
+    this.boardMaterial = new TorusMaterialBoard();
+    this.boardMesh = new Mesh(this.boardGeometry, this.boardMaterial);
+    this.scene.add(this.boardMesh);
+  }
+
+
+  private updateStoneTransforms() {
+    const scaleX = (this.props.thickness + this.props.stoneSize)
+      * Math.PI / this.props.boardSizeX * 0.9; // the 0.9 enables a small gap
+    let   scaleY; // to be determined for each iRad
+    const scaleZ = this.props.stoneSize;
+
+    let stoneId = 0;
+    const xAxis = new Vector3(1,0,0);
+    const yAxis = new Vector3(0,1,0);
+    const zAxis = new Vector3(0,0,1);
+    for (let i = 0; i < this.props.boardSizeX; i++) {
+      const iRad = i / this.props.boardSizeX * 2 * Math.PI + this.twist;
+      const offset = new Vector3(
+        (this.props.thickness + scaleZ) * Math.sin(iRad),
+        0,
+        (this.props.thickness + scaleZ) * Math.cos(iRad),
+      );
+
+      const innerRingRadius = this.props.radius
+        + (this.props.thickness + scaleZ) * Math.cos(iRad - Math.PI/2.0);
+      scaleY = innerRingRadius * Math.PI / this.props.boardSizeY * 0.9; // the 0.9 enables a small gap
+
+      for (let j = 0; j < this.props.boardSizeY; j++) {
+        const jRad = j / this.props.boardSizeY * 2 * Math.PI;
+
+
+        const mesh     = this.stoneMeshArray[stoneId];
+
+        mesh.setRotationFromMatrix(
+          new Matrix4().makeRotationZ(jRad)
+          .multiply(new Matrix4().makeRotationY(iRad)));
+
+        mesh.scale.set(scaleX, scaleY, scaleZ);
+        mesh.position.copy(offset);
+        mesh.position.addScaledVector(xAxis, this.props.radius);
+        mesh.position.applyAxisAngle(zAxis, jRad);
+
+        stoneId++;
+      }
+    }
+  }
+
+  private updateUniforms() {
+
+    this.camera.updateMatrixWorld(true);
+    this.camera.updateProjectionMatrix();
+    this.boardMesh.updateMatrixWorld(true);
+
+    // Viewport, View and Projection matrix is the same for all objects
+    const viewPort                = new Vector2(this.props.width, this.props.height);
+    const inverseViewMatrix       = this.camera.matrixWorld;
+    const inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
+
+    // now just for the board
+    const inverseModelMatrixBoard           = new Matrix4().getInverse(this.boardMesh.matrixWorld);
+    const transposedInverseModelMatrixBoard = inverseModelMatrixBoard.clone().transpose();
+
+    this.boardMaterial.uniforms.viewPort.value                     = viewPort;
+    this.boardMaterial.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
+    this.boardMaterial.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
+    this.boardMaterial.uniforms.inverseModelMatrix.value           = inverseModelMatrixBoard;
+    this.boardMaterial.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrixBoard;
+    this.boardMaterial.uniforms.boardSizeX.value                   = this.props.boardSizeX;
+    this.boardMaterial.uniforms.boardSizeY.value                   = this.props.boardSizeY;
+    this.boardMaterial.uniforms.radius.value                       = this.props.radius;
+    this.boardMaterial.uniforms.thickness.value                    = this.props.thickness;
+    this.boardMaterial.uniforms.twist.value                        = this.twist;
+    this.boardMaterial.uniforms.torusColor.value                   = colorBoard;
+
+    // now for all the stones
+    for (let i = 0; i < this.props.boardSizeX*this.props.boardSizeY; i++ ) {
+      const mesh     = this.stoneMeshArray[i];
+      const material = this.stoneMaterialArray[i];
+      const state    = this.props.boardState[i];
+
+      mesh.updateMatrixWorld(true);
+
+      const inverseModelMatrix           = new Matrix4().getInverse(mesh.matrixWorld);
+      const transposedInverseModelMatrix = inverseModelMatrix.clone().transpose();
+
+      material.uniforms.viewPort.value                     = viewPort;
+      material.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
+      material.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
+      material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
+      material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
+
+      switch(state) {
+        case 0: mesh.visible = false; break;
+        case 1: {
+          mesh.visible = true;
+          material.uniforms.stoneColor.value = colorStoneBlack;
+          break;
+        }
+        case 2: {
+          mesh.visible = true;
+          material.uniforms.stoneColor.value = colorStoneWhite;
+          break;
+        }
+      }
+    }
+  }
+
+}
+
+export default ThreeAnimation;

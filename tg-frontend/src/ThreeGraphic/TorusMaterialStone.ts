@@ -79,15 +79,7 @@ void main() {
 `;
 
 export default class TorusMaterialStone extends ShaderMaterial {
-  constructor(
-    // all of these must be updated anyway...
-    // no point in passing them in constructor
-    // inverseViewMatrix:             Matrix4,
-    // inverseProjectionMatrix:       Matrix4,
-    // inverseModelMatrix:            Matrix4,
-    // transposedInverseModelMatrix:  Matrix4,
-    stoneColor:         Color,
-  ) {
+  constructor() {
     const parameters =
     {
       side: DoubleSide,
@@ -97,10 +89,7 @@ export default class TorusMaterialStone extends ShaderMaterial {
         inverseProjectionMatrix:      new Uniform(new Matrix4()),
         inverseModelMatrix:           new Uniform(new Matrix4()),
         transposedInverseModelMatrix: new Uniform(new Matrix4()),
-        stoneColor:                   new Uniform(new Vector3(
-          stoneColor.r,
-          stoneColor.g,
-          stoneColor.b)),
+        stoneColor:                   new Uniform(new Vector3(1, 1, 1)),
       },
       vertexShader: vertexShader.concat(),
       fragmentShader: fragmentShader.concat(),
