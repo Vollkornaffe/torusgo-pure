@@ -178,15 +178,23 @@ class ThreeAnimation extends React.Component<IProps> {
 
     // now compute which field is hit with trigonometry
     const hitPosOC = cameraPosOC.addScaledVector(rayDirectionOC, distance);
-    const theta = Math.atan2(hitPosOC.y, hitPosOC.x);
+    let theta = Math.atan2(hitPosOC.y, hitPosOC.x);
 
     // we have to roatate back
     const rotationMat = new Matrix4().makeRotationZ(theta);
     hitPosOC.applyMatrix4(rotationMat);
     hitPosOC.x -= this.props.radius;
-    const phi = Math.atan2(hitPosOC.x, hitPosOC.z);
+    let phi = Math.atan2(hitPosOC.x, hitPosOC.z);
 
-    console.log(theta, phi);
+    // normalize to [0, 2 pi]
+    if (phi < 0) {phi += Math.PI * 2.0}
+    if (theta < 0) {theta += Math.PI * 2.0}
+
+    // calculate the indices on a 2d-array
+    const i = Math.round((phi - this.twist) / (2.0*Math.PI / this.props.boardSizeX));
+    const j = Math.round(theta / (2.0*Math.PI / this.props.boardSizeY));
+
+    this.focusedField = i + j * this.props.boardSizeY;
   }
 
   // Here all the animation related functions follow
@@ -398,6 +406,11 @@ class ThreeAnimation extends React.Component<IProps> {
           material.uniforms.stoneColor.value = colorStoneWhite;
           break;
         }
+      }
+
+      if (i === this.focusedField) {
+        mesh.visible = true;
+        material.uniforms.stoneColor.value = colorStoneHover;
       }
     }
   }
