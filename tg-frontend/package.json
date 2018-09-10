@@ -5,6 +5,8 @@
   "dependencies": {
     "@material-ui/core": "^1.2.1",
     "@material-ui/icons": "latest",
+    "@types/react-redux": "^6.0.7",
+    "classnames": "latest",
     "immutability-helper": "latest",
     "react": "^16.4.0",
     "react-autobind": "latest",
@@ -17,8 +19,7 @@
     "redux-logger": "latest",
     "redux-thunk": "latest",
     "socket.io-client": "latest",
-    "three": "^0.93.0",
-    "classnames": "latest"
+    "three": "^0.93.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -32,7 +33,6 @@
     "@types/node": "^10.3.2",
     "@types/react": "^16.4.8",
     "@types/react-dom": "^16.0.6",
-    "@types/react-redux": "^6.0.2",
     "@types/react-resize-detector": "^2.2.0",
     "@types/react-router-dom": "^4.2.7",
     "@types/redux-logger": "^3.0.6",
