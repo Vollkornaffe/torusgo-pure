@@ -68,11 +68,16 @@ class ThreeAnimation extends React.Component<IProps> {
   private stoneMaterialArray: TorusMaterialStone[];
   private stoneMeshArray: Mesh[];
 
-  private inCanvas: boolean;
-  private mousePos: Vector2;
+  private inCanvas: boolean; // whether the mouse was detected over the canvas
+  private mousePos: Vector2; // current mouse pos in canvas, domain: [[-1,-1],[1,1]]
+
+  // these are needed for CPU and GPU sided raytracing.
   private inverseViewMatrix: Matrix4;
   private inverseProjectionMatrix: Matrix4;
   private inverseModelMatrixBoard: Matrix4;
+
+  // result of the CPU sided raytracing, i.e. field that is mouseovered
+  private focusedField: number;
 
   // nothing much happening in constructor
   // first canvas needs to be created
@@ -164,7 +169,24 @@ class ThreeAnimation extends React.Component<IProps> {
       cameraPosOC,
       rayDirectionOC,
       new Vector2(this.props.radius, this.props.thickness));
-    console.log(distance);
+
+    // check if torus is hit
+    if (distance < 0) {
+      this.focusedField = -1;
+      return;
+    }
+
+    // now compute which field is hit with trigonometry
+    const hitPosOC = cameraPosOC.addScaledVector(rayDirectionOC, distance);
+    const theta = Math.atan2(hitPosOC.y, hitPosOC.x);
+
+    // we have to roatate back
+    const rotationMat = new Matrix4().makeRotationZ(theta);
+    hitPosOC.applyMatrix4(rotationMat);
+    hitPosOC.x -= this.props.radius;
+    const phi = Math.atan2(hitPosOC.x, hitPosOC.z);
+
+    console.log(theta, phi);
   }
 
   // Here all the animation related functions follow

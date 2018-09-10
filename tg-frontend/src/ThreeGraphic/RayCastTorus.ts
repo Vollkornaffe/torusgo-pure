@@ -1,18 +1,18 @@
-import {Vector2, Vector3} from "three";
+import {Vector2, Vector3, Vector4} from "three";
 
 // this implements the same raycasting as in the TorusMaterialBoarayDirection shader
 
 const iTorus = (
-  rayStart: Vector3,
-  rayDirection: Vector3,
+  rayStart: Vector4,
+  rayDirection: Vector4,
   torus: Vector2
 ): number => {
 
   const Ra2 = torus.x*torus.x;
   const ra2 = torus.y*torus.y;
 
-  const m = rayStart.dot(rayStart);
-  const n = rayStart.dot(rayDirection);
+  const m = rayStart.x*rayStart.x + rayStart.y*rayStart.y + rayStart.z*rayStart.z;
+  const n = rayStart.x*rayDirection.x + rayStart.y*rayDirection.y + rayStart.z*rayDirection.z;
 
   const k = (m - ra2 - Ra2)/2.0;
   const a = n;
@@ -91,22 +91,28 @@ const iTorus = (
   return result;
 };
 
-const sdTorus = (pos: Vector3, torus: Vector2): number => {
+const sdTorus = (pos: Vector4, torus: Vector2): number => {
   const q = new Vector2(
     Math.sqrt(pos.x*pos.x + pos.y*pos.y)-torus.x,
     pos.z);
   return q.length()-torus.y;
 };
 
-const nTorus = (pos: Vector3, torus: Vector2): Vector3 => {
+const nTorus = (pos: Vector4, torus: Vector2): Vector4 => {
   const magicValue = pos.dot(pos)- torus.y*torus.y - torus.x*torus.x;
   const magicVector = new Vector3(1,1,-1).multiplyScalar(magicValue);
-  return new Vector3().multiplyVectors(pos, magicVector);
+  // there is no component wise multiplication for Vector4 :D
+  return new Vector4(
+    pos.x * magicVector.x,
+    pos.y * magicVector.y,
+    pos.z * magicVector.z,
+    0,
+    );
 };
 
 export default function(
-  rayStart: Vector3,
-  rayDirection: Vector3,
+  rayStart: Vector4,
+  rayDirection: Vector4,
   torus: Vector2,
   polishIters = 10
 ): number {

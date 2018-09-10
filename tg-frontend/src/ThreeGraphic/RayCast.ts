@@ -8,7 +8,7 @@ export default function(
   inverseProjectionMatrix: Matrix4,
   inverseViewMatrix: Matrix4,
   inverseModelMatrix: Matrix4,
-): [Vector3, Vector3] {
+): [Vector4, Vector4] {
   // we have to compute the camera and cursor position
 
   // first ins normalized device coordinates
@@ -29,14 +29,17 @@ export default function(
   cameraPosOC.applyMatrix4(inverseModelMatrix);
 
   return [
-    new Vector3(
+    new Vector4(
       cameraPosOC.x,
       cameraPosOC.y,
       cameraPosOC.z,
+      1,
     ),
-    new Vector3(
+    new Vector4(
     cursorPosOC.x - cameraPosOC.x,
     cursorPosOC.y - cameraPosOC.x,
     cursorPosOC.z - cameraPosOC.z,
-  ).normalize()];
+    0,
+    ).normalize()
+  ];
 }
