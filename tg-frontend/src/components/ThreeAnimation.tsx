@@ -9,6 +9,9 @@ import {
 import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
 import TorusMaterialStone from "../ThreeGraphic/TorusMaterialStone";
 
+import RayCast from "../ThreeGraphic/RayCast";
+import RayCastTorus from "../ThreeGraphic/RayCastTorus";
+
 export interface IKeyboardControls {
   cameraDeltaX: number,
   cameraDeltaY: number,
@@ -65,6 +68,7 @@ class ThreeAnimation extends React.Component<IProps> {
   private stoneMaterialArray: TorusMaterialStone[];
   private stoneMeshArray: Mesh[];
 
+  private inCanvas: boolean;
   private mousePos: Vector2;
   private inverseViewMatrix: Matrix4;
   private inverseProjectionMatrix: Matrix4;
@@ -143,11 +147,24 @@ class ThreeAnimation extends React.Component<IProps> {
     &&  event.clientY - this.props.offsetY < this.props.height) {
       this.mousePos.x = 2.0*(event.clientX - this.props.offsetX) / this.props.width - 1.0;
       this.mousePos.y = 2.0*(event.clientY - this.props.offsetY) / this.props.height - 1.0;
+      this.inCanvas = true;
+    } else {
+      this.inCanvas = false;
     }
   }
 
   private updateHover() {
-    // ray start is camera position
+    const [cameraPosOC, rayDirectionOC] = RayCast(
+      this.mousePos,
+      this.camera.position,
+      this.inverseProjectionMatrix,
+      this.inverseViewMatrix,
+      this.inverseModelMatrixBoard);
+    const distance = RayCastTorus(
+      cameraPosOC,
+      rayDirectionOC,
+      new Vector2(this.props.radius, this.props.thickness));
+    console.log(distance);
   }
 
   // Here all the animation related functions follow
@@ -161,6 +178,9 @@ class ThreeAnimation extends React.Component<IProps> {
       this.updateCameraTrackballKeyboard();
     }
     this.updateRayCastingMatrices();
+    if (this.inCanvas) {
+      this.updateHover();
+    }
     this.updateUniforms();
 
     this.renderer.render(this.scene, this.camera);
