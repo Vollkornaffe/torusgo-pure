@@ -160,7 +160,7 @@ class ThreeAnimation extends React.Component<IProps> {
       45, this.props.width/this.props.height, 0.1, 100
     );
     this.camera.up.set(0,1,0);
-    this.camera.position.set(0,0,this.props.radius * 5.0);
+    this.camera.position.set(0,0,this.props.radius * 4.0);
     this.camera.lookAt(0,0,0);
     this.scene.add(this.camera);
   }
@@ -339,7 +339,7 @@ class ThreeAnimation extends React.Component<IProps> {
     cameraAxisY.crossVectors(this.camera.up, this.camera.position);
     this.camera.up.crossVectors(this.camera.position, cameraAxisY);
 
-    this.camera.position.multiplyScalar(this.props.radius * 5);
+    this.camera.position.multiplyScalar(this.props.radius * 4);
     this.camera.lookAt(new Vector3(0,0,0));
   }
 }
