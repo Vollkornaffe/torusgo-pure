@@ -83,3 +83,9 @@ export const subscribeError = (resourceType: EResourceType, id: string, err: any
   id,
   err,
 });
+
+export const keyPressUpdate = (keyCode: string, pressed: boolean) => store.dispatch({
+  type: 'KEY_PRESS_UPDATE',
+  keyCode,
+  pressed,
+});
