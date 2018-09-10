@@ -63,6 +63,7 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
   public state = {
     open: false,
   };
+
   constructor(props: WithStyles<typeof styles>) {
     super(props);
     autoBind(this);
@@ -76,14 +77,13 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
         <AppBar position="absolute" className={classes.appBar}>
           <MyToolbar />
         </AppBar>
-        <Drawer variant={'permanent'} open={this.state.open} classes={{
+        <Drawer variant={'permanent'} open={this.state.open}
+                onMouseEnter={this.handleDrawerOpen}
+                onMouseLeave={this.handleDrawerClose} classes={{
           paper: classNames(classes.drawer, !this.state.open && classes.closedDrawer)
         }}>
           <div className={classes.toolbar} />
-          <div onMouseEnter={this.handleDrawerOpen}
-               onMouseLeave={this.handleDrawerClose}>
-            <MySidebar />
-          </div>
+          <MySidebar />
         </Drawer>
         <div className={classes.content}>
           <div className={classes.toolbar} />
@@ -96,7 +96,7 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
   private handleDrawerOpen = () => {
     this.setState({open: true});
   };
-  
+
   private handleDrawerClose = () => {
     this.setState({open: false});
   };
