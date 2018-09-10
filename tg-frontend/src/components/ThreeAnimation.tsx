@@ -65,10 +65,6 @@ class ThreeAnimation extends React.Component<IProps> {
   private stoneMaterialArray: TorusMaterialStone[];
   private stoneMeshArray: Mesh[];
 
-  private angle: number;
-  private testMesh: Mesh;
-  private testMaterial: TorusMaterialStone;
-
   // nothing much happening in constructor
   // first canvas needs to be created
   public constructor(props: IProps) {
@@ -78,12 +74,12 @@ class ThreeAnimation extends React.Component<IProps> {
 
   public componentDidMount() {
     this.scene = new Scene();
+
     this.initRenderer();
     this.initCamera();
+    this.initTwist();
     this.setupStoneArrays();
     this.updateBoardTransform();
-    this.twist = 0;
-    this.angle = 0;
 
     this.animate();
   }
@@ -142,6 +138,9 @@ class ThreeAnimation extends React.Component<IProps> {
     this.renderer.render(this.scene, this.camera);
   }
 
+
+  // private functions ========================================================
+
   private initRenderer() {
     this.renderer = new WebGLRenderer({canvas: this.canvas});
     this.renderer.getContext().getExtension('EXT_frag_depth');
@@ -153,6 +152,10 @@ class ThreeAnimation extends React.Component<IProps> {
       alert('EXT_frag_depth extension not supported! 3D view not available!');
     }
     this.renderer.setClearColor(colorClear, 1);
+  }
+
+  private initTwist() {
+    this.twist = 0;
   }
 
   private initCamera() {
