@@ -1,12 +1,29 @@
 import {connect} from 'react-redux';
 import {IState} from '../types/redux';
-import ThreeAnimation, {IProps} from "./ThreeAnimation";
+import ThreeAnimation, {IKeyboardControls, IProps, } from "./ThreeAnimation";
 
 const mapStateToProps = (state: IState): IProps => {
   const width = state.dimensions.window.width - state.dimensions.sideBar.width;
   const height = state.dimensions.window.height - state.dimensions.appBar.height;
   const offsetX = state.dimensions.sideBar.width;
   const offsetY = state.dimensions.appBar.height;
+
+  const pressedKeys = state.pressedKeys;
+  const controlKeys = state.controlKeys;
+  const cameraDelta = state.cameraDelta;
+
+  const keyboardControls: IKeyboardControls = {
+    cameraDeltaX:
+      + (pressedKeys.indexOf(controlKeys.up) > -1    ? cameraDelta : 0)
+      - (pressedKeys.indexOf(controlKeys.down) > -1  ? cameraDelta : 0),
+    cameraDeltaY:
+      - (pressedKeys.indexOf(controlKeys.left) > -1  ? cameraDelta : 0)
+      + (pressedKeys.indexOf(controlKeys.right) > -1 ? cameraDelta : 0),
+    twistDelta:
+      + (pressedKeys.indexOf(controlKeys.twistIn) > -1  ? cameraDelta : 0)
+      - (pressedKeys.indexOf(controlKeys.twistOut) > -1 ? cameraDelta : 0),
+    mouseControl: pressedKeys.indexOf(controlKeys.mouseControl) > -1,
+  };
 
   // TOOD retrieve these from store
   const boardSizeX: number = 30;
@@ -48,6 +65,7 @@ const mapStateToProps = (state: IState): IProps => {
   ];
 
   return {
+    keyboardControls,
     width,
     height,
     offsetX,

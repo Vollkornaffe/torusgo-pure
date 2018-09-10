@@ -2,11 +2,24 @@ import * as React from 'react';
 import autoBind from 'react-autobind';
 import * as ReactDOM from 'react-dom';
 
-import {BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer} from "three";
+import {
+  BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, Vector4,
+  WebGLRenderer
+} from "three";
 import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
 import TorusMaterialStone from "../ThreeGraphic/TorusMaterialStone";
 
+export interface IKeyboardControls {
+  cameraDeltaX: number,
+  cameraDeltaY: number,
+  twistDelta: number,
+  mouseControl: boolean,
+}
+
 export interface IProps {
+  // current control via keyboard
+  keyboardControls: IKeyboardControls,
+
   // size and offset of viewPort
   width:      number,
   height:     number,
@@ -119,17 +132,11 @@ class ThreeAnimation extends React.Component<IProps> {
   private animate() {
     this.requestId = requestAnimationFrame(this.animate.bind(this));
 
-    this.camera.position.x = 5.0 * Math.cos( this.angle );
-    this.camera.position.y = 0.0;
-    this.camera.position.z = 5.0 * Math.sin( this.angle );
-    this.camera.lookAt(0.0,0.0,0.0);
-
-    if (document.activeElement === ReactDOM.findDOMNode(this.canvas)) {
-      this.angle += 0.005;
-      this.twist += 0.01;
-    }
-
     this.updateStoneTransforms();
+    if (document.activeElement === this.canvas) {
+      this.updateTwistKeyboard();
+      this.updateCameraTrackballKeyboard();
+    }
     this.updateUniforms();
 
     this.renderer.render(this.scene, this.camera);
@@ -318,6 +325,23 @@ class ThreeAnimation extends React.Component<IProps> {
     }
   }
 
+  private updateTwistKeyboard() {
+    this.twist += this.props.keyboardControls.twistDelta;
+  }
+
+  private updateCameraTrackballKeyboard() {
+    const cameraAxisY = new Vector3().crossVectors(this.camera.up, this.camera.position).normalize();
+
+    this.camera.position.addScaledVector( this.camera.up, this.props.keyboardControls.cameraDeltaX );
+    this.camera.position.addScaledVector( cameraAxisY, this.props.keyboardControls.cameraDeltaY );
+    this.camera.position.normalize();
+
+    cameraAxisY.crossVectors(this.camera.up, this.camera.position);
+    this.camera.up.crossVectors(this.camera.position, cameraAxisY);
+
+    this.camera.position.multiplyScalar(this.props.radius * 5);
+    this.camera.lookAt(new Vector3(0,0,0));
+  }
 }
 
 export default ThreeAnimation;
