@@ -114,7 +114,7 @@ export default function(
   rayStart: Vector4,
   rayDirection: Vector4,
   torus: Vector2,
-  polishIters = 10
+  polishIters = 10,
 ): number {
 
   let t = iTorus(rayStart, rayDirection, torus);

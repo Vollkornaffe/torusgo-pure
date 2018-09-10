@@ -3,7 +3,8 @@ import autoBind from 'react-autobind';
 import * as ReactDOM from 'react-dom';
 
 import {
-  BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, Vector4,
+  AxesHelper,
+  BoxGeometry, Color, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector2, Vector3, Vector4,
   WebGLRenderer
 } from "three";
 import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
@@ -96,6 +97,8 @@ class ThreeAnimation extends React.Component<IProps> {
     this.setupStoneArrays();
     this.updateBoardTransform();
 
+    this.scene.add(new AxesHelper());
+
     this.animate();
 
     // for raycasting:
@@ -151,7 +154,7 @@ class ThreeAnimation extends React.Component<IProps> {
     &&  event.clientY - this.props.offsetY > 0
     &&  event.clientY - this.props.offsetY < this.props.height) {
       this.mousePos.x = 2.0*(event.clientX - this.props.offsetX) / this.props.width - 1.0;
-      this.mousePos.y = 2.0*(event.clientY - this.props.offsetY) / this.props.height - 1.0;
+      this.mousePos.y = 2.0*(this.props.offsetY - event.clientY) / this.props.height + 1.0;
       this.inCanvas = true;
     } else {
       this.inCanvas = false;
@@ -176,25 +179,33 @@ class ThreeAnimation extends React.Component<IProps> {
       return;
     }
 
-    // now compute which field is hit with trigonometry
+    // now compute which field is hit with trigonometry... yeah!
     const hitPosOC = cameraPosOC.addScaledVector(rayDirectionOC, distance);
+
     let theta = Math.atan2(hitPosOC.y, hitPosOC.x);
+    if (theta < 0) {theta += 2.0*Math.PI;}
 
     // we have to roatate back
-    const rotationMat = new Matrix4().makeRotationZ(theta);
+    const rotationMat = new Matrix4().makeRotationZ(-theta);
     hitPosOC.applyMatrix4(rotationMat);
     hitPosOC.x -= this.props.radius;
-    let phi = Math.atan2(hitPosOC.x, hitPosOC.z);
 
-    // normalize to [0, 2 pi]
-    if (phi < 0) {phi += Math.PI * 2.0}
-    if (theta < 0) {theta += Math.PI * 2.0}
+    let phi = Math.atan2(hitPosOC.x, hitPosOC.z);
+    if (phi < 0) {phi += 2.0*Math.PI;}
+
+    // sub twist and renormalize
+    phi -= this.twist;
+    while (phi < 0) {phi += 2.0*Math.PI;}
+    while (phi > 2.0*Math.PI) {phi -= 2.0*Math.PI;}
 
     // calculate the indices on a 2d-array
-    const i = Math.round((phi - this.twist) / (2.0*Math.PI / this.props.boardSizeX));
-    const j = Math.round(theta / (2.0*Math.PI / this.props.boardSizeY));
+    let i = Math.round(phi / (2.0*Math.PI / this.props.boardSizeX));
+    let j = Math.round(theta / (2.0*Math.PI / this.props.boardSizeY));
 
-    this.focusedField = i + j * this.props.boardSizeY;
+    if (i === this.props.boardSizeX) { i = 0; }
+    if (j === this.props.boardSizeY) { j = 0; }
+
+    this.focusedField = j + i * this.props.boardSizeY;
   }
 
   // Here all the animation related functions follow
@@ -207,7 +218,9 @@ class ThreeAnimation extends React.Component<IProps> {
       this.updateTwistKeyboard();
       this.updateCameraTrackballKeyboard();
     }
+
     this.updateRayCastingMatrices();
+
     if (this.inCanvas) {
       this.updateHover();
     }
@@ -417,6 +430,8 @@ class ThreeAnimation extends React.Component<IProps> {
 
   private updateTwistKeyboard() {
     this.twist += this.props.keyboardControls.twistDelta;
+    while (this.twist < 0) {this.twist += 2.0*Math.PI;}
+    while (this.twist > 2.0*Math.PI) {this.twist -= 2.0*Math.PI;}
   }
 
   private updateCameraTrackballKeyboard() {
