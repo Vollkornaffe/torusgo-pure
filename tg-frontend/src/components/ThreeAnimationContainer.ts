@@ -11,6 +11,7 @@ const mapStateToProps = (state: IState): IProps => {
   const pressedKeys = state.pressedKeys;
   const controlKeys = state.controlKeys;
   const cameraDelta = state.cameraDelta;
+  const twistDelta = state.twistDelta;
 
   const keyboardControls: IKeyboardControls = {
     cameraDeltaX:
@@ -20,8 +21,8 @@ const mapStateToProps = (state: IState): IProps => {
       - (pressedKeys.indexOf(controlKeys.left) > -1  ? cameraDelta : 0)
       + (pressedKeys.indexOf(controlKeys.right) > -1 ? cameraDelta : 0),
     twistDelta:
-      + (pressedKeys.indexOf(controlKeys.twistIn) > -1  ? cameraDelta : 0)
-      - (pressedKeys.indexOf(controlKeys.twistOut) > -1 ? cameraDelta : 0),
+      + (pressedKeys.indexOf(controlKeys.twistIn) > -1  ? twistDelta : 0)
+      - (pressedKeys.indexOf(controlKeys.twistOut) > -1 ? twistDelta : 0),
     mouseControl: pressedKeys.indexOf(controlKeys.mouseControl) > -1,
   };
 

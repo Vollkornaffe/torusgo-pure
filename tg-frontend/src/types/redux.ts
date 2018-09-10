@@ -40,4 +40,6 @@ export interface IState {
     mouseControl: string,
   },
   cameraDelta: number,
+  twistDelta: number,
+
 }

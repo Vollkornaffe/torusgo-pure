@@ -42,6 +42,7 @@ const initialState: IState = {
     mouseControl: "ControlLeft",
   },
   cameraDelta: 0.3,
+  twistDelta: 0.05,
 };
 
 export default createStore(reducer(initialState), applyMiddleware(logger));
