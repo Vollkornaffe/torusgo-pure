@@ -65,6 +65,11 @@ class ThreeAnimation extends React.Component<IProps> {
   private stoneMaterialArray: TorusMaterialStone[];
   private stoneMeshArray: Mesh[];
 
+  private mousePos: Vector2;
+  private inverseViewMatrix: Matrix4;
+  private inverseProjectionMatrix: Matrix4;
+  private inverseModelMatrixBoard: Matrix4;
+
   // nothing much happening in constructor
   // first canvas needs to be created
   public constructor(props: IProps) {
@@ -78,10 +83,14 @@ class ThreeAnimation extends React.Component<IProps> {
     this.initRenderer();
     this.initCamera();
     this.initTwist();
+    this.initMouse();
     this.setupStoneArrays();
     this.updateBoardTransform();
 
     this.animate();
+
+    // for raycasting:
+    document.addEventListener('mousemove', this.updateMousePos);
   }
 
   public componentDidUpdate(prevProps: IProps) {
@@ -105,6 +114,7 @@ class ThreeAnimation extends React.Component<IProps> {
 
   public componentWillUnmount() {
     this.cleanUp();
+    document.removeEventListener('mousemove', this.updateMousePos);
   }
 
   public render() {
@@ -125,6 +135,23 @@ class ThreeAnimation extends React.Component<IProps> {
     </div>;
   }
 
+  // Raycasting on CPU side, for detecting focused field
+  private updateMousePos(event: MouseEvent) {
+    if (event.clientX - this.props.offsetX > 0
+    &&  event.clientX - this.props.offsetX < this.props.width
+    &&  event.clientY - this.props.offsetY > 0
+    &&  event.clientY - this.props.offsetY < this.props.height) {
+      this.mousePos.x = 2.0*(event.clientX - this.props.offsetX) / this.props.width - 1.0;
+      this.mousePos.y = 2.0*(event.clientY - this.props.offsetY) / this.props.height - 1.0;
+    }
+  }
+
+  private updateHover() {
+    // ray start is camera position
+  }
+
+  // Here all the animation related functions follow
+
   private animate() {
     this.requestId = requestAnimationFrame(this.animate.bind(this));
 
@@ -133,13 +160,11 @@ class ThreeAnimation extends React.Component<IProps> {
       this.updateTwistKeyboard();
       this.updateCameraTrackballKeyboard();
     }
+    this.updateRayCastingMatrices();
     this.updateUniforms();
 
     this.renderer.render(this.scene, this.camera);
   }
-
-
-  // private functions ========================================================
 
   private initRenderer() {
     this.renderer = new WebGLRenderer({canvas: this.canvas});
@@ -156,6 +181,10 @@ class ThreeAnimation extends React.Component<IProps> {
 
   private initTwist() {
     this.twist = 0;
+  }
+
+  private initMouse() {
+    this.mousePos = new Vector2();
   }
 
   private initCamera() {
@@ -265,6 +294,12 @@ class ThreeAnimation extends React.Component<IProps> {
     }
   }
 
+  private updateRayCastingMatrices() {
+    this.inverseViewMatrix       = this.camera.matrixWorld;
+    this.inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
+    this.inverseModelMatrixBoard = new Matrix4().getInverse(this.boardMesh.matrixWorld);
+  }
+
   private updateUniforms() {
 
     this.camera.updateMatrixWorld(true);
@@ -272,18 +307,15 @@ class ThreeAnimation extends React.Component<IProps> {
     this.boardMesh.updateMatrixWorld(true);
 
     // Viewport, View and Projection matrix is the same for all objects
-    const viewPort                = new Vector2(this.props.width, this.props.height);
-    const inverseViewMatrix       = this.camera.matrixWorld;
-    const inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
+    const viewPort               = new Vector2(this.props.width, this.props.height);
 
     // now just for the board
-    const inverseModelMatrixBoard           = new Matrix4().getInverse(this.boardMesh.matrixWorld);
-    const transposedInverseModelMatrixBoard = inverseModelMatrixBoard.clone().transpose();
+    const transposedInverseModelMatrixBoard = this.inverseModelMatrixBoard.clone().transpose();
 
     this.boardMaterial.uniforms.viewPort.value                     = viewPort;
-    this.boardMaterial.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
-    this.boardMaterial.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
-    this.boardMaterial.uniforms.inverseModelMatrix.value           = inverseModelMatrixBoard;
+    this.boardMaterial.uniforms.inverseViewMatrix.value            = this.inverseViewMatrix;
+    this.boardMaterial.uniforms.inverseProjectionMatrix.value      = this.inverseProjectionMatrix;
+    this.boardMaterial.uniforms.inverseModelMatrix.value           = this.inverseModelMatrixBoard;
     this.boardMaterial.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrixBoard;
     this.boardMaterial.uniforms.boardSizeX.value                   = this.props.boardSizeX;
     this.boardMaterial.uniforms.boardSizeY.value                   = this.props.boardSizeY;
@@ -304,8 +336,8 @@ class ThreeAnimation extends React.Component<IProps> {
       const transposedInverseModelMatrix = inverseModelMatrix.clone().transpose();
 
       material.uniforms.viewPort.value                     = viewPort;
-      material.uniforms.inverseViewMatrix.value            = inverseViewMatrix;
-      material.uniforms.inverseProjectionMatrix.value      = inverseProjectionMatrix;
+      material.uniforms.inverseViewMatrix.value            = this.inverseViewMatrix;
+      material.uniforms.inverseProjectionMatrix.value      = this.inverseProjectionMatrix;
       material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
       material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
 
