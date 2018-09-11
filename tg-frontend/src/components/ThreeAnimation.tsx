@@ -52,6 +52,16 @@ const colorBoard = new Color(0xFF6B00);
 const colorStoneWhite = new Color(0xe6ffff);
 const colorStoneBlack = new Color(0x1a0008);
 const colorStoneHover = new Color(0xFFD700);
+
+// rainbow!
+const violet = new Color(0x9400D4);
+const indigo = new Color(0x4B0082);
+const blue   = new Color(0x0000FF);
+const green  = new Color(0x00FF00);
+const yellow = new Color(0xFFFF00);
+const orange = new Color(0xFF7F00);
+const red    = new Color(0xFF0000);
+
 const box222 = new BoxGeometry(2,2,2) ;
 
 class ThreeAnimation extends React.Component<IProps> {
@@ -79,6 +89,9 @@ class ThreeAnimation extends React.Component<IProps> {
 
   // result of the CPU sided raytracing, i.e. field that is mouseovered
   private focusedField: number;
+
+  // for party
+  private partyMode = true;
 
   // nothing much happening in constructor
   // first canvas needs to be created
@@ -404,26 +417,70 @@ class ThreeAnimation extends React.Component<IProps> {
       material.uniforms.inverseModelMatrix.value           = inverseModelMatrix;
       material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
 
-      switch(state) {
-        case 0: {
-          mesh.visible = false;
-          break;
+      if (this.partyMode) {
+        switch(state) {
+          case 0: {
+            mesh.visible = false;
+            break;
+          }
+          case 1: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = violet;
+            break;
+          }
+          case 2: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = indigo;
+            break;
+          }
+          case 3: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = blue;
+            break;
+          }
+          case 4: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = green;
+            break;
+          }
+          case 5: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = yellow;
+            break;
+          }
+          case 6: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = orange;
+            break;
+          }
+          case 7: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = red;
+            break;
+          }
         }
-        case 1: {
-          mesh.visible = true;
-          material.uniforms.stoneColor.value = colorStoneBlack;
-          break;
-        }
-        case 2: {
-          mesh.visible = true;
-          material.uniforms.stoneColor.value = colorStoneWhite;
-          break;
-        }
-      }
 
-      if (i === this.focusedField) {
-        mesh.visible = true;
-        material.uniforms.stoneColor.value = colorStoneHover;
+        if (i === this.focusedField) {
+          mesh.visible = true;
+          material.uniforms.stoneColor.value = colorStoneHover;
+        }
+      } else {
+         switch(state) {
+          case 0: {
+            mesh.visible = false;
+            break;
+          }
+          case 1: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = colorStoneBlack;
+            break;
+          }
+          case 2: {
+            mesh.visible = true;
+            material.uniforms.stoneColor.value = colorStoneWhite;
+            break;
+          }
+        }
       }
     }
   }
