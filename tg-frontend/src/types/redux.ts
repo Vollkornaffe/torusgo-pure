@@ -7,7 +7,6 @@ import {
   IUserListWrapper,
   IUserWrapper,
 } from './resource';
-import {IDimension, TResizable} from './ui';
 import {IMap} from './utils';
 
 export type TAction<T={}> = Action & T;
@@ -21,9 +20,6 @@ export interface IState {
   },
   localGame?: IGame,
   ownUserId?: string,
-  dimensions: {
-    [key in TResizable]: IDimension;
-  },
   loginState: ELoginState,
   connectionStatus: EConnectionStatus,
   activeGameId?: string,

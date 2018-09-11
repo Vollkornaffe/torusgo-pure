@@ -39,7 +39,8 @@ const MyToolbar: React.SFC<IProps & WithStyles<typeof styles>> = ({connectionSta
 
   return (
     <Toolbar>
-      <Typography color={'inherit'} variant={'title'} className={classes.flex}>
+      <Typography color={'secondary'} variant={'title'}
+                  className={classes.flex}>
         TorusGo
       </Typography>
       {rightSideComponent}

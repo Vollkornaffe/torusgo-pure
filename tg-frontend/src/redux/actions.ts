@@ -24,24 +24,6 @@ export const addLocalMove = (x: number, y: number) => store.dispatch({
   },
 });
 
-export const resizeWindow = (width: number, height: number) => store.dispatch({
-  type: 'WINDOW_RESIZE',
-  width,
-  height,
-});
-
-export const resizeAppBar = (width: number, height: number) => store.dispatch({
-  type: 'APP_BAR_RESIZE',
-  width,
-  height,
-});
-
-export const resizeSidebar = (width: number, height: number) => store.dispatch({
-  type: 'SIDE_BAR_RESIZE',
-  width,
-  height,
-});
-
 export const changeConnectionStatus = (status: EConnectionStatus) => store.dispatch({
   type: 'CONNECTION_STATUS_CHANGE',
   status,

@@ -13,20 +13,6 @@ const initialState: IState = {
   },
   localGame: undefined,
   ownUserId: undefined,
-  dimensions: {
-    window: {
-      width: 0,
-      height: 0,
-    },
-    appBar: {
-      width: 0,
-      height: 0,
-    },
-    sideBar: {
-      width: 0,
-      height: 0,
-    },
-  },
   loginState: ELoginState.Undefined,
   connectionStatus: EConnectionStatus.Disconnected,
   activeGameId: undefined,
