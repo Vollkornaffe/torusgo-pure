@@ -170,7 +170,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
       && event.clientY > 0
       && event.clientY < this.canvas.height) {
       this.mousePos.x = 2.0 * (event.clientX) / this.canvas.width - 1.0;
-      this.mousePos.y = 2.0 * (event.clientY) / this.canvas.height - 1.0;
+      this.mousePos.y = -2.0 * (event.clientY) / this.canvas.height + 1.0;
       this.inCanvas   = true;
     } else {
       this.inCanvas = false;

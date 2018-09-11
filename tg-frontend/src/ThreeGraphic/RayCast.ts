@@ -37,7 +37,7 @@ export default function (
     ),
     new Vector4(
       cursorPosOC.x - cameraPosOC.x,
-      cursorPosOC.y - cameraPosOC.x,
+      cursorPosOC.y - cameraPosOC.y,
       cursorPosOC.z - cameraPosOC.z,
       0,
     ).normalize(),
