@@ -29,20 +29,20 @@ const styles = (theme: Theme) => {
       position: 'fixed',
     },
     drawerPaper: {
-      position: 'relative',
       whiteSpace: 'nowrap',
-      // width: 240,
     },
     closedDrawerPaper: {
       overflowX: 'hidden',
       width: theme.layout.sideBarWidth,
     },
     content: {
+      position: 'fixed',
       marginTop: theme.layout.appBarHeight,
       marginLeft: theme.layout.sideBarWidth,
       width: 'calc(100vw - ' + theme.layout.sideBarWidth + 'px)',
       height: 'calc(100vh - ' + theme.layout.appBarHeight + 'px)',
       flexGrow: 1,
+      zIndex: -1,
       backgroundColor: theme.palette.background.default,
     },
     toolbar: {

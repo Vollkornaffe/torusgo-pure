@@ -1,8 +1,9 @@
-import {createStyles, Theme, WithStyles, withStyles} from '@material-ui/core';
+import {createStyles, WithStyles, withStyles} from '@material-ui/core';
 import * as React from 'react';
 import autoBind from 'react-autobind';
 
-// import Stats from 'stats.js';
+import * as Stats from 'stats.js';
+
 import {
   BoxGeometry,
   Color,
@@ -47,7 +48,7 @@ export interface IProps {
   boardState: number[],
 }
 
-const styles = (theme: Theme) => {
+const styles = () => {
   return createStyles({
     root: {
       position: 'relative',
@@ -90,7 +91,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   // result of the CPU sided raytracing, i.e. field that is mouseovered
   private focusedField: number;
 
-  // private stats: Stats;
+  private stats: Stats;
 
   // nothing much happening in constructor
   // first canvas needs to be created
@@ -111,6 +112,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.initMouse();
     this.setupStoneArrays();
     this.updateBoardTransform();
+
+    this.initStats();
 
     this.animate();
 
@@ -186,6 +189,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     const rotationMat = new Matrix4().makeRotationZ(theta);
     hitPosOC.applyMatrix4(rotationMat);
     hitPosOC.x -= this.props.radius;
+
+    // noinspection JSSuspiciousNameCombination
     let phi = Math.atan2(hitPosOC.x, hitPosOC.z);
 
     // normalize to [0, 2 pi]
@@ -208,6 +213,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   private animate() {
     this.requestId = requestAnimationFrame(this.animate.bind(this));
 
+    this.stats.begin();
+
     this.updateStoneTransforms();
     if (document.activeElement === this.canvas) {
       this.updateTwistKeyboard();
@@ -220,6 +227,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.updateUniforms();
 
     this.renderer.render(this.scene, this.camera);
+
+    this.stats.end();
   }
 
   private initRenderer() {
@@ -254,11 +263,21 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.scene.add(this.camera);
   }
 
+  private initStats() {
+    this.stats = new Stats();
+    this.stats.dom.style.cssText = 'position:absolute;right:0;cursor:pointer;opacity:0.9;z-index:10000;';
+    this.canvas.parentElement!.insertBefore(this.stats.dom, this.canvas);
+
+    this.stats.showPanel(0);
+  }
+
   private cleanUp() {
     this.renderer.dispose();
     this.cleanUpStones();
     box222.dispose(); // this one kinda special
     this.cleanUpBoard();
+
+    this.cleanUpStats();
 
     cancelAnimationFrame(this.requestId);
   }
@@ -267,6 +286,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.scene.remove(this.boardMesh);
     this.boardGeometry.dispose();
     this.boardMaterial.dispose();
+  }
+
+  private cleanUpStats() {
+    this.stats.dom.remove();
   }
 
   private cleanUpStones() {
@@ -327,7 +350,6 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
     let stoneId = 0;
     const xAxis = new Vector3(1, 0, 0);
-    const yAxis = new Vector3(0, 1, 0);
     const zAxis = new Vector3(0, 0, 1);
     for (let i = 0; i < this.props.boardSizeX; i++) {
       const iRad = i / this.props.boardSizeX * 2 * Math.PI + this.twist;
