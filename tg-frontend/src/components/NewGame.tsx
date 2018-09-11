@@ -1,5 +1,5 @@
 import {Button, Grid, Paper} from '@material-ui/core';
-import * as React from 'react';
+import * as React            from 'react';
 
 class NewGame extends React.Component {
   public render() {

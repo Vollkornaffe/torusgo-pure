@@ -1,3 +1,3 @@
-declare module "react-autobind" {
+declare module 'react-autobind' {
   export default function (thisObj: object): void;
 }

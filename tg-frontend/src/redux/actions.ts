@@ -1,13 +1,15 @@
-import {IRuleSet} from '../types/game';
+import {IRuleSet}                       from '../types/game';
 import {EConnectionStatus, ELoginState} from '../types/network';
-import {EResourceType} from '../types/resource';
-import store from './store';
+import {EResourceType}                  from '../types/resource';
+import store                            from './store';
 
+// noinspection JSUnusedGlobalSymbols
 export const initLocalGame = (ruleSet: IRuleSet) => store.dispatch({
   type: 'GAME_LOCAL_INIT',
   ruleSet,
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const addLocalPass = () => store.dispatch({
   type: 'GAME_LOCAL_ADD_MOVE',
   move: {
@@ -15,6 +17,7 @@ export const addLocalPass = () => store.dispatch({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const addLocalMove = (x: number, y: number) => store.dispatch({
   type: 'GAME_LOCAL_ADD_MOVE',
   move: {

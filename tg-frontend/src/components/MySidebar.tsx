@@ -6,11 +6,11 @@ import {
   ListItemIcon,
   ListItemText,
   withStyles,
-  WithStyles
-} from '@material-ui/core';
+  WithStyles,
+}                                                  from '@material-ui/core';
 import {BugReport, Dashboard, PlayArrow, Settings} from '@material-ui/icons';
-import * as React from 'react';
-import {Link} from 'react-router-dom';
+import * as React                                  from 'react';
+import {Link}                                      from 'react-router-dom';
 
 const styles = () => createStyles({
   root: {},

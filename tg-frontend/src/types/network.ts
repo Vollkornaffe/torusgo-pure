@@ -1,12 +1,12 @@
 export enum ELoginState {
   Undefined = 'undefined',
-  User = 'user',
-  Guest = 'guest',
+  User      = 'user',
+  Guest     = 'guest',
 }
 
 export enum EConnectionStatus {
-  Connected = 'connected',
-  Connecting = 'reconnecting',
+  Connected    = 'connected',
+  Connecting   = 'reconnecting',
   Disconnected = 'disconnected',
 }
 

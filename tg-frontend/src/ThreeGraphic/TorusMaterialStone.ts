@@ -1,11 +1,11 @@
 import {
-  Color,
   DoubleSide,
   Matrix4,
   ShaderMaterial,
-  Uniform, Vector2,
-  Vector3
-} from "three";
+  Uniform,
+  Vector2,
+  Vector3,
+} from 'three';
 
 const vertexShader = `
 
@@ -81,19 +81,19 @@ void main() {
 export default class TorusMaterialStone extends ShaderMaterial {
   constructor() {
     const parameters =
-    {
-      side: DoubleSide,
-      uniforms: {
-        viewPort:                     new Uniform(new Vector2()),
-        inverseViewMatrix:            new Uniform(new Matrix4()),
-        inverseProjectionMatrix:      new Uniform(new Matrix4()),
-        inverseModelMatrix:           new Uniform(new Matrix4()),
-        transposedInverseModelMatrix: new Uniform(new Matrix4()),
-        stoneColor:                   new Uniform(new Vector3(1, 1, 1)),
-      },
-      vertexShader: vertexShader.concat(),
-      fragmentShader: fragmentShader.concat(),
-    };
+            {
+              side: DoubleSide,
+              uniforms: {
+                viewPort: new Uniform(new Vector2()),
+                inverseViewMatrix: new Uniform(new Matrix4()),
+                inverseProjectionMatrix: new Uniform(new Matrix4()),
+                inverseModelMatrix: new Uniform(new Matrix4()),
+                transposedInverseModelMatrix: new Uniform(new Matrix4()),
+                stoneColor: new Uniform(new Vector3(1, 1, 1)),
+              },
+              vertexShader: vertexShader.concat(),
+              fragmentShader: fragmentShader.concat(),
+            };
     super(parameters);
   }
 }

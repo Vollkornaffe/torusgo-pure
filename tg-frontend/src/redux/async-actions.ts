@@ -4,18 +4,18 @@ import {
   ILoginGuestResponse,
   ILoginTokenResponse,
   IRegisterResponse,
-  IUpgradeResponse
-} from '../types/network';
+  IUpgradeResponse,
+}                                       from '../types/network';
 import {EResourceStatus, EResourceType} from '../types/resource';
-import {sendWithAck} from '../utils/socket-io';
-import tokenManager from '../utils/token';
+import {sendWithAck}                    from '../utils/socket-io';
+import tokenManager                     from '../utils/token';
 import {
   changeLoginState,
   changeOwnUserId,
   subscribeError,
   subscribeRequest,
-  subscribeResponse
-} from './actions';
+  subscribeResponse,
+}                                       from './actions';
 
 import store from './store';
 

@@ -1,17 +1,24 @@
 import {createStyles, WithStyles, withStyles} from '@material-ui/core';
-import * as React from 'react';
-import autoBind from 'react-autobind';
-import * as ReactDOM from 'react-dom';
-import * as Stats from 'stats.js';
+import * as React                             from 'react';
+import autoBind                               from 'react-autobind';
+import * as Stats                             from 'stats.js';
 import {
-  AxesHelper,BoxGeometry, Color, Matrix4, Mesh,MeshBasicMaterial, PerspectiveCamera, Scene, Vector2, Vector3,
-  WebGLRenderer
-} from "three";
-import TorusMaterialBoard from "../ThreeGraphic/TorusMaterialBoard";
-import TorusMaterialStone from "../ThreeGraphic/TorusMaterialStone";
+  AxesHelper,
+  BoxGeometry,
+  Color,
+  Matrix4,
+  Mesh,
+  PerspectiveCamera,
+  Scene,
+  Vector2,
+  Vector3,
+  WebGLRenderer,
+}                                             from 'three';
 
-import RayCast from "../ThreeGraphic/RayCast";
-import RayCastTorus from "../ThreeGraphic/RayCastTorus";
+import RayCast            from '../ThreeGraphic/RayCast';
+import RayCastTorus       from '../ThreeGraphic/RayCastTorus';
+import TorusMaterialBoard from '../ThreeGraphic/TorusMaterialBoard';
+import TorusMaterialStone from '../ThreeGraphic/TorusMaterialStone';
 
 export interface IKeyboardControls {
   cameraDeltaX: number,
@@ -40,7 +47,7 @@ export interface IProps {
   boardState: number[],
 }
 
-const styles = () => {
+const styles          = () => {
   return createStyles({
     root: {
       position: 'relative',
@@ -50,8 +57,8 @@ const styles = () => {
   });
 };
 // colors are const
-const colorClear = new Color(0x4286f4);
-const colorBoard = new Color(0xFF6B00);
+const colorClear      = new Color(0x4286f4);
+const colorBoard      = new Color(0xFF6B00);
 const colorStoneWhite = new Color(0xe6ffff);
 const colorStoneBlack = new Color(0x1a0008);
 const colorStoneHover = new Color(0xFFD700);
@@ -65,7 +72,7 @@ const yellow = new Color(0xFFFF00);
 const orange = new Color(0xFF7F00);
 const red    = new Color(0xFF0000);
 
-const box222 = new BoxGeometry(2,2,2) ;
+const box222 = new BoxGeometry(2, 2, 2);
 
 class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>> {
   private canvas: HTMLCanvasElement;
@@ -164,7 +171,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
       && event.clientY < this.canvas.height) {
       this.mousePos.x = 2.0 * (event.clientX) / this.canvas.width - 1.0;
       this.mousePos.y = 2.0 * (event.clientY) / this.canvas.height - 1.0;
-      this.inCanvas = true;
+      this.inCanvas   = true;
     } else {
       this.inCanvas = false;
     }
@@ -177,7 +184,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
       this.inverseProjectionMatrix,
       this.inverseViewMatrix,
       this.inverseModelMatrixBoard);
-    const distance = RayCastTorus(
+    const distance                      = RayCastTorus(
       cameraPosOC,
       rayDirectionOC,
       new Vector2(this.props.radius, this.props.thickness));
@@ -192,7 +199,9 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     const hitPosOC = cameraPosOC.addScaledVector(rayDirectionOC, distance);
 
     let theta = Math.atan2(hitPosOC.y, hitPosOC.x);
-    if (theta < 0) {theta += 2.0*Math.PI;}
+    if (theta < 0) {
+      theta += 2.0 * Math.PI;
+    }
 
     // we have to roatate back
     const rotationMat = new Matrix4().makeRotationZ(-theta);
@@ -201,19 +210,29 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
     // noinspection JSSuspiciousNameCombination
     let phi = Math.atan2(hitPosOC.x, hitPosOC.z);
-    if (phi < 0) {phi += 2.0*Math.PI;}
+    if (phi < 0) {
+      phi += 2.0 * Math.PI;
+    }
 
     // sub twist and renormalize
     phi -= this.twist;
-    while (phi < 0) {phi += 2.0*Math.PI;}
-    while (phi > 2.0*Math.PI) {phi -= 2.0*Math.PI;}
+    while (phi < 0) {
+      phi += 2.0 * Math.PI;
+    }
+    while (phi > 2.0 * Math.PI) {
+      phi -= 2.0 * Math.PI;
+    }
 
     // calculate the indices on a 2d-array
-    let i = Math.round(phi / (2.0*Math.PI / this.props.boardSizeX));
-    let j = Math.round(theta / (2.0*Math.PI / this.props.boardSizeY));
+    let i = Math.round(phi / (2.0 * Math.PI / this.props.boardSizeX));
+    let j = Math.round(theta / (2.0 * Math.PI / this.props.boardSizeY));
 
-    if (i === this.props.boardSizeX) { i = 0; }
-    if (j === this.props.boardSizeY) { j = 0; }
+    if (i === this.props.boardSizeX) {
+      i = 0;
+    }
+    if (j === this.props.boardSizeY) {
+      j = 0;
+    }
 
     this.focusedField = j + i * this.props.boardSizeY;
   }
@@ -267,7 +286,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   private initCamera() {
     this.camera = new PerspectiveCamera(
-      45, 1, 0.1, 100
+      45, 1, 0.1, 100,
     );
     this.camera.up.set(0, 1, 0);
     this.camera.position.set(0, 0, this.props.radius * 4.0);
@@ -276,7 +295,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   }
 
   private initStats() {
-    this.stats = new Stats();
+    this.stats                   = new Stats();
     this.stats.dom.style.cssText = 'position:absolute;right:0;cursor:pointer;opacity:0.9;z-index:10000;';
     this.canvas.parentElement!.insertBefore(this.stats.dom, this.canvas);
 
@@ -311,7 +330,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     for (const material of this.stoneMaterialArray) {
       material.dispose();
     }
-    this.stoneMeshArray = [];
+    this.stoneMeshArray     = [];
     this.stoneMaterialArray = [];
   }
 
@@ -319,10 +338,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
 
-    this.canvas.width = w;
+    this.canvas.width  = w;
     this.canvas.height = h;
 
-    this.renderer.setSize(w,h,false);
+    this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
 
@@ -330,11 +349,11 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   private setupStoneArrays() {
     this.stoneMaterialArray = [];
-    this.stoneMeshArray = [];
+    this.stoneMeshArray     = [];
     for (let i = 0; i < this.props.boardSizeX; i++) {
       for (let j = 0; j < this.props.boardSizeY; j++) {
         const material = new TorusMaterialStone();
-        const mesh = new Mesh(box222, material);
+        const mesh     = new Mesh(box222, material);
         this.stoneMaterialArray.push(material);
         this.stoneMeshArray.push(mesh);
         this.scene.add(mesh);
@@ -346,10 +365,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.boardGeometry = new BoxGeometry(
       2.0 * (this.props.radius + this.props.thickness),
       2.0 * (this.props.radius + this.props.thickness),
-      2.0 * this.props.thickness
+      2.0 * this.props.thickness,
     );
     this.boardMaterial = new TorusMaterialBoard();
-    this.boardMesh = new Mesh(this.boardGeometry, this.boardMaterial);
+    this.boardMesh     = new Mesh(this.boardGeometry, this.boardMaterial);
     this.scene.add(this.boardMesh);
   }
 
@@ -361,11 +380,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     const scaleZ = this.props.stoneSize;
 
     let stoneId = 0;
-    const xAxis = new Vector3(1,0,0);
-    const yAxis = new Vector3(0,1,0);
-    const zAxis = new Vector3(0,0,1);
+    const xAxis = new Vector3(1, 0, 0);
+    const zAxis = new Vector3(0, 0, 1);
     for (let i = 0; i < this.props.boardSizeX; i++) {
-      const iRad = i / this.props.boardSizeX * 2 * Math.PI + this.twist;
+      const iRad   = i / this.props.boardSizeX * 2 * Math.PI + this.twist;
       const offset = new Vector3(
         (this.props.thickness + scaleZ) * Math.sin(iRad),
         0,
@@ -374,7 +392,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
       const innerRingRadius = this.props.radius
         + (this.props.thickness + scaleZ) * Math.cos(iRad - Math.PI / 2.0);
-      scaleY = innerRingRadius * Math.PI / this.props.boardSizeY * 0.9; // the 0.9 enables a small gap
+      scaleY                = innerRingRadius * Math.PI / this.props.boardSizeY * 0.9; // the 0.9 enables a small gap
 
       for (let j = 0; j < this.props.boardSizeY; j++) {
         const jRad = j / this.props.boardSizeY * 2 * Math.PI;
@@ -397,7 +415,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   }
 
   private updateRayCastingMatrices() {
-    this.inverseViewMatrix = this.camera.matrixWorld;
+    this.inverseViewMatrix       = this.camera.matrixWorld;
     this.inverseProjectionMatrix = new Matrix4().getInverse(this.camera.projectionMatrix);
     this.inverseModelMatrixBoard = new Matrix4().getInverse(this.boardMesh.matrixWorld);
   }
@@ -427,7 +445,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.boardMaterial.uniforms.torusColor.value                   = colorBoard;
 
     // now for all the stones
-    for (let i = 0; i < this.props.boardSizeX * this.props.boardSizeY; i++ ) {
+    for (let i = 0; i < this.props.boardSizeX * this.props.boardSizeY; i++) {
       const mesh     = this.stoneMeshArray[i];
       const material = this.stoneMaterialArray[i];
       const state    = this.props.boardState[i];
@@ -444,65 +462,65 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
       material.uniforms.transposedInverseModelMatrix.value = transposedInverseModelMatrix;
 
       if (this.partyMode) {
-        switch(state) {
+        switch (state) {
           case 0: {
             mesh.visible = false;
             break;
           }
           case 1: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = violet;
             break;
           }
           case 2: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = indigo;
             break;
           }
           case 3: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = blue;
             break;
           }
           case 4: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = green;
             break;
           }
           case 5: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = yellow;
             break;
           }
           case 6: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = orange;
             break;
           }
           case 7: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = red;
             break;
           }
         }
 
         if (i === this.focusedField) {
-          mesh.visible = true;
+          mesh.visible                       = true;
           material.uniforms.stoneColor.value = colorStoneHover;
         }
       } else {
-         switch(state) {
+        switch (state) {
           case 0: {
             mesh.visible = false;
             break;
           }
           case 1: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = colorStoneBlack;
             break;
           }
           case 2: {
-            mesh.visible = true;
+            mesh.visible                       = true;
             material.uniforms.stoneColor.value = colorStoneWhite;
             break;
           }
@@ -513,8 +531,12 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   private updateTwistKeyboard() {
     this.twist += this.props.keyboardControls.twistDelta;
-    while (this.twist < 0) {this.twist += 2.0*Math.PI;}
-    while (this.twist > 2.0*Math.PI) {this.twist -= 2.0*Math.PI;}
+    while (this.twist < 0) {
+      this.twist += 2.0 * Math.PI;
+    }
+    while (this.twist > 2.0 * Math.PI) {
+      this.twist -= 2.0 * Math.PI;
+    }
   }
 
   private updateCameraTrackballKeyboard() {

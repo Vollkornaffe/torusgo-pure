@@ -3,13 +3,13 @@ import {
   Toolbar,
   Typography,
   WithStyles,
-  withStyles
-} from '@material-ui/core/es';
-import * as React from 'react';
+  withStyles,
+}                                       from '@material-ui/core/es';
+import * as React                       from 'react';
 import {EConnectionStatus, ELoginState} from '../types/network';
-import {IUserWrapper} from '../types/resource';
-import AccountDialog from './AccountDialog';
-import LoginForm from './LoginForm';
+import {IUserWrapper}                   from '../types/resource';
+import AccountDialog                    from './AccountDialog';
+import LoginForm                        from './LoginForm';
 
 const styles = () => ({
   flex: {
@@ -32,7 +32,7 @@ const MyToolbar: React.SFC<IProps & WithStyles<typeof styles>> = ({connectionSta
   } else if (connectionStatus === EConnectionStatus.Connecting) {
     rightSideComponent = <CircularProgress color={'secondary'} />;
   } else if (loginState === ELoginState.Undefined) {
-    rightSideComponent = <LoginForm/>;
+    rightSideComponent = <LoginForm />;
   } else {
     rightSideComponent = <AccountDialog user={user} />;
   }

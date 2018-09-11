@@ -6,16 +6,16 @@ import {
   DialogTitle,
   TextField,
   withStyles,
-  WithStyles
-} from '@material-ui/core/es';
-import * as React from 'react';
+  WithStyles,
+}                      from '@material-ui/core/es';
+import * as React      from 'react';
 import {asyncRegister} from '../redux/async-actions';
 
 const styles = () => ({
   root: {},
   btn: {
     marginTop: -14,
-  }
+  },
 });
 
 interface IProps extends WithStyles<typeof styles> {
@@ -72,34 +72,17 @@ class RegisterDialog extends React.Component<IProps, IState> {
 
     return (
       <div>
-        <Dialog
-          className={classes.root}
-          open={open}
-          onClose={onClose}>
+        <Dialog className={classes.root} open={open} onClose={onClose}>
           <DialogTitle>Register for an Account</DialogTitle>
           <DialogContent>
-            <TextField
-              value={username}
-              autoFocus={true}
-              onChange={onUsernameChange}
-              margin='dense'
-              label='username'
-              type='text'
-              fullWidth={true}/>
-            <TextField
-              value={email}
-              onChange={onEmailChange}
-              margin='dense'
-              label='email'
-              type='email'
-              fullWidth={true}/>
-            <TextField
-              value={password}
-              onChange={onPasswordChange}
-              margin='dense'
-              label='password'
-              type='password'
-              fullWidth={true}/>
+            <TextField value={username} autoFocus={true}
+                       onChange={onUsernameChange} margin='dense'
+                       label='username' type='text' fullWidth={true} />
+            <TextField value={email} onChange={onEmailChange} margin='dense'
+                       label='email' type='email' fullWidth={true} />
+            <TextField value={password} onChange={onPasswordChange}
+                       margin='dense' label='password' type='password'
+                       fullWidth={true} />
           </DialogContent>
           <DialogActions>
             <Button onClick={onSubmitClick}>

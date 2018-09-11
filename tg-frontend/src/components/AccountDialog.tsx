@@ -7,13 +7,13 @@ import {
   DialogTitle,
   IconButton,
   withStyles,
-  WithStyles
-} from '@material-ui/core/es';
-import {AccountCircle} from '@material-ui/icons';
-import * as React from 'react';
-import {asyncLogout} from '../redux/async-actions';
+  WithStyles,
+}                                      from '@material-ui/core/es';
+import {AccountCircle}                 from '@material-ui/icons';
+import * as React                      from 'react';
+import {asyncLogout}                   from '../redux/async-actions';
 import {EResourceStatus, IUserWrapper} from '../types/resource';
-import {IUser} from '../types/user';
+import {IUser}                         from '../types/user';
 
 const styles = () => ({
   root: {},
@@ -38,19 +38,18 @@ class AccountDialog extends React.Component<IProps, IState> {
   public render() {
 
     const {classes, user} = this.props;
-    const {open} = this.state;
+    const {open}          = this.state;
 
     let content;
 
     if (!user) {
       content = (
         <p>
-          User info not available
-        </p>
+          User info not available </p>
       );
     } else if (user.status === EResourceStatus.Loading) {
       content = (
-        <CircularProgress/>
+        <CircularProgress />
       );
     } else if (user.status === EResourceStatus.Unavailable) {
       content = (
@@ -82,15 +81,10 @@ class AccountDialog extends React.Component<IProps, IState> {
         <Button onClick={onLogoutClick} color={'inherit'}>
           Logout
         </Button>
-        <IconButton
-          onClick={onOpen}
-          color="inherit">
+        <IconButton onClick={onOpen} color="inherit">
           <AccountCircle />
         </IconButton>
-        <Dialog
-          className={classes.root}
-          open={open}
-          onClose={onClose}>
+        <Dialog className={classes.root} open={open} onClose={onClose}>
           <DialogTitle>Your Account Information</DialogTitle>
           <DialogContent>
             {content}

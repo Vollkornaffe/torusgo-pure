@@ -27,7 +27,7 @@ const theme = createMuiTheme({
   layout: {
     appBarHeight: 8 * UNIT,
     sideBarWidth: 9 * UNIT,
-  }
+  },
 });
 
 export default theme;

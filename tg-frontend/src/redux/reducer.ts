@@ -1,9 +1,9 @@
-import {Action, Reducer, ReducersMapObject} from 'redux';
+import {Action, Reducer, ReducersMapObject}          from 'redux';
 import {EColor, EField, EGamePhase, IRuleSet, TMove} from '../types/game';
-import {EConnectionStatus, ELoginState} from '../types/network';
-import {IState, TAction} from '../types/redux';
-import {EResourceStatus, EResourceType, IError,} from '../types/resource';
-import {applyMove, testMove} from '../utils/game-logic';
+import {EConnectionStatus, ELoginState}              from '../types/network';
+import {IState, TAction}                             from '../types/redux';
+import {EResourceStatus, EResourceType, IError}      from '../types/resource';
+import {applyMove, testMove}                         from '../utils/game-logic';
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {
@@ -82,7 +82,7 @@ const subscribeRequest = (state: IState, action: TAction<{ resourceType: EResour
           status: EResourceStatus.Loading,
         },
       },
-    }
+    },
   });
 };
 
@@ -123,7 +123,7 @@ const subscribeError = (state: IState, action: TAction<{ resourceType: EResource
           error: action.err,
         },
       },
-    }
+    },
   };
 };
 
@@ -147,7 +147,7 @@ const updateResource = (state: IState, action: TAction<{ resource: any, resource
   };
 };
 
-const updateKeyPress = (state: IState, action: TAction<{keyCode: string, pressed: boolean}>): IState => {
+const updateKeyPress = (state: IState, action: TAction<{ keyCode: string, pressed: boolean }>): IState => {
   if (action.pressed) {
     // keydown
     const idx = state.pressedKeys.indexOf(action.keyCode);

@@ -4,15 +4,18 @@ import {
   InputAdornment,
   TextField,
   WithStyles,
-  withStyles
-} from '@material-ui/core/es/index';
-import {AccountCircle, VpnKey} from '@material-ui/icons';
-import * as React from 'react';
+  withStyles,
+}                            from '@material-ui/core/es/index';
+import {
+  AccountCircle,
+  VpnKey,
+}                            from '@material-ui/icons';
+import * as React            from 'react';
 import {
   asyncLoginAsGuest,
-  asyncLoginWithCredentials
-} from '../redux/async-actions';
-import RegisterDialog from './RegisterDialog';
+  asyncLoginWithCredentials,
+}                            from '../redux/async-actions';
+import RegisterDialog        from './RegisterDialog';
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -84,8 +87,9 @@ class LoginForm extends React.Component<WithStyles<typeof styles>, IState> {
 
     return (
       <div className={classes.root}>
-        <TextField value={username} onChange={onUsernameChange} className={classes.input}
-                   placeholder={'username'} margin={'dense'} InputProps={{
+        <TextField value={username} onChange={onUsernameChange}
+                   className={classes.input} placeholder={'username'}
+                   margin={'dense'} InputProps={{
           className: classes.inputElem,
           startAdornment: (
             <InputAdornment position={'start'}>
@@ -93,28 +97,28 @@ class LoginForm extends React.Component<WithStyles<typeof styles>, IState> {
             </InputAdornment>
           ),
         }} />
-        <TextField value={password} onChange={onPasswordChange} className={classes.input}
-                   placeholder={'password'} type={'password'} margin={'dense'}
-                   InputProps={{
-                     className: classes.inputElem,
-                     startAdornment: (
-                       <InputAdornment position={'start'}>
-                         <VpnKey />
-                       </InputAdornment>
-                     ),
-                   }} />
+        <TextField value={password} onChange={onPasswordChange}
+                   className={classes.input} placeholder={'password'}
+                   type={'password'} margin={'dense'} InputProps={{
+          className: classes.inputElem,
+          startAdornment: (
+            <InputAdornment position={'start'}>
+              <VpnKey />
+            </InputAdornment>
+          ),
+        }} />
         <Button onClick={onLoginClick} color={'default'} variant={'contained'}
                 size={'small'} className={classes.btn}>
           Login
         </Button>
-        <span className={classes.divider}/>
+        <span className={classes.divider} />
         <Button onClick={onGuestClick} color={'default'} variant={'contained'}
                 size={'small'} className={classes.btn}>
           Guest
         </Button>
-        <span className={classes.divider}/>
-        <Button onClick={onOpen} color={'default'} variant={'contained'} size={'small'}
-                className={classes.btn}>
+        <span className={classes.divider} />
+        <Button onClick={onOpen} color={'default'} variant={'contained'}
+                size={'small'} className={classes.btn}>
           Register
         </Button>
         <RegisterDialog open={open} onClose={onClose} />

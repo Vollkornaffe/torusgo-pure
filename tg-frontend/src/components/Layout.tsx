@@ -4,13 +4,13 @@ import {
   Drawer,
   Theme,
   withStyles,
-  WithStyles
-} from '@material-ui/core';
+  WithStyles,
+}                 from '@material-ui/core';
 import classNames from 'classnames';
 import * as React from 'react';
-import autoBind from 'react-autobind';
-import MySidebar from './MySidebar';
-import MyToolbar from './MyToolbarContainer';
+import autoBind   from 'react-autobind';
+import MySidebar  from './MySidebar';
+import MyToolbar  from './MyToolbarContainer';
 
 const styles = (theme: Theme) => {
   return createStyles({
@@ -74,10 +74,9 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
           <MyToolbar />
         </AppBar>
         <Drawer variant={'permanent'} open={this.state.open}
-                className={classes.drawer}
-                onMouseEnter={this.handleDrawerOpen}
+                className={classes.drawer} onMouseEnter={this.handleDrawerOpen}
                 onMouseLeave={this.handleDrawerClose} classes={{
-          paper: classNames(classes.drawerPaper, !this.state.open && classes.closedDrawerPaper)
+          paper: classNames(classes.drawerPaper, !this.state.open && classes.closedDrawerPaper),
         }}>
           <div className={classes.toolbar} />
           <MySidebar />
@@ -89,14 +88,13 @@ class Layout extends React.Component<WithStyles<typeof styles>> {
     );
   }
 
-  private handleDrawerOpen = () => {
+  private handleDrawerOpen() {
     this.setState({open: true});
-  };
+  }
 
-  private handleDrawerClose = () => {
+  private handleDrawerClose() {
     this.setState({open: false});
-  };
-
+  }
 }
 
 export default withStyles(styles)(Layout);

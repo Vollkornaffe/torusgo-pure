@@ -1,8 +1,8 @@
-import {Matrix4, Vector2, Vector3, Vector4} from "three";
+import {Matrix4, Vector2, Vector3, Vector4} from 'three';
 
 // returns a tuple of camera position in object space (first)
 // and ray direction in object space (second)
-export default function(
+export default function (
   mousePos: Vector2,  // in pixels
   cameraPos: Vector3, // in worldspace
   inverseProjectionMatrix: Matrix4,
@@ -15,7 +15,7 @@ export default function(
   const cursorPosOC = new Vector4(mousePos.x, mousePos.y, 1, 1);
   // to camera coordinates
   cursorPosOC.applyMatrix4(inverseProjectionMatrix);
-  cursorPosOC.multiplyScalar(1/cursorPosOC.w);
+  cursorPosOC.multiplyScalar(1 / cursorPosOC.w);
   // to world coordinates
   cursorPosOC.applyMatrix4(inverseViewMatrix);
   // we already know the camera position in world coordinates
@@ -36,10 +36,10 @@ export default function(
       1,
     ),
     new Vector4(
-    cursorPosOC.x - cameraPosOC.x,
-    cursorPosOC.y - cameraPosOC.x,
-    cursorPosOC.z - cameraPosOC.z,
-    0,
-    ).normalize()
+      cursorPosOC.x - cameraPosOC.x,
+      cursorPosOC.y - cameraPosOC.x,
+      cursorPosOC.z - cameraPosOC.z,
+      0,
+    ).normalize(),
   ];
 }

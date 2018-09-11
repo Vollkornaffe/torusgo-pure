@@ -1,5 +1,5 @@
-import {connect} from 'react-redux';
-import {IState} from '../types/redux';
+import {connect}         from 'react-redux';
+import {IState}          from '../types/redux';
 import Toolbar, {IProps} from './MyToolbar';
 
 const mapStateToProps = (state: IState): IProps => ({

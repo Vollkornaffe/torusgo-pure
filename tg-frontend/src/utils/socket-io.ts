@@ -1,9 +1,9 @@
-import * as socketIO from 'socket.io-client';
+import * as socketIO                            from 'socket.io-client';
 import {changeConnectionStatus, updateResource} from '../redux/actions';
-import {asyncLoginWithToken} from '../redux/async-actions';
+import {asyncLoginWithToken}                    from '../redux/async-actions';
 
 import {EConnectionStatus} from '../types/network';
-import tokenManager from './token';
+import tokenManager        from './token';
 
 let URL = 'http://localhost:3450/';
 
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'production') {
 const socket = socketIO.connect(URL);
 
 ['connect', 'connect_error', 'connect_timeout', 'error', 'disconnect', 'reconnect', 'reconnect_attempt',
-'reconnecting', 'reconnect_error', 'reconnect_failed'].forEach((name) => {
+  'reconnecting', 'reconnect_error', 'reconnect_failed'].forEach((name) => {
   socket.on(name, (...args: any[]) => {
     console.log(name + ': ' + args.join(' '));
   });
@@ -23,7 +23,7 @@ const socket = socketIO.connect(URL);
 socket.on('connect', () => {
   changeConnectionStatus(EConnectionStatus.Connected);
   const tokenString = tokenManager.read();
-  if(tokenString) {
+  if (tokenString) {
     asyncLoginWithToken(tokenString);
   }
 });

@@ -1,5 +1,5 @@
-import {connect} from 'react-redux';
-import {IState} from '../types/redux';
+import {connect}        from 'react-redux';
+import {IState}         from '../types/redux';
 import Status, {IProps} from './Status';
 
 const mapStateToProps = (state: IState): IProps => ({

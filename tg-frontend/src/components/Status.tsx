@@ -1,5 +1,5 @@
-import {WithStyles, withStyles} from '@material-ui/core';
-import * as React from 'react';
+import {WithStyles, withStyles}         from '@material-ui/core';
+import * as React                       from 'react';
 import {EConnectionStatus, ELoginState} from '../types/network';
 
 const style = () => ({

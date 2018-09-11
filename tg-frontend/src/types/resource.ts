@@ -13,8 +13,8 @@ export enum EResourceStatus {
 }
 
 export enum EResourceType {
-  Game = 'game',
-  User = 'user',
+  Game     = 'game',
+  User     = 'user',
   GameList = 'gameList',
   UserList = 'userList',
 }

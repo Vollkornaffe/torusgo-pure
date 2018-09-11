@@ -1,11 +1,11 @@
 import {
-  Color,
   DoubleSide,
   Matrix4,
   ShaderMaterial,
-  Uniform, Vector2,
-  Vector3
-} from "three";
+  Uniform,
+  Vector2,
+  Vector3,
+} from 'three';
 
 const vertexShader = `
 
@@ -216,24 +216,24 @@ void main() {
 export default class TorusMaterialBoard extends ShaderMaterial {
   constructor() {
     const parameters =
-    {
-      side: DoubleSide,
-      uniforms: {
-        viewPort:                     new Uniform(new Vector2()),
-        inverseViewMatrix:            new Uniform(new Matrix4()),
-        inverseProjectionMatrix:      new Uniform(new Matrix4()),
-        inverseModelMatrix:           new Uniform(new Matrix4()),
-        transposedInverseModelMatrix: new Uniform(new Matrix4()),
-        boardSizeX:                   new Uniform(9),
-        boardSizeY:                   new Uniform(9),
-        radius:                       new Uniform(1),
-        thickness:                    new Uniform(0.5),
-        twist:                        new Uniform(0),
-        torusColor:                   new Uniform(new Vector3(1,1,1)),
-      },
-      vertexShader: vertexShader.concat(),
-      fragmentShader: fragmentShader.concat(),
-    };
+            {
+              side: DoubleSide,
+              uniforms: {
+                viewPort: new Uniform(new Vector2()),
+                inverseViewMatrix: new Uniform(new Matrix4()),
+                inverseProjectionMatrix: new Uniform(new Matrix4()),
+                inverseModelMatrix: new Uniform(new Matrix4()),
+                transposedInverseModelMatrix: new Uniform(new Matrix4()),
+                boardSizeX: new Uniform(9),
+                boardSizeY: new Uniform(9),
+                radius: new Uniform(1),
+                thickness: new Uniform(0.5),
+                twist: new Uniform(0),
+                torusColor: new Uniform(new Vector3(1, 1, 1)),
+              },
+              vertexShader: vertexShader.concat(),
+              fragmentShader: fragmentShader.concat(),
+            };
     super(parameters);
   }
 }
