@@ -3,26 +3,7 @@ import {EColor, EField, EGamePhase, IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState} from '../types/network';
 import {IState, TAction} from '../types/redux';
 import {EResourceStatus, EResourceType, IError,} from '../types/resource';
-import {IDimension, TResizable} from '../types/ui';
 import {applyMove, testMove} from '../utils/game-logic';
-
-const resize = (element: TResizable) => (state: IState, action: TAction<IDimension>): IState => {
-  if (action.width === state.dimensions[element].width
-    && action.height === state.dimensions[element].height) {
-    return state;
-  }
-
-  return {
-    ...state,
-    dimensions: {
-      ...state.dimensions,
-      [element]: {
-        width: action.width,
-        height: action.height,
-      },
-    },
-  };
-};
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {
@@ -205,10 +186,6 @@ function createReducer<S>(initialState: S, reducerObject: ReducersMapObject): Re
 }
 
 export default <S>(initialState: S) => createReducer(initialState, {
-  'WINDOW_RESIZE': resize('window'),
-  'APP_BAR_RESIZE': resize('appBar'),
-  'SIDE_BAR_RESIZE': resize('sideBar'),
-
   'GAME_LOCAL_INIT': initLocalGame,
   'GAME_LOCAL_ADD_MOVE': addLocalMove,
 

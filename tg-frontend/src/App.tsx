@@ -3,6 +3,7 @@ import * as React from 'react';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout';
+import NewGame from './components/NewGame';
 import Status from './components/StatusContainer';
 import ThreeAnimationContainer from "./components/ThreeAnimationContainer";
 
