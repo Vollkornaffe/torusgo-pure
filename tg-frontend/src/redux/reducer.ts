@@ -7,14 +7,17 @@ import {applyMove, testMove}                         from '../utils/game-logic';
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {
-    x: 19,
-    y: 19,
+    size: {
+      x: 19,
+      y: 19,
+    },
     komi: 5.5,
     handicap: 0,
   };
 
   Object.assign(defaultRuleSet, action.ruleSet);
 
+  // TODO maybe call initGame from gamelogic here instead
   return {
     ...state,
     localGame: {
@@ -22,7 +25,7 @@ const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): I
       phase: EGamePhase.Running,
       moveNumber: 0,
       moveHistory: [],
-      board: (new Array(defaultRuleSet.x * defaultRuleSet.y)).fill(EField.Empty),
+      board: (new Array(defaultRuleSet.size.x * defaultRuleSet.size.y)).fill(EField.Empty),
       ko: false,
       toMove: EColor.Black,
       capturedByBlack: 0,

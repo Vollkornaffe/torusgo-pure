@@ -15,23 +15,18 @@ export interface IPosition {
   y: number,
 }
 
-export enum EColor {
-  Black = 'black',
-  White = 'white',
+export interface ISize {
+  x: number,
+  y: number,
 }
 
-export enum EField {
-  Empty = 'empty',
-  Black = 'black',
-  White = 'white',
-}
+export enum EColor {Black = 'black', White = 'white'}
+
+export enum EField {Empty = 'empty', Black = 'black', White = 'white'}
 
 export type TGameBoard = EField[];
 
-export enum EGamePhase {
-  Waiting = 'waiting',
-  Running = 'running',
-}
+export enum EGamePhase {Waiting = 'waiting', Running = 'running'}
 
 export interface IMeta {
   observers: string[],
@@ -41,10 +36,19 @@ export interface IMeta {
 }
 
 export interface IRuleSet {
-  x: number,
-  y: number,
+  size: ISize,
   komi: number,
   handicap: number,
+}
+
+export interface IRawGame {
+  ruleSet: IRuleSet,
+  toMove: EColor,
+  board: TGameBoard,
+  ko: boolean,
+  koPosistion?: IPosition,
+  capturedByBlack: number,
+  capturedByWhite: number,
 }
 
 export interface IGame {
