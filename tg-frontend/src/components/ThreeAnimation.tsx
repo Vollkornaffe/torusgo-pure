@@ -2,6 +2,7 @@ import {createStyles, Theme, WithStyles, withStyles} from '@material-ui/core';
 import * as React from 'react';
 import autoBind from 'react-autobind';
 
+// import Stats from 'stats.js';
 import {
   BoxGeometry,
   Color,
@@ -89,6 +90,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   // result of the CPU sided raytracing, i.e. field that is mouseovered
   private focusedField: number;
 
+  // private stats: Stats;
+
   // nothing much happening in constructor
   // first canvas needs to be created
   public constructor(props: IProps & WithStyles<typeof styles>) {
@@ -114,7 +117,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     // for raycasting:
     document.addEventListener('mousemove', this.updateMousePos);
 
-    document.addEventListener('resize', () => this.updateViewport());
+    window.addEventListener('resize', this.updateViewport);
   }
 
   public componentDidUpdate(prevProps: IProps) {
@@ -134,6 +137,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   public componentWillUnmount() {
     this.cleanUp();
     document.removeEventListener('mousemove', this.updateMousePos);
+    window.removeEventListener('resize', this.updateViewport);
   }
 
   public render() {
@@ -283,9 +287,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.canvas.width = w;
     this.canvas.height = h;
 
-    this.renderer.setViewport(0, 0, w, h);
+    this.renderer.setSize(w,h,false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+
   }
 
   private setupStoneArrays() {
