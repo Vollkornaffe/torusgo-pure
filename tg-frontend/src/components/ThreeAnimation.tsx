@@ -1,7 +1,7 @@
 import {createStyles, WithStyles, withStyles} from '@material-ui/core';
-import * as React                             from 'react';
-import autoBind                               from 'react-autobind';
-import * as Stats                             from 'stats.js';
+import * as React from 'react';
+import autoBind from 'react-autobind';
+import * as Stats from 'stats.js';
 import {
   AxesHelper,
   BoxGeometry,
@@ -13,12 +13,14 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
-}                                             from 'three';
+} from 'three';
 
-import RayCast            from '../ThreeGraphic/RayCast';
-import RayCastTorus       from '../ThreeGraphic/RayCastTorus';
+import RayCast from '../ThreeGraphic/RayCast';
+import RayCastTorus from '../ThreeGraphic/RayCastTorus';
 import TorusMaterialBoard from '../ThreeGraphic/TorusMaterialBoard';
 import TorusMaterialStone from '../ThreeGraphic/TorusMaterialStone';
+
+import theme from "../theme";
 
 export interface IKeyboardControls {
   cameraDeltaX: number,
@@ -103,7 +105,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   private stats: Stats;
 
   // for party
-  private partyMode = true;
+  private partyMode = false;
 
   // nothing much happening in constructor
   // first canvas needs to be created
@@ -125,15 +127,12 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     this.setupStoneArrays();
     this.updateBoardTransform();
 
-    this.scene.add(new AxesHelper());
-
     this.initStats();
 
     this.animate();
 
     // for raycasting:
-    document.addEventListener('mousemove', this.updateMousePos);
-
+    this.canvas.addEventListener('mousemove', this.updateMousePos);
     window.addEventListener('resize', this.updateViewport);
   }
 
@@ -153,7 +152,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   public componentWillUnmount() {
     this.cleanUp();
-    document.removeEventListener('mousemove', this.updateMousePos);
+    this.canvas.removeEventListener('mousemove', this.updateMousePos);
     window.removeEventListener('resize', this.updateViewport);
   }
 
@@ -165,12 +164,15 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   // Raycasting on CPU side, for detecting focused field
   private updateMousePos(event: MouseEvent) {
-    if (event.clientX > 0
-      && event.clientX < this.canvas.width
-      && event.clientY > 0
-      && event.clientY < this.canvas.height) {
-      this.mousePos.x = 2.0 * (event.clientX) / this.canvas.width - 1.0;
-      this.mousePos.y = -2.0 * (event.clientY) / this.canvas.height + 1.0;
+    const offsetX = event.clientX - theme.layout.appBarHeight;
+    const offsetY = event.clientY - theme.layout.sideBarWidth
+
+    if (offsetX > 0
+      && offsetX < this.canvas.width
+      && offsetY > 0
+      && offsetY < this.canvas.height) {
+      this.mousePos.x = 2.0 * (offsetX) / this.canvas.width - 1.0;
+      this.mousePos.y = -2.0 * (offsetY) / this.canvas.height + 1.0;
       this.inCanvas   = true;
     } else {
       this.inCanvas = false;
@@ -504,10 +506,6 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
           }
         }
 
-        if (i === this.focusedField) {
-          mesh.visible                       = true;
-          material.uniforms.stoneColor.value = colorStoneHover;
-        }
       } else {
         switch (state) {
           case 0: {
@@ -525,6 +523,11 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
             break;
           }
         }
+      }
+
+      if (i === this.focusedField) {
+        mesh.visible                       = true;
+        material.uniforms.stoneColor.value = colorStoneHover;
       }
     }
   }
