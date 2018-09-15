@@ -84,6 +84,22 @@ describe("testPosition", () => {
     testBlack(size, boardInts, null, { x: 1, y: 1 }, false);
   });
 
+  it("no space", () => {
+    const boardInts = [
+      0, 0, 0,
+      1, 1, 1,
+      1, 0, 1,
+      1, 1, 1,
+    ];
+    const size = { x: 4, y: 3 };
+
+    // White can't move in the center of the eye
+    testWhite(size, boardInts, null, { x: 2, y: 1 }, false);
+
+    // Black can though
+    testBlack(size, boardInts, null, { x: 2, y: 1 }, true);
+  });
+
   it("ko inactive", () => {
     const boardInts = [
       0, 1, 2, 0,

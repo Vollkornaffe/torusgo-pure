@@ -332,7 +332,7 @@ export function testPosition(
 
     console.log("got no space, illegal");
 
-    return true;
+    return false;
 
   }
 }
