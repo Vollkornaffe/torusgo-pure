@@ -1,6 +1,6 @@
-import {EColor, IGame, IPosition, IRawGame, IRuleSet, ISize, TField, TGameBoard, TMove} from '../types/game';
+import {EColor, IGame, IPosition, IRawGame, IRuleSet, ISize, TField, TGameBoard, TKo, TMove} from '../types/game';
 
-import store from "../redux/store";
+// import store from "../redux/store";
 
 export function testMove(game: IGame, move: TMove): boolean {
 
@@ -42,7 +42,18 @@ export function initGame(ruleSet: IRuleSet) : IRawGame {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ];
 
-  const board = boardInts.map((i) => {
+  return {
+    ruleSet,
+    toMove: EColor.Black,
+    board: boardFromInts(boardInts),
+    koPosition: null,
+    capturedByBlack: 0,
+    capturedByWhite: 0,
+  };
+}
+
+export function boardFromInts(boardInts: number[]) : TField[] {
+  return boardInts.map((i) => {
     switch (i) {
       case 1:
         return EColor.Black;
@@ -52,16 +63,6 @@ export function initGame(ruleSet: IRuleSet) : IRawGame {
         return null;
     }
   });
-
-  return {
-    ruleSet,
-    toMove: EColor.Black,
-    board,
-    ko: false,
-    koPosition: {x: 0, y: 0},
-    capturedByBlack: 0,
-    capturedByWhite: 0,
-  };
 }
 
 // return canonical position in [(0,0), (size.x-1, size.y-1)]
@@ -81,6 +82,12 @@ function canonPos(size: ISize, pos: IPosition) : IPosition {
     y -= size.y;
   }
   return { x, y };
+}
+
+
+// compare positions the right way
+function posEq(a: IPosition, b: IPosition): boolean {
+  return a.x === b.x && a.y === b.y;
 }
 
 // I don't know whether this will ever be needed
@@ -127,7 +134,7 @@ function getNeighPosArray(
   ].filter(posFilter);
 }
 
-function flipField(field: TField) : TField {
+export function flipField(field: TField) : TField {
   switch(field) {
     case null: return null;
     case EColor.Black: return EColor.White;
@@ -138,7 +145,7 @@ function flipField(field: TField) : TField {
 // all inputs canon
 function posInArray(positions: IPosition[], toFind: IPosition) : boolean {
   for (const pos of positions) {
-    if (pos.x === toFind.x && pos.y === toFind.y) {
+    if (posEq(pos, toFind)) {
       return true;
     }
   }
@@ -234,10 +241,11 @@ function groupEmptyPositions(size: ISize, board: TGameBoard, color: TField, pos:
   return canonAndRemoveDups(size, groupEmptyPositionsWithDups);
 }
 
-function testPosition(
+// export only for testing
+export function testPosition(
   size: ISize,
   board: TGameBoard,
-  koPosition: IPosition,
+  koPosition: TKo,
   toMove: EColor,
   intededPos: IPosition,
 ) : boolean {
@@ -247,6 +255,7 @@ function testPosition(
 
   // gotta be empty field
   if (getField(size, board, pos) !== null) {
+    console.log("this field is not empty, sir");
     return false;
   }
 
@@ -254,7 +263,7 @@ function testPosition(
 
   // check for ko
   if (koPosition) {
-    if (koPosition === pos) {
+    if (posEq(pos, koPosition)) {
       return false;
     }
   }
@@ -327,28 +336,5 @@ function testPosition(
 
   }
 }
-
-// tests the legality of the intended move without applying it
-export const testLegal = (
-  move: IPosition,
-): boolean => {
-
-  const rawGame = store.getState().localGame.rawGame;
-
-  const legal = testPosition(
-    rawGame.ruleSet.size,
-    rawGame.board,
-    rawGame.koPosition,
-    rawGame.toMove,
-    move);
-
-
-
-  return legal;
-};
-
-
-
-
 
 

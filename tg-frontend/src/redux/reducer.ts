@@ -3,7 +3,7 @@ import {EGamePhase, EMoveRequestState, IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState}              from '../types/network';
 import {IState, TAction}                             from '../types/redux';
 import {EResourceStatus, EResourceType, IError}      from '../types/resource';
-import {applyMove, initGame, testMove} from '../utils/game-logic';
+import {applyMove, initGame, testMove} from '../utils/GameLogic';
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {

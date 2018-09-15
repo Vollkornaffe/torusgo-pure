@@ -5,7 +5,7 @@ import {EConnectionStatus, ELoginState} from '../types/network';
 import {IState}                         from '../types/redux';
 import reducer                          from './reducer';
 
-import {initGame} from "../utils/game-logic";
+import {initGame} from "../utils/GameLogic";
 
 const defaultRuleSet = {
   size: {

@@ -17,6 +17,8 @@ export interface IPosition {
   y: number,
 }
 
+export type TKo = IPosition | null;
+
 export interface ISize {
   x: number,
   y: number,
@@ -47,8 +49,7 @@ export interface IRawGame {
   ruleSet: IRuleSet,
   toMove: EColor,
   board: TGameBoard,
-  ko: boolean,
-  koPosition: IPosition,
+  koPosition: TKo,
   capturedByBlack: number,
   capturedByWhite: number,
 }

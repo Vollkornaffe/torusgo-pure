@@ -11,7 +11,7 @@ import TorusMaterialStone from '../ThreeGraphic/TorusMaterialStone';
 
 import theme from "../theme";
 
-import {testLegal} from "../utils/game-logic";
+import {testLegal} from "../utils/GameLogic";
 
 export interface IKeyboardControls {
   cameraDeltaX: number,
