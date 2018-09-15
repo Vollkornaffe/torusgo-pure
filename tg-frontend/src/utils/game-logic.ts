@@ -1,5 +1,6 @@
-import {EColor, EField, IGame, IPosition, IRawGame, IRuleSet, ISize, TGameBoard, TMove} from '../types/game';
-import {start} from "repl";
+import {EColor, IGame, IPosition, IRawGame, IRuleSet, ISize, TField, TGameBoard, TMove} from '../types/game';
+
+import store from "../redux/store";
 
 export function testMove(game: IGame, move: TMove): boolean {
 
@@ -21,22 +22,49 @@ export function applyMove(game: Readonly<IGame>, move: TMove): IGame {
 // init game with empty board
 // TODO handle handicap
 export function initGame(ruleSet: IRuleSet) : IRawGame {
-  const board = [];
-  for (let i = 0; i < ruleSet.size.x * ruleSet.size.y; i++) {
-    board.push(EField.Empty);
-  }
+  // const board = [];
+  // for (let i = 0; i < ruleSet.size.x * ruleSet.size.y; i++) {
+  //   board.push(null);
+  // }
+
+  const boardInts = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 1, 2, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 1, 2, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ];
+
+  const board = boardInts.map((i) => {
+    switch (i) {
+      case 1:
+        return EColor.Black;
+      case 2:
+        return EColor.White;
+      default:
+        return null;
+    }
+  });
 
   return {
     ruleSet,
     toMove: EColor.Black,
     board,
     ko: false,
+    koPosition: {x: 0, y: 0},
     capturedByBlack: 0,
     capturedByWhite: 0,
-  }
+  };
 }
 
-// return canonical position in [(0,0), (size.x, size.y)]
+// return canonical position in [(0,0), (size.x-1, size.y-1)]
 function canonPos(size: ISize, pos: IPosition) : IPosition {
   let x = pos.x;
   let y = pos.y;
@@ -71,14 +99,6 @@ function posToIndex(size: ISize, pos: IPosition) {
   return cPos.y + cPos.x * size.y;
 }
 
-// just annoying cast to field
-function colorToField(color: EColor): EField{
-  switch (color) {
-    case EColor.White: return EField.White;
-    case EColor.Black: return EField.Black;
-  }
-}
-
 function getField(size: ISize, board: TGameBoard, pos: IPosition) {
   return board[posToIndex(size, pos)];
 }
@@ -86,7 +106,7 @@ function getField(size: ISize, board: TGameBoard, pos: IPosition) {
 // when this is called, the returned board is modified
 // remember that boards captured in filter functions etc.
 // will NOT be up to date then!
-function setField(size: ISize, board: TGameBoard, field: EField, pos: IPosition) : TGameBoard {
+function setField(size: ISize, board: TGameBoard, field: TField, pos: IPosition) : TGameBoard {
   const newBoard = [...board];
   newBoard[posToIndex(size, pos)] = field;
   return newBoard;
@@ -107,8 +127,22 @@ function getNeighPosArray(
   ].filter(posFilter);
 }
 
-function flipColor(color: EColor) : EColor {
-  return color === EColor.Black ? EColor.Black : EColor.White;
+function flipField(field: TField) : TField {
+  switch(field) {
+    case null: return null;
+    case EColor.Black: return EColor.White;
+    case EColor.White: return EColor.Black;
+  }
+}
+
+// all inputs canon
+function posInArray(positions: IPosition[], toFind: IPosition) : boolean {
+  for (const pos of positions) {
+    if (pos.x === toFind.x && pos.y === toFind.y) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // there may be a better way for this
@@ -119,9 +153,9 @@ function canonAndRemoveDups(size: ISize, positions: IPosition[]) : IPosition[] {
     return canonPos(size, pos);
   });
 
-  const noDups = [];
+  const noDups: IPosition[] = [];
   for (const pos of canonPositions) {
-    if (noDups.indexOf(pos) > -1) {
+    if (!posInArray(noDups, pos)) {
       noDups.push(pos);
     }
   }
@@ -134,26 +168,32 @@ function canonAndRemoveDups(size: ISize, positions: IPosition[]) : IPosition[] {
 // THE STARTING POSITION WILL NOT BE FILTERED
 function getGroupWithFilter(
   size: ISize,
-  board: TGameBoard,
   filter: (pos: IPosition) => boolean,
   startingPos: IPosition,
 ): IPosition[] {
-  return getGroupWithFilterRecursive(size, board, filter, [], [canonPos(size, startingPos)]);
+  return getGroupWithFilterRecursive(size, filter, [], [canonPos(size, startingPos)]);
 }
 
 // members and newMembers always canonical
 function getGroupWithFilterRecursive(
   size: ISize,
-  board: TGameBoard,
   filter: (pos: IPosition) => boolean,
   members: IPosition[],
   newMembers: IPosition[],
 ) : IPosition[] {
 
+  // nothing new found end recursion
+  if (newMembers.length === 0) {
+    return members;
+  }
+
+  // previous newMembers are now also members
+  const membersNext = members.concat(newMembers);
+
   // we don't want to add previously visited positions -> infinite loop
   // also apply the passed filter
   const neighFilter = (potentialNeigh: IPosition): boolean => {
-    return membersNext.indexOf(canonPos(size, potentialNeigh)) === -1
+    return !posInArray(membersNext, canonPos(size, potentialNeigh))
       && filter(potentialNeigh);
   };
 
@@ -167,35 +207,25 @@ function getGroupWithFilterRecursive(
   const newMembersNextWithDups = [].concat.apply([], newMembersSameFieldNeighArrays);
   const newMembersNext = canonAndRemoveDups(size, newMembersNextWithDups);
 
-  // previous newMembers are now done
-  const membersNext = members.concat(newMembers);
-
-  if (newMembersNext === []) {
-    // recursion stop nothing new was found
-    return members;
-  } else {
-    // next step in search
-    return getGroupWithFilterRecursive(size, board, filter, membersNext, newMembersNext);
-  }
+  // next step in search
+  return getGroupWithFilterRecursive(size, filter, membersNext, newMembersNext);
 }
 
 // for a given position gets the positions of empty fields
 // adjecent to the connected group
 // only makes sense to call this with a color
-function groupEmptyPositions(size: ISize, board: TGameBoard, color: EColor, pos: IPosition): IPosition[] {
-
-  const field = colorToField(color);
+function groupEmptyPositions(size: ISize, board: TGameBoard, color: TField, pos: IPosition): IPosition[] {
 
   // only same color ofc
-  const groupFilter = (pos: IPosition) => {
-    return getField(size, board, pos) === field;
+  const groupFilter = (potentialMember: IPosition) => {
+    return getField(size, board, potentialMember) === color;
   };
-  const group = getGroupWithFilter(size, board, groupFilter, pos);
+  const group = getGroupWithFilter(size, groupFilter, pos);
 
   // get the adject empty neighbors as multiple arrays
   const groupEmptyPositionsArrays = group.map((member: IPosition) => {
-    getNeighPosArray(member, (potentialEmpty: IPosition) => {
-      return getField(size, board, potentialEmpty) === EField.Empty;
+    return getNeighPosArray(member, (potentialEmpty: IPosition) => {
+      return getField(size, board, potentialEmpty) === null;
     });
   });
 
@@ -204,44 +234,118 @@ function groupEmptyPositions(size: ISize, board: TGameBoard, color: EColor, pos:
   return canonAndRemoveDups(size, groupEmptyPositionsWithDups);
 }
 
-// tests the legality of the intended move without applying it
-function testLegal(
-  toMove: EColor,
+function testPosition(
   size: ISize,
   board: TGameBoard,
-  ko: boolean,
   koPosition: IPosition,
-  intendedPos: IPosition,
-): boolean {
+  toMove: EColor,
+  intededPos: IPosition,
+) : boolean {
 
-  // can't play on non empty
-  if (getField(size, board, intendedPos) !== EField.Empty) {
+  // first canonize
+  const pos = canonPos(size, intededPos);
+
+  // gotta be empty field
+  if (getField(size, board, pos) !== null) {
     return false;
   }
 
-  // can't play in the ko
-  if(ko && canonPos(size, intendedPos) === koPosition) {
-    return false;
+  console.log("is empty");
+
+  // check for ko
+  if (koPosition) {
+    if (koPosition === pos) {
+      return false;
+    }
   }
 
-  // maybe we capture some enemy stones then?
-  const enemyEmpty = groupEmptyPositions(size, board, flipColor(toMove), intendedPos);
-  if (enemyEmpty.length === 1) {
-    if (enemyEmpty.indexOf(canonPos(size, intendedPos)) > -1) {
+  console.log("not ko");
+
+  // some filters
+  const friendFilter = (potentialFriend: IPosition) => {
+    return getField(size, board, potentialFriend) === toMove;
+  };
+  const enemyFilter = (potentialEnemy: IPosition) => {
+    return getField(size, board, potentialEnemy) === flipField(toMove);
+  };
+
+  // capturing enemy stones?
+  // i.e. a neighboring enemy group has 1 liberty: pos
+  const enemyNeigh = getNeighPosArray(pos, enemyFilter);
+  if (enemyNeigh.length > 0) {
+    const enemyNeighsFreedoms = enemyNeigh.map((n) => {
+      return groupEmptyPositions(size, board, flipField(toMove), n);
+    });
+    if (enemyNeighsFreedoms.some( (freedoms: IPosition[]) => {
+      return freedoms.length === 1;
+    })) {
+
+      console.log("capturing enemy, all good");
+
       return true;
     }
   }
 
-  // now we must look into the empty fields
-  return groupEmptyPositions(size, board, toMove, intendedPos).length > 0;
+  // if no enemy stones are captured, we must take care to not suicide other friendly stones
+  // so at least one neighboring group needs to have at least 2 liberties
+  // or there are no friendly stones at all
+  const friendNeigh = getNeighPosArray(pos, friendFilter);
+  if (friendNeigh.length > 0) {
+    const friendNeighsFreedoms = friendNeigh.map((n) => {
+      return groupEmptyPositions(size, board, toMove, n);
+    });
+    if (friendNeighsFreedoms.some((freedoms: IPosition[]) => {
+      return freedoms.length > 1;
+    })) {
+
+      console.log("one neighboring friendly group has enough libs");
+
+      return true;
+
+    } else {
+      console.log("capturing friends, illegal");
+
+      return false;
+    }
+  }
+
+  const directEmpty = getNeighPosArray(pos, (potentialEmpty: IPosition) => {
+    return getField(size, board, potentialEmpty) === null;
+  });
+
+  if (directEmpty.length > 0) {
+
+    console.log("got space, nothing happening though");
+
+    return true;
+
+  } else {
+
+    console.log("got no space, illegal");
+
+    return true;
+
+  }
 }
 
+// tests the legality of the intended move without applying it
+export const testLegal = (
+  move: IPosition,
+): boolean => {
+
+  const rawGame = store.getState().localGame.rawGame;
+
+  const legal = testPosition(
+    rawGame.ruleSet.size,
+    rawGame.board,
+    rawGame.koPosition,
+    rawGame.toMove,
+    move);
 
 
 
-
-
-
+  return legal;
+};
 
 
 

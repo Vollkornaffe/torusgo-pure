@@ -1,5 +1,5 @@
 import {Action} from 'redux';
-import {IGame}  from './game';
+import {EMoveRequestState, IGame, IRawGame, TMove} from './game';
 import {
   EConnectionStatus,
   ELoginState,
@@ -21,14 +21,14 @@ export interface IState {
     gameList: IMap<IGameListWrapper>;
     userList: IMap<IUserListWrapper>;
   },
-  localGame?: IGame,
+  localGame: IGame,
   ownUserId?: string,
   loginState: ELoginState,
   connectionStatus: EConnectionStatus,
   activeGameId?: string,
 
   // control section
-  pressedKeys: string[],
+  pressedKeys: string[], // TODO this should be stored in the component directly
   controlKeys: {
     up: string,
     down: string,

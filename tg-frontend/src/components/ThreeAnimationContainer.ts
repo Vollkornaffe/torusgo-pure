@@ -1,5 +1,7 @@
-import {connect}                                   from 'react-redux';
-import {IState}                                    from '../types/redux';
+import {connect} from 'react-redux';
+import {EColor, TField} from "../types/game";
+import {IState} from '../types/redux';
+
 import ThreeAnimation, {IKeyboardControls, IProps} from './ThreeAnimation';
 
 const mapStateToProps = (state: IState): IProps => {
@@ -21,22 +23,19 @@ const mapStateToProps = (state: IState): IProps => {
     mouseControl: pressedKeys.indexOf(controlKeys.mouseControl) > -1,
   };
 
-  // TOOD retrieve these from store
-  const boardSizeX: number   = 8;
-  const boardSizeY: number   = 24;
+  const boardSizeX: number = state.localGame.rawGame.ruleSet.size.x;
+  const boardSizeY: number = state.localGame.rawGame.ruleSet.size.y;
   const radius: number       = 1;
   const thickness: number    = boardSizeX/boardSizeY;
   const stoneSize: number    = 0.05;
-  const boardState: number[] = [
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-    1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2, 1,0,2,
-  ];
+
+  const boardState: number[] = state.localGame.rawGame.board.map((field: TField): number => {
+    switch (field) {
+      case null: return 0;
+      case EColor.Black: return 1;
+      case EColor.White: return 2;
+    }
+  });
 
   return {
     keyboardControls,

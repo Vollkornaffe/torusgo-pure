@@ -10,6 +10,8 @@ export interface IPass {
 
 export type TMove = IRegMove | IPass;
 
+export enum EMoveRequestState { NoMove = 'NoMove', Unprocessed = 'Unprocessed', LocalLegal = 'LocalLegal', SentToServer = 'SentToServer', }
+
 export interface IPosition {
   x: number,
   y: number,
@@ -22,9 +24,9 @@ export interface ISize {
 
 export enum EColor {Black = 'black', White = 'white'}
 
-export enum EField {Empty = 'empty', Black = 'black', White = 'white'}
+export type TField = EColor | null;
 
-export type TGameBoard = EField[];
+export type TGameBoard = TField[];
 
 export enum EGamePhase {Waiting = 'waiting', Running = 'running'}
 
@@ -46,21 +48,15 @@ export interface IRawGame {
   toMove: EColor,
   board: TGameBoard,
   ko: boolean,
-  koPosistion?: IPosition,
+  koPosition: IPosition,
   capturedByBlack: number,
   capturedByWhite: number,
 }
 
 export interface IGame {
   meta?: IMeta,
-  ruleSet: IRuleSet,
   phase: EGamePhase,
-  toMove: EColor,
   moveNumber: number,
   moveHistory: TMove[],
-  board: TGameBoard,
-  ko: boolean,
-  koPosition?: IPosition,
-  capturedByBlack: number,
-  capturedByWhite: number,
+  rawGame: IRawGame,
 }

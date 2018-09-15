@@ -1,4 +1,4 @@
-import {IRuleSet}                       from '../types/game';
+import {IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState} from '../types/network';
 import {EResourceType}                  from '../types/resource';
 import store                            from './store';
@@ -69,6 +69,7 @@ export const subscribeError = (resourceType: EResourceType, id: string, err: any
   err,
 });
 
+// TODO same as everywhere, no keys in store
 export const keyPressUpdate = (keyCode: string, pressed: boolean) => store.dispatch({
   type: 'KEY_PRESS_UPDATE',
   keyCode,

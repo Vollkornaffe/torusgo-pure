@@ -2,18 +2,7 @@ import {createStyles, WithStyles, withStyles} from '@material-ui/core';
 import * as React from 'react';
 import autoBind from 'react-autobind';
 import * as Stats from 'stats.js';
-import {
-  AxesHelper,
-  BoxGeometry,
-  Color,
-  Matrix4,
-  Mesh,
-  PerspectiveCamera,
-  Scene,
-  Vector2,
-  Vector3,
-  WebGLRenderer,
-} from 'three';
+import {BoxGeometry, Color, Matrix4, Mesh, PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer,} from 'three';
 
 import RayCast from '../ThreeGraphic/RayCast';
 import RayCastTorus from '../ThreeGraphic/RayCastTorus';
@@ -21,6 +10,8 @@ import TorusMaterialBoard from '../ThreeGraphic/TorusMaterialBoard';
 import TorusMaterialStone from '../ThreeGraphic/TorusMaterialStone';
 
 import theme from "../theme";
+
+import {testLegal} from "../utils/game-logic";
 
 export interface IKeyboardControls {
   cameraDeltaX: number,
@@ -101,6 +92,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
   // result of the CPU sided raytracing, i.e. field that is mouseovered
   private focusedField: number;
+  private focusedFieldX: number;
+  private focusedFieldY: number;
 
   private stats: Stats;
 
@@ -133,6 +126,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
 
     // for raycasting:
     this.canvas.addEventListener('mousemove', this.updateMousePos);
+    this.canvas.addEventListener('mousedown', this.dispatchHover);
     window.addEventListener('resize', this.updateViewport);
   }
 
@@ -153,6 +147,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   public componentWillUnmount() {
     this.cleanUp();
     this.canvas.removeEventListener('mousemove', this.updateMousePos);
+    this.canvas.removeEventListener('mousedown', this.dispatchHover);
     window.removeEventListener('resize', this.updateViewport);
   }
 
@@ -165,7 +160,7 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
   // Raycasting on CPU side, for detecting focused field
   private updateMousePos(event: MouseEvent) {
     const offsetX = event.clientX - theme.layout.appBarHeight;
-    const offsetY = event.clientY - theme.layout.sideBarWidth
+    const offsetY = event.clientY - theme.layout.sideBarWidth;
 
     if (offsetX > 0
       && offsetX < this.canvas.width
@@ -177,6 +172,19 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     } else {
       this.inCanvas = false;
     }
+  }
+
+  private dispatchHover() {
+
+    if (!this.inCanvas || this.focusedField === -1) {
+      return;
+    }
+
+    const move = {
+        x: this.focusedFieldX,
+        y: this.focusedFieldY
+    };
+    testLegal(move);
   }
 
   private updateHover() {
@@ -237,6 +245,8 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
     }
 
     this.focusedField = j + i * this.props.boardSizeY;
+    this.focusedFieldX = i;
+    this.focusedFieldY = j;
   }
 
   // Here all the animation related functions follow

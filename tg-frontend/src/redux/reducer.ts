@@ -1,15 +1,15 @@
 import {Action, Reducer, ReducersMapObject}          from 'redux';
-import {EColor, EField, EGamePhase, IRuleSet, TMove} from '../types/game';
+import {EGamePhase, EMoveRequestState, IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState}              from '../types/network';
 import {IState, TAction}                             from '../types/redux';
 import {EResourceStatus, EResourceType, IError}      from '../types/resource';
-import {applyMove, testMove}                         from '../utils/game-logic';
+import {applyMove, initGame, testMove} from '../utils/game-logic';
 
 const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
   const defaultRuleSet = {
     size: {
-      x: 19,
-      y: 19,
+      x: 12,
+      y: 18,
     },
     komi: 5.5,
     handicap: 0,
@@ -17,19 +17,13 @@ const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): I
 
   Object.assign(defaultRuleSet, action.ruleSet);
 
-  // TODO maybe call initGame from gamelogic here instead
   return {
     ...state,
     localGame: {
-      ruleSet: defaultRuleSet,
       phase: EGamePhase.Running,
       moveNumber: 0,
       moveHistory: [],
-      board: (new Array(defaultRuleSet.size.x * defaultRuleSet.size.y)).fill(EField.Empty),
-      ko: false,
-      toMove: EColor.Black,
-      capturedByBlack: 0,
-      capturedByWhite: 0,
+      rawGame: initGame(defaultRuleSet),
     },
   };
 };
@@ -150,6 +144,7 @@ const updateResource = (state: IState, action: TAction<{ resource: any, resource
   };
 };
 
+// TODO don't handle keydowns/ups via redux
 const updateKeyPress = (state: IState, action: TAction<{ keyCode: string, pressed: boolean }>): IState => {
   if (action.pressed) {
     // keydown
@@ -173,11 +168,6 @@ const updateKeyPress = (state: IState, action: TAction<{ keyCode: string, presse
     };
   }
 };
-
-
-// TODO
-// I don't know about this construct.
-// kinda need to type out the type string multiple times, maybe we can avoid this with a map or smt?
 
 function createReducer<S>(initialState: S, reducerObject: ReducersMapObject): Reducer<S> {
   return (state = initialState, action: Action) => {
@@ -203,5 +193,5 @@ export default <S>(initialState: S) => createReducer(initialState, {
   'SUBSCRIBE_RESPONSE': subscribeResponse,
   'SUBSCRIBE_ERROR': subscribeError,
 
-  'KEY_PRESS_UPDATE': updateKeyPress,
+  'KEY_PRESS_UPDATE': updateKeyPress, // TODO keys are not to be in the store
 });
