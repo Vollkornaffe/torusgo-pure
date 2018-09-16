@@ -11,7 +11,7 @@ import TorusMaterialStone from '../ThreeGraphic/TorusMaterialStone';
 
 import theme from "../theme";
 
-import {testLegal} from "../utils/GameLogic";
+import {execMove, testLegal} from "../utils/GameLogicWrapper";
 
 export interface IKeyboardControls {
   cameraDeltaX: number,
@@ -184,7 +184,10 @@ class ThreeAnimation extends React.Component<IProps & WithStyles<typeof styles>>
         x: this.focusedFieldX,
         y: this.focusedFieldY
     };
-    testLegal(move);
+    const moveLegal = testLegal(move);
+    if (moveLegal) {
+      execMove(move);
+    }
   }
 
   private updateHover() {

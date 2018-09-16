@@ -1,20 +1,7 @@
-import {EColor, IGame, IPosition, IRawGame, IRuleSet, ISize, TField, TGameBoard, TKo, TMove} from '../types/game';
-
-// import store from "../redux/store";
-
-export function testMove(game: IGame, move: TMove): boolean {
-
-  // TODO
-
-  return false;
-}
-
-export function applyMove(game: Readonly<IGame>, move: TMove): IGame {
-
-  // TODO
-
-  return game;
-}
+import {
+  EColor, IGame, IPosition, IRawGame, IRegMove, IRuleSet, ISize, TField, TGameBoard, TKo,
+  TMove
+} from '../types/game';
 
 // here the port from purescript, maybe exported to a npm module.
 // everything is intended to be purely functional
@@ -22,31 +9,17 @@ export function applyMove(game: Readonly<IGame>, move: TMove): IGame {
 // init game with empty board
 // TODO handle handicap
 export function initGame(ruleSet: IRuleSet) : IRawGame {
-  // const board = [];
-  // for (let i = 0; i < ruleSet.size.x * ruleSet.size.y; i++) {
-  //   board.push(null);
-  // }
-
-  const boardInts = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 1, 2, 1, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 1, 2, 1, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ];
+  const board = [];
+  for (let i = 0; i < ruleSet.size.x * ruleSet.size.y; i++) {
+    board.push(null);
+  }
 
   return {
     ruleSet,
     toMove: EColor.Black,
-    board: boardFromInts(boardInts),
+    board,
     koPosition: null,
+    numPasses: 0,
     capturedByBlack: 0,
     capturedByWhite: 0,
   };
@@ -137,6 +110,13 @@ function getNeighPosArray(
 export function flipField(field: TField) : TField {
   switch(field) {
     case null: return null;
+    case EColor.Black: return EColor.White;
+    case EColor.White: return EColor.Black;
+  }
+}
+
+export function flipColor(color: EColor) : EColor {
+  switch(color) {
     case EColor.Black: return EColor.White;
     case EColor.White: return EColor.Black;
   }
@@ -337,4 +317,108 @@ export function testPosition(
   }
 }
 
+export function makeMove(state: IRawGame, move: TMove) : IRawGame {
+  const {ruleSet, board, koPosition, toMove, numPasses} = state;
+  const size = ruleSet.size;
 
+  const color = toMove as EColor;
+
+  if (move.type === "Pass") {
+    return {
+      ...state,
+      toMove: flipColor(toMove),
+      numPasses: numPasses+1,
+      koPosition: null,
+    };
+  }
+
+  const castedMove = move as IRegMove;
+  const intendetPos = {
+    x: castedMove.x,
+    y: castedMove.y,
+  };
+
+  // test the position just to be sure
+  if(!testPosition(
+    ruleSet.size,
+    board,
+    koPosition,
+    toMove,
+    intendetPos,
+  )) {
+    // this should never happen
+    alert("illegal move was passed to makeMove!");
+  }
+
+  // filters
+  const friendFilter = (potentialEnemy: IPosition) => {
+    return getField(size, board, potentialEnemy) === toMove;
+  };
+  const enemyFilter = (potentialEnemy: IPosition) => {
+    return getField(size, board, potentialEnemy) === flipField(toMove);
+  };
+
+  // capturing enemy stones?
+  const enemyNeigh = getNeighPosArray(move, enemyFilter);
+  // i.e. a neighboring enemy group has 1 liberty: pos
+  const enemyNeighsWith1Lib = enemyNeigh.filter((n) => {
+    return groupEmptyPositions(size, board, flipField(toMove), n).length === 1;
+  });
+  // get the connected groups
+  const enemyGroupsWith1Lib = enemyNeighsWith1Lib.map((n) => {
+    return getGroupWithFilter(size, enemyFilter, n);
+  });
+
+  // check for possible ko
+  // that means that a group of size one is captured in a special pattern:
+  // * B W *      Here as an example, its B turn to play into E
+  // B W E W      One stone is captured, the one W surrounded by B
+  // * B W *      Since it could be captured right back, its ko
+
+  let newKoPosition: TKo = null;
+  if (enemyNeighsWith1Lib.length === 1) { // one neighbor get capped
+    if (enemyGroupsWith1Lib[0].length === 1) { // its group has size one
+      if (enemyNeigh.length === 4) { // the played stone can be captured again
+        // then it is ko
+        newKoPosition = enemyNeighsWith1Lib[0];
+      }
+    }
+  }
+
+  // now we don't care about the structure of the captured stones anymore
+  const enemiesToBeCaptured = canonAndRemoveDups(
+    size,
+    [].concat.apply(
+      [],
+      enemyGroupsWith1Lib
+    )
+  );
+
+  let newBoard = board;
+  for (const cap of enemiesToBeCaptured) {
+    newBoard = setField(size, newBoard, null, cap);
+  }
+
+  newBoard = setField(size, newBoard, toMove, intendetPos);
+
+  switch (toMove) {
+    case EColor.Black:
+      return {
+        ...state,
+        toMove: EColor.White,
+        board: newBoard,
+        koPosition: newKoPosition,
+        numPasses: 0,
+        capturedByBlack: state.capturedByBlack + enemiesToBeCaptured.length,
+      };
+    case EColor.White:
+      return {
+        ...state,
+        toMove: EColor.Black,
+        board: newBoard,
+        koPosition: newKoPosition,
+        numPasses: 0,
+        capturedByWhite: state.capturedByWhite + enemiesToBeCaptured.length,
+      };
+  }
+}

@@ -1,46 +1,17 @@
 import {Action, Reducer, ReducersMapObject}          from 'redux';
-import {EGamePhase, EMoveRequestState, IRuleSet, TMove} from '../types/game';
+import {EGamePhase, EMoveRequestState, IRawGame, IRuleSet, TMove} from '../types/game';
 import {EConnectionStatus, ELoginState}              from '../types/network';
 import {IState, TAction}                             from '../types/redux';
 import {EResourceStatus, EResourceType, IError}      from '../types/resource';
-import {applyMove, initGame, testMove} from '../utils/GameLogic';
 
-const initLocalGame = (state: IState, action: TAction<{ ruleSet: IRuleSet }>): IState => {
-  const defaultRuleSet = {
-    size: {
-      x: 12,
-      y: 18,
-    },
-    komi: 5.5,
-    handicap: 0,
-  };
-
-  Object.assign(defaultRuleSet, action.ruleSet);
-
+const changeGame = (state: IState, action: TAction<{rawGame: IRawGame}>): IState => {
   return {
     ...state,
     localGame: {
-      phase: EGamePhase.Running,
-      moveNumber: 0,
-      moveHistory: [],
-      rawGame: initGame(defaultRuleSet),
+      ...state.localGame,
+      rawGame: action.rawGame,
     },
-  };
-};
-
-const addLocalMove = (state: IState, action: TAction<{ move: TMove }>): IState => {
-  if (!state.localGame) {
-    return state;
   }
-
-  if (!testMove(state.localGame, action.move)) {
-    return state;
-  }
-
-  return {
-    ...state,
-    localGame: applyMove(state.localGame, action.move),
-  };
 };
 
 const changeConnectionStatus = (state: IState, action: TAction<{ status: EConnectionStatus }>): IState => {
@@ -179,8 +150,7 @@ function createReducer<S>(initialState: S, reducerObject: ReducersMapObject): Re
 }
 
 export default <S>(initialState: S) => createReducer(initialState, {
-  'GAME_LOCAL_INIT': initLocalGame,
-  'GAME_LOCAL_ADD_MOVE': addLocalMove,
+  'CHANGE_RAW_GAME': changeGame,
 
   'CONNECTION_STATUS_CHANGE': changeConnectionStatus,
   'LOGIN_STATE_CHANGE': changeLoginState,

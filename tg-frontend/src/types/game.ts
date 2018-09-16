@@ -1,11 +1,11 @@
 export interface IRegMove {
-  type: 'M',
+  type: 'Move',
   x: number,
   y: number,
 }
 
 export interface IPass {
-  type: 'P'
+  type: 'Pass',
 }
 
 export type TMove = IRegMove | IPass;
@@ -50,6 +50,7 @@ export interface IRawGame {
   toMove: EColor,
   board: TGameBoard,
   koPosition: TKo,
+  numPasses: number,
   capturedByBlack: number,
   capturedByWhite: number,
 }

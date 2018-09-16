@@ -1,6 +1,6 @@
-import {EColor, IPosition, TGameBoard, TKo} from "../types/game";
+import {EColor, IPosition, TKo} from "../types/game";
+
 import {boardFromInts, flipField, testPosition} from "../utils/GameLogic";
-import * as assert from "assert";
 
 // NOTE: 1 is black, 2 is white
 
@@ -49,7 +49,7 @@ describe("testPosition", () => {
 
     for (let x = 0; x < 3; x++) {
       for (let y = 0; y < 3; y++) {
-        for (let c in [EColor.White, EColor.Black]) {
+        for (const c of [EColor.White, EColor.Black]) {
           testWhite(size, boardInts, null, {x, y}, true);
           testBlack(size, boardInts, null, {x, y}, true);
         }
